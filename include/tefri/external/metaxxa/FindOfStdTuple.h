@@ -12,8 +12,8 @@
 #include <variant>
 
 #include "MoveStdTupleUniqueTypes.h"
-#include "RemoveTupleCV.h"
 #include "ContainsTypesOfStdTuple.h"
+#include "WrapOfStdTuple.h"
 
 namespace metaxxa
 {
@@ -23,7 +23,7 @@ namespace metaxxa
 		auto find(Tuple &tuple, Callable &callable)
 			-> std::optional
 			<
-				metaxxa::MoveStdTupleUniqueTypes<std::variant, ::metaxxa::RemoveTupleCV<Tuple>>
+				metaxxa::MoveStdTupleUniqueTypes<std::variant, decltype(::metaxxa::wrap_of_std_tuple_types<Tuple, std::remove_cv_t>())>
 			>
 		{
 			if (callable(std::get<INDEX>(tuple)))

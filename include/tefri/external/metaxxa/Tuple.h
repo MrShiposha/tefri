@@ -27,7 +27,6 @@
 #include "ToStringOfStdTuple.h"
 #include "ExecuteFunctionsOfStdTuple.h"
 #include "CallFunctionOfStdTuple.h"
-#include "RemoveTupleCV.h"
 #include "FilterOfStdTuple.h"
 #include "WrapOfStdTuple.h"
 
