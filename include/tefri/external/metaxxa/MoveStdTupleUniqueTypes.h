@@ -11,7 +11,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename UniqueTuple, typename Type>
 		constexpr bool is_unique_type()
@@ -136,7 +136,7 @@ namespace metaxxa
 		template <typename...> typename TemplateType,
 		typename StdTuple
 	>
-	using MoveStdTupleUniqueTypes = typename implementation::MoveStdTupleUniqueTypes<TemplateType, StdTuple>::Type;
+	using MoveStdTupleUniqueTypes = typename detail::MoveStdTupleUniqueTypes<TemplateType, StdTuple>::Type;
 }
 
 #endif // METAXXA_MOVESTDTUPLEUNIQUETYPES_H

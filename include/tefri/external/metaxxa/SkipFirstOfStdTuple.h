@@ -11,7 +11,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <size_t INDEX, typename Tuple, bool ENOUGH>
 		struct SkipFirstTypes
@@ -59,7 +59,7 @@ namespace metaxxa
 	constexpr auto skip_first_types() ->
 		decltype
 		(
-			implementation::SkipFirstTypes<INDEX, Tuple, INDEX + 1 == std::tuple_size<Tuple>::value>::skip_first_types()
+			detail::SkipFirstTypes<INDEX, Tuple, INDEX + 1 == std::tuple_size<Tuple>::value>::skip_first_types()
 		);
 }
 

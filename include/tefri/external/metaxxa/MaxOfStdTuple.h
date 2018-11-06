@@ -18,7 +18,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename Tuple, size_t INDEX>
 		constexpr auto max(Tuple &tuple)
@@ -33,7 +33,7 @@ namespace metaxxa
 	template <typename Tuple>
 	constexpr auto max(Tuple &tuple)
 	{
-		return implementation::max<Tuple, 0>(tuple);
+		return detail::max<Tuple, 0>(tuple);
 	}
 }
 

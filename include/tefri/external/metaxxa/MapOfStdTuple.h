@@ -12,7 +12,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename Tuple, typename Callable, size_t INDEX>
 		constexpr auto map(Tuple &tuple, Callable callable)
@@ -55,7 +55,7 @@ namespace metaxxa
 	template <typename Tuple, typename Callable>
 	constexpr auto map(Tuple &tuple, Callable callable)
 	{
-		return implementation::map<Tuple, Callable, 0>(tuple, callable);
+		return detail::map<Tuple, Callable, 0>(tuple, callable);
 	}
 
 	template 
@@ -66,7 +66,7 @@ namespace metaxxa
 	>
 	constexpr auto map_types(FunctorArguments&&... arguments)
 	{
-		return implementation::map_types<Tuple, Functor, 0, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
+		return detail::map_types<Tuple, Functor, 0, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
 	}
 }
 

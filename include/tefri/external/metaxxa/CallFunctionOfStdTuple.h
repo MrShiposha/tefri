@@ -11,7 +11,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename Tuple, typename Callable, size_t INDEX, size_t... INDICES>
 		auto call_function(Tuple &tuple, Callable &callable)
@@ -26,7 +26,7 @@ namespace metaxxa
 	template <typename Tuple, typename Callable>
 	auto call_function(Tuple &tuple, Callable &callable)
 	{
-		return implementation::call_function<Tuple, Callable, 0>(tuple, callable);
+		return detail::call_function<Tuple, Callable, 0>(tuple, callable);
 	}
 }
 

@@ -11,7 +11,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename Tuple, typename Type, size_t INDEX>
 		constexpr bool is_converts_to_types()
@@ -34,7 +34,7 @@ namespace metaxxa
 	template <typename Tuple, typename Type>
 	constexpr bool is_converts_to_types()
 	{
-		return implementation::is_converts_to_types<Tuple, Type, 0>();
+		return detail::is_converts_to_types<Tuple, Type, 0>();
 	}
 }
 

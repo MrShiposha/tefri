@@ -11,7 +11,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename Tuple, size_t INDEX>
 		constexpr auto sum(Tuple &tuple)
@@ -26,7 +26,7 @@ namespace metaxxa
 	template <typename Tuple>
 	constexpr auto sum(Tuple &tuple)
 	{
-		return implementation::sum<Tuple, 0>(tuple);
+		return detail::sum<Tuple, 0>(tuple);
 	}
 }
 

@@ -10,12 +10,15 @@
 #include <typeinfo>
 #include <typeindex>
 #include <type_traits>
-#include "implementation/Function.h"
-#include "implementation/OperatorTesters.h"
-#include "implementation/TypeHasOperatorMethodMacros.h"
-#include "implementation/HasMethodToString.h"
-#include "implementation/TupleTag.h"
-#include "implementation/Demangle.h"
+#include "detail/WrapToTemplateIfNotWrapped.h"
+#include "detail/Function.h"
+#include "detail/OperatorTesters.h"
+#include "detail/TypeHasOperatorMethodMacros.h"
+#include "detail/HasMethodToString.h"
+#include "detail/IsExplicitlyConstructible.h"
+#include "detail/IsImplicitlyConstructible.h"
+#include "detail/IsInstantiationOf.h"
+#include "detail/Demangle.h"
 
 namespace metaxxa
 {
@@ -23,6 +26,9 @@ namespace metaxxa
 	class Type
 	{
 	public:
+		template <template <typename...> typename TemplateType>
+		using WrapToTemplateIfNotWrapped = typename detail::template WrapToTemplateIfNotWrapped<TemplateType, SomeType>::Result;
+
 		static std::string get_name()
 		{
 			return typeid(SomeType).name();
@@ -100,7 +106,7 @@ namespace metaxxa
 
 		static std::string get_name_with_modifiers()
 		{
-			return implementation::demangle<SomeType>();
+			return detail::demangle<SomeType>();
 		}
 
 		static std::string name_with_modifiers()
@@ -120,7 +126,7 @@ namespace metaxxa
 
 		static constexpr bool has_method_to_string()
 		{
-			return implementation::has_method_to_string<SomeType>();
+			return detail::has_method_to_string<SomeType>();
 		}
 
 		template <typename ToType>
@@ -182,9 +188,22 @@ namespace metaxxa
 			return std::is_rvalue_reference_v<SomeType>;
 		}
 
-		static constexpr bool is_tuple()
+		template <typename Argument>
+		static constexpr bool is_implicitly_constructible_from()
 		{
-			return std::is_base_of_v<implementation::TupleTag, SomeType>;
+			return detail::IS_IMPLICITLY_CONSTRUCTIBLE<SomeType, Argument>;
+		}
+
+		template <typename Argument>
+		static constexpr bool is_explicitly_constructible_from()
+		{
+			return detail::IS_EXPLICITLY_CONSTRUCTIBLE<SomeType, Argument>;
+		}
+
+		template <template <typename...> typename TemplateType>
+		static constexpr bool is_instantiation_of()
+		{
+			return detail::IS_INSTANTIATION_OF<TemplateType, SomeType>;
 		}
 
 		// ASSIGNMENT 
@@ -257,7 +276,7 @@ namespace metaxxa
 		template <typename ToType>
 		static constexpr bool has_operator()
 		{
-			return implementation::___METAXXA___OPERATOR_TESTER(cast_operator)<SomeType, ToType, void>::has();
+			return detail::___METAXXA___OPERATOR_TESTER(cast_operator)<SomeType, ToType, void>::has();
 		}
 		// }
 	};

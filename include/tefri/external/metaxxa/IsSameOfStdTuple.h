@@ -11,7 +11,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename Tuple, size_t INDEX>
 		constexpr bool is_same(Tuple &tuple)
@@ -37,13 +37,13 @@ namespace metaxxa
 	template <typename Tuple>
 	constexpr bool is_same(Tuple &tuple)
 	{
-		return implementation::is_same<Tuple, 0>(tuple);
+		return detail::is_same<Tuple, 0>(tuple);
 	}
 
 	template <typename Tuple>
 	constexpr bool is_same_types()
 	{
-		return implementation::is_same_types<Tuple, 0>();
+		return detail::is_same_types<Tuple, 0>();
 	}
 }
 

@@ -7,11 +7,11 @@
 #ifndef METAXXA_CALLABLETOMETHOD_H
 #define METAXXA_CALLABLETOMETHOD_H
 
-#include "implementation/Function.h"
+#include "detail/Function.h"
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename SomeType, typename Callable, bool IS_ENOUGH, typename... Arguments>
 		struct CallableToMethod 
@@ -35,7 +35,7 @@ namespace metaxxa
 	}
 
 	template <typename SomeType, typename Callable>
-	using CallableToMethod = typename implementation::CallableToMethod<SomeType, Callable, implementation::Function<Callable>::ARGUMENT_COUNT == 0>::Method;
+	using CallableToMethod = typename detail::CallableToMethod<SomeType, Callable, detail::Function<Callable>::ARGUMENT_COUNT == 0>::Method;
 }
 
 #endif // METAXXA_CALLABLETOMETHOD_H

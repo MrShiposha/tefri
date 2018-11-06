@@ -12,7 +12,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename Tuple, typename Callable, size_t INDEX>
 		constexpr void for_each(Tuple &tuple, Callable callable)
@@ -51,19 +51,19 @@ namespace metaxxa
 	template <typename Tuple, typename Callable>
 	constexpr void for_each(Tuple &tuple, Callable callable)
 	{
-		implementation::for_each<Tuple, Callable, 0>(tuple, callable);
+		detail::for_each<Tuple, Callable, 0>(tuple, callable);
 	}
 
 	template <typename Tuple, template <typename ValueType> typename Functor, typename... FunctorArguments>
 	constexpr void for_each_types(FunctorArguments&... arguments)
 	{
-		implementation::for_each_types<Tuple, Functor, 0, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
+		detail::for_each_types<Tuple, Functor, 0, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
 	}
 
 	template <typename Tuple, template <typename ValueType> typename Functor, typename... FunctorArguments>
 	constexpr void for_each_types(FunctorArguments&&... arguments)
 	{
-		implementation::for_each_types<Tuple, Functor, 0, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
+		detail::for_each_types<Tuple, Functor, 0, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
 	}
 }
 

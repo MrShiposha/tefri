@@ -1,7 +1,7 @@
 #ifndef METAXXA_TYPESTRINGIFIERFUCTOR_H
 #define METAXXA_TYPESTRINGIFIERFUCTOR_H
 
-#include "Type.h"
+#include "../Type.h"
 
 namespace metaxxa
 {

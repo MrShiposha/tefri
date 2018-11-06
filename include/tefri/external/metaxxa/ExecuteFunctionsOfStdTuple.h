@@ -11,12 +11,12 @@
 
 #include <tuple>
 
-#include "implementation/Function.h"
-#include "IsImplicitlyConstructible.h"
+#include "detail/Function.h"
+#include "detail/IsImplicitlyConstructible.h"
 
 namespace metaxxa
 {
-    namespace implementation
+    namespace detail
     {
         template<typename Value, typename FunctionParameter, bool IS_FUNDAMENTAL = std::is_fundamental<Value>::value>
         struct IsCorrectArgument
@@ -37,7 +37,7 @@ namespace metaxxa
 
         template<typename Value, typename FunctionParameter>
         struct IsCorrectArgument<Value, FunctionParameter, false>
-                : implementation::IsImplicitlyConstructible<FunctionParameter, Value>
+                : detail::IsImplicitlyConstructible<FunctionParameter, Value>
         {};
 
         template <typename Values, typename Callable, bool IS_CORRECT, bool IS_ENOUGH = false, size_t INDEX = 0, size_t... INDICES>
@@ -49,7 +49,7 @@ namespace metaxxa
                                     IsCorrectArgument
                                     <
                                     typename std::tuple_element<INDEX, Values>::type, 
-                                    typename implementation::Function<Callable>::template Argument<INDEX>
+                                    typename detail::Function<Callable>::template Argument<INDEX>
                                     >::value,
                                     std::tuple_size<Values>::value == INDEX + 1,
                                     sizeof...(INDICES) + 1,
@@ -68,7 +68,7 @@ namespace metaxxa
         {};
 
 
-        template <typename Values, typename Callable, size_t VALUE_COUNT = std::tuple_size<Values>::value, size_t ARGUMENT_COUNT = implementation::Function<Callable>::ARGUMENT_COUNT>
+        template <typename Values, typename Callable, size_t VALUE_COUNT = std::tuple_size<Values>::value, size_t ARGUMENT_COUNT = detail::Function<Callable>::ARGUMENT_COUNT>
         struct IsCorrectArguments
                 : IsCorrectArgumentsProxy<Values, Callable, VALUE_COUNT == ARGUMENT_COUNT>
         {};
@@ -323,12 +323,12 @@ namespace metaxxa
         };
 
         template <typename SubscribersTuple, typename... Values>
-        struct TupleFunctionsExecutor : public implementation::TupleFunctionsExecutorProxy<std::tuple<Values...>, SubscribersTuple>
+        struct TupleFunctionsExecutor : public detail::TupleFunctionsExecutorProxy<std::tuple<Values...>, SubscribersTuple>
         {
         };
 
         template <typename SubscribersTuple>
-        struct TupleFunctionsExecutor<SubscribersTuple> : public implementation::TupleFunctionsExecutorProxy<std::tuple<void>, SubscribersTuple>
+        struct TupleFunctionsExecutor<SubscribersTuple> : public detail::TupleFunctionsExecutorProxy<std::tuple<void>, SubscribersTuple>
         {
         };
     }
@@ -336,7 +336,7 @@ namespace metaxxa
     template<typename SubscribersTuple, typename... Values>
     void execute_functions(SubscribersTuple &tuple, Values... values)
     {
-        implementation::TupleFunctionsExecutor<SubscribersTuple, Values...>::execute(tuple, values...);
+        detail::TupleFunctionsExecutor<SubscribersTuple, Values...>::execute(tuple, values...);
     };
 }
 

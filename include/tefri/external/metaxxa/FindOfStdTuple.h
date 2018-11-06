@@ -17,7 +17,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename Tuple, typename Callable, size_t INDEX>
 		auto find(Tuple &tuple, Callable &callable)
@@ -119,7 +119,7 @@ namespace metaxxa
 	template <typename Tuple, typename Callable>
 	auto find(Tuple &tuple, Callable &callable) 
 	{
-		return implementation::find<Tuple, Callable, 0>(tuple, callable);
+		return detail::find<Tuple, Callable, 0>(tuple, callable);
 	}
 
 	template 
@@ -130,7 +130,7 @@ namespace metaxxa
 	>
 	constexpr auto find_types(FunctorArguments&&... arguments)
 	{
-		return implementation::find_types<Tuple, Functor, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
+		return detail::find_types<Tuple, Functor, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
 	}
 }
 

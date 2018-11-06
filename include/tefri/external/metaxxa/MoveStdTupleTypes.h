@@ -11,7 +11,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template 
 		<
@@ -70,7 +70,7 @@ namespace metaxxa
 	}
 
 	template <template <typename...> typename TemplateType, typename Tuple>
-	using MoveStdTupleTypes = typename implementation::MoveStdTupleTypes<TemplateType, Tuple>::ResultType;
+	using MoveStdTupleTypes = typename detail::MoveStdTupleTypes<TemplateType, Tuple>::ResultType;
 }
 
 #endif // METAXXA_MOVESTDTUPLETYPES_H

@@ -12,7 +12,6 @@
 
 #include "MoveStdTupleTypes.h"
 #include "MoveStdTupleUniqueTypes.h"
-#include "JustObjectsOfStdTuple.h"
 #include "SkipFirstOfStdTuple.h"
 #include "ForEachOfStdTuple.h"
 #include "EveryOfStdTuple.h"
@@ -30,13 +29,12 @@
 #include "CallFunctionOfStdTuple.h"
 #include "RemoveTupleCV.h"
 #include "FilterOfStdTuple.h"
-
-#include "implementation/TupleTag.h"
+#include "WrapOfStdTuple.h"
 
 namespace metaxxa
 {
 	template <typename... Arguments>
-	class Tuple : public implementation::TupleTag
+	class Tuple
 	{
 	public:
 		using StdTuple = std::tuple<Arguments...>;
@@ -46,12 +44,6 @@ namespace metaxxa
 
 		template <template <typename...> typename TemplateType>
 		using MoveUniqueTypesTo = MoveStdTupleUniqueTypes<TemplateType, StdTuple>;
-
-		using JustObjects = MoveStdTupleTypes<::metaxxa::Tuple, decltype(just_objects_types<StdTuple>())>;
-
-		using Optionals = Tuple<std::optional<Arguments>...>;
-
-		using RemoveCV = MoveStdTupleTypes<::metaxxa::Tuple, RemoveTupleCV<StdTuple>>;
 
 		template <size_t INDEX>
 		using Parameter = typename std::tuple_element<INDEX, StdTuple>::type;
@@ -179,11 +171,6 @@ namespace metaxxa
 		constexpr auto operator+(Tuple &&tuple)
 		{
 			return concat(tuple);
-		}
-
-		constexpr auto just_objects() const
-		{
-			return ::metaxxa::just_objects(std_tuple);
 		}
 
 		template <size_t COUNT>
@@ -360,6 +347,20 @@ namespace metaxxa
 			return ::metaxxa::is_converts_to_types<StdTuple, Type>();
 		}
 
+		template <template <typename> typename TemplateType>
+		constexpr auto wrap()
+		{
+			auto tuple = wrap_of_std_tuple<StdTuple, TemplateType>(std_tuple);
+
+			return MoveStdTupleTypes<::metaxxa::Tuple, decltype(tuple)>(tuple);
+		}
+
+		template <template <typename> typename TemplateType>
+		static constexpr auto wrap_types()
+		{
+			return std::declval<MoveStdTupleTypes<::metaxxa::Tuple, decltype(wrap_of_std_tuple_types<StdTuple, TemplateType>())>>();
+		}
+
 		template <typename... RHSArguments>
 		void execute_functions(RHSArguments&&... arguments) const
 		{
@@ -392,7 +393,7 @@ namespace metaxxa
 	};
 
 	template<>
-	class Tuple<> : public implementation::TupleTag
+	class Tuple<>
 	{
 	public:
 		using StdTuple = std::tuple<>;
@@ -402,13 +403,6 @@ namespace metaxxa
 
 		template <template <typename...> typename TemplateType>
 		using MoveUniqueTypesTo = TemplateType<>;
-
-		using Optionals = Tuple<>;
-
-		using JustObjects = Tuple<>;
-		
-		using RemoveCV = Tuple<>;
-
 
 		Tuple() = default;
 
@@ -477,11 +471,6 @@ namespace metaxxa
 			return true;
 		}
 
-		constexpr auto just_objects() const
-		{
-			return std_tuple;
-		}
-
 		template <typename Callable>
 		constexpr void for_each(Callable callable) const
 		{}
@@ -528,6 +517,12 @@ namespace metaxxa
 			return false;
 		}
 
+		template <template <typename> typename TemplateType>
+		static constexpr auto wrap_all_types()
+		{
+			return std::tuple<>();
+		}
+
 		template <typename... RHSArguments>
 		void execute_functions(RHSArguments&&... arguments) const
 		{}
@@ -550,15 +545,15 @@ namespace metaxxa
 	};		
 
 	template <typename... Arguments>
-	auto tuple(Arguments&&... arguments)
+	auto tuple_ref(Arguments&&... arguments)
 	{
 		return Tuple<Arguments...>(std::forward<Arguments>(arguments)...);
 	}
 
 	template <typename... Arguments>
-	auto tuple_copy(const Arguments&... arguments)
+	auto tuple(Arguments... arguments)
 	{
-		typename Tuple<Arguments...>::JustObjects result(arguments...);
+		Tuple<Arguments...> result(std::forward<Arguments>(arguments)...);
 
 		return result;
 	}

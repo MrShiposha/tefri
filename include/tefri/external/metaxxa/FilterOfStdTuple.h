@@ -15,7 +15,7 @@
 
 namespace metaxxa
 {
-    namespace implementation
+    namespace detail
     {
         template <typename TupleOfOptionals, typename Tuple, typename Callable, size_t INDEX>
         constexpr auto filter(TupleOfOptionals &tuple_of_optionals, Tuple &tuple, Callable &callable)
@@ -81,7 +81,7 @@ namespace metaxxa
         using TupleOfOptionals = MoveStdTupleTypes<StdTupleOfOptionals, Tuple>;
         TupleOfOptionals tuple_of_optionals;
 
-        return implementation::filter<TupleOfOptionals, Tuple, Callable, 0>(tuple_of_optionals, tuple, callable);
+        return detail::filter<TupleOfOptionals, Tuple, Callable, 0>(tuple_of_optionals, tuple, callable);
     }
 
     template 
@@ -92,7 +92,7 @@ namespace metaxxa
     >
     constexpr auto filter_types(FunctorArguments&&... arguments)
     {
-        return implementation::filter_types<Tuple, Functor, 0, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
+        return detail::filter_types<Tuple, Functor, 0, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
     }
 
 }

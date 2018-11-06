@@ -15,7 +15,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename ArgumentType>
 		struct ArgumentsSignatureBuilder
@@ -56,7 +56,7 @@ namespace metaxxa
 		static std::string get_signature()
 		{
 			std::string arguments;
-			Arguments::template for_each_types<implementation::ArgumentsSignatureBuilder>(arguments);
+			Arguments::template for_each_types<detail::ArgumentsSignatureBuilder>(arguments);
 
 			return Type<Result>::name_with_modifiers() + " (" + arguments + ")";
 		}
@@ -82,7 +82,7 @@ namespace metaxxa
 		static std::string get_signature()
 		{
 			std::string arguments;
-			Arguments::template for_each_types<implementation::ArgumentsSignatureBuilder>(arguments);
+			Arguments::template for_each_types<detail::ArgumentsSignatureBuilder>(arguments);
 
 			return Type<Result>::name_with_modifiers() + " (" + arguments + ")";
 		}
@@ -109,7 +109,7 @@ namespace metaxxa
 		static std::string get_signature()
 		{
 			std::string arguments;
-			Arguments::template for_each_types<implementation::ArgumentsSignatureBuilder>(arguments);
+			Arguments::template for_each_types<detail::ArgumentsSignatureBuilder>(arguments);
 
 			return Type<Result>::name_with_modifiers() + " (" + arguments + ")";
 		}
@@ -137,7 +137,7 @@ namespace metaxxa
 		static std::string get_signature()
 		{
 			std::string arguments;
-			Arguments::template for_each_types<implementation::ArgumentsSignatureBuilder>(arguments);
+			Arguments::template for_each_types<detail::ArgumentsSignatureBuilder>(arguments);
 
 			return Type<Result>::name_with_modifiers() + " (" + arguments + ")";
 		}
@@ -164,7 +164,7 @@ namespace metaxxa
 		static std::string get_signature()
 		{
 			std::string arguments;
-			Arguments::template for_each_types<implementation::ArgumentsSignatureBuilder>(arguments);
+			Arguments::template for_each_types<detail::ArgumentsSignatureBuilder>(arguments);
 
 			return Type<Result>::name_with_modifiers() + " (" + arguments + ") const";
 		}

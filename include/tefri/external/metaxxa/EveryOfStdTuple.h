@@ -13,7 +13,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename Tuple, typename Callable, size_t INDEX>
 		constexpr bool every(Tuple &tuple, Callable callable)
@@ -53,7 +53,7 @@ namespace metaxxa
 	template <typename Tuple, typename Callable>
 	constexpr bool every(Tuple &tuple, Callable callable)
 	{
-		return implementation::every<Tuple, Callable, 0>(tuple, callable);
+		return detail::every<Tuple, Callable, 0>(tuple, callable);
 	}
 
 	template 
@@ -64,7 +64,7 @@ namespace metaxxa
 	>
 	constexpr bool every_types(FunctorArguments&&... arguments)
 	{
-		return implementation::every_types<Tuple, Functor, 0, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
+		return detail::every_types<Tuple, Functor, 0, FunctorArguments...>(std::forward<FunctorArguments>(arguments)...);
 	}
 }
 

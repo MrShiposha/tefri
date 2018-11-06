@@ -12,7 +12,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template
 		<
@@ -61,7 +61,7 @@ namespace metaxxa
 	}
 
 	template<template<typename...> typename TemplateType, typename Callable>
-	using MoveFunctionArgumentTypes = typename implementation::MoveFunctionArgumentTypes<TemplateType, Callable>::Type;
+	using MoveFunctionArgumentTypes = typename detail::MoveFunctionArgumentTypes<TemplateType, Callable>::Type;
 }
 
 #endif //METAXXA_MOVEFUNCTIONARGUMENTTYPES_H

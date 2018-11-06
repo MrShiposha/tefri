@@ -19,5 +19,6 @@
 #include "Tuple.h"
 #include "Type.h"
 #include "Function.h"
+#include "CallableToMethod.h"
 
 #endif // METAXXA_H

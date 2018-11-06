@@ -11,7 +11,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename Tuple, typename Type, size_t INDEX>
 		constexpr bool contains_type()
@@ -36,7 +36,7 @@ namespace metaxxa
 	template <typename Tuple, typename Type>
 	constexpr bool contains_type(typename std::enable_if<!std::is_same_v<Tuple, std::tuple<>>>::type * = nullptr)
 	{
-		return implementation::contains_type<Tuple, Type, 0>();
+		return detail::contains_type<Tuple, Type, 0>();
 	}
 
 	template <typename Tuple, typename Type>
@@ -48,7 +48,7 @@ namespace metaxxa
 	template <typename Tuple, typename... Types>
 	constexpr bool contains_types(typename std::enable_if<!std::is_same_v<Tuple, std::tuple<>>>::type * = nullptr)
 	{
-		return implementation::contains_types<Tuple, Types...>();
+		return detail::contains_types<Tuple, Types...>();
 	}
 
 	template <typename Tuple, typename... Types>

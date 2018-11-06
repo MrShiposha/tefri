@@ -11,7 +11,7 @@
 
 namespace metaxxa
 {
-	namespace implementation
+	namespace detail
 	{
 		template <typename... Types>
 		using RemoveTupleCV = std::tuple<std::remove_cv_t<Types>...>;
@@ -22,7 +22,7 @@ namespace metaxxa
 	}
 
 	template <typename Tuple>
-	using RemoveTupleCV = decltype(implementation::remove_tuple_cv(std::declval<Tuple>()));
+	using RemoveTupleCV = decltype(detail::remove_tuple_cv(std::declval<Tuple>()));
 }
 
 #endif // METAXXA_REMOVETUPLECV_H
