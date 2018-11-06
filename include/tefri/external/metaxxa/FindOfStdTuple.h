@@ -29,7 +29,7 @@ namespace metaxxa
 			if (callable(std::get<INDEX>(tuple)))
 				return std::optional
 				<
-					metaxxa::MoveStdTupleUniqueTypes<std::variant, ::metaxxa::RemoveTupleCV<Tuple>>
+					metaxxa::MoveStdTupleUniqueTypes<std::variant, decltype(::metaxxa::wrap_of_std_tuple_types<Tuple, std::remove_cv_t>())>
 				>(std::get<INDEX>(tuple));
 
 			else if (INDEX + 1 < std::tuple_size<Tuple>::value)
@@ -38,7 +38,7 @@ namespace metaxxa
 			else
 				return std::optional
 				<
-					metaxxa::MoveStdTupleUniqueTypes<std::variant, ::metaxxa::RemoveTupleCV<Tuple>>
+					metaxxa::MoveStdTupleUniqueTypes<std::variant, decltype(::metaxxa::wrap_of_std_tuple_types<Tuple, std::remove_cv_t>())>
 				>();
 		}
 
