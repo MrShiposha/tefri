@@ -1,7 +1,7 @@
 #ifndef TEFRI_PIPELINE_H
 #define TEFRI_PIPELINE_H
 
-#include "external/metaxxa/metaxxa.h"
+#include "external/metaxxa/metaxxa.hpp"
 
 namespace tefri
 {
