@@ -1,0 +1,3 @@
+SET(TEFRI_TESTS_SOURCES
+    main.cpp
+)
