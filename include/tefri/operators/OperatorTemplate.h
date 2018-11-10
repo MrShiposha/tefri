@@ -21,7 +21,7 @@ namespace tefri
             template <typename OperatorArgumentTuple>
             auto make_operator() const
             {
-                return constructor_arguments.call_function(make_operator<Operator<OperatorArgumentTuple>>);
+                return constructor_arguments.call_function(::tefri::make_operator<Operator<OperatorArgumentTuple>>);
             }
 
         private:

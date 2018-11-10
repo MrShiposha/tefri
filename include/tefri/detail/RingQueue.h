@@ -52,7 +52,7 @@ namespace tefri::detail
 
         RingQueueIterator(RingQueueIterator &&) = default;
 
-        RingQueueIterator(size_t index, size_t queue_size, std::shared_ptr<T[]> queue)
+        RingQueueIterator(size_t index, size_t queue_size, std::shared_ptr<T> queue)
         : index(index), queue_size(queue_size), queue(queue)
         {}
 
@@ -114,7 +114,7 @@ namespace tefri::detail
             return !(*this == rhs);
         }
 
-        const reference operator*() const
+        const T &operator*() const
         {
             return static_cast<RingQueueIterator>(this)->operator*();
         }
@@ -125,7 +125,7 @@ namespace tefri::detail
                 throw NoQueueIsSpecified();
             else if(index == NO_INDEX)
                 throw DereferencingIteratorEnd();
-            return queue[index];
+            return queue.get()[index];
         }
 
         const pointer operator->() const
@@ -146,7 +146,7 @@ namespace tefri::detail
         size_t               index;
         size_t               processed_elements;
         size_t               queue_size;
-        std::shared_ptr<T[]> queue;
+        std::shared_ptr<T> queue;
     };
 
     template <typename T>
@@ -156,7 +156,7 @@ namespace tefri::detail
         using Iterator = RingQueueIterator<T>;
 
         RingQueue(size_t size)
-        : size(size), last_index(0), queue(new T[size])
+        : size(size), last_index(0), queue(new T[size], std::default_delete<T[]>())
         {}
 
         RingQueue(size_t size, const T &value)
@@ -167,7 +167,7 @@ namespace tefri::detail
 
         void push(const T &value)
         {
-            queue[last_index] = value;
+            queue.get()[last_index] = value;
             last_index = (last_index + 1) % size;
         }
 
@@ -178,7 +178,7 @@ namespace tefri::detail
 
         T &operator[](size_t i)
         {
-            return queue[(i + last_index - 1) % size];
+            return queue.get()[(i + last_index - 1) % size];
         }
 
         Iterator begin()
@@ -194,7 +194,7 @@ namespace tefri::detail
     private:
         size_t               size;
         size_t               last_index;
-        std::shared_ptr<T[]> queue;
+        std::shared_ptr<T> queue;
     };
 }
 
