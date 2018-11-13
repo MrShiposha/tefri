@@ -50,13 +50,13 @@
 #if __has_include(<optional>)
     #include <optional>
 
-    #define ___METAXXA___OPTIONAL std::optional
+    #define METAXXA_OPTIONAL std::optional
     
 
 #elif __has_include(<experimental/optional>)
     #include <experimental/optional>
 
-    #define ___METAXXA___OPTIONAL std::experimental::optional
+    #define METAXXA_OPTIONAL std::experimental::optional
 #else
     #error METAXXA: Sorry, your compiler does not support neither std::optional or std::experimental::optional
 #endif // Check optional
@@ -547,7 +547,7 @@ namespace metaxxa::detail
 
 #define ___METAXXA___EXPAND_DEEP(...) __VA_ARGS__
 
-#define ___METAXXA___EXPAND(...) ___METAXXA___EXPAND_DEEP(__VA_ARGS__)
+#define METAXXA_EXPAND_MACRO(...) ___METAXXA___EXPAND_DEEP(__VA_ARGS__)
 
 
 
@@ -638,10 +638,10 @@ namespace metaxxa
 
 
 #define ___METAXXA___DECLARE_POSTCONDITION_OPERATOR_CHECKER_FOR_UNARY(OPERATOR_NAME, OPERATOR) \
-	___METAXXA___EXPAND(___METAXXA___DECLARE_POSTCINDITION_OPERATOR_CHECKER(OPERATOR_NAME, detail::Function<decltype(&SomeType::OPERATOR)>::ARGUMENT_COUNT == 0))
+	METAXXA_EXPAND_MACRO(___METAXXA___DECLARE_POSTCINDITION_OPERATOR_CHECKER(OPERATOR_NAME, detail::Function<decltype(&SomeType::OPERATOR)>::ARGUMENT_COUNT == 0))
 
 #define ___METAXXA___DECLARE_POSTCONDITION_OPERATOR_CHECKER_FOR_BINARY(OPERATOR_NAME, OPERATOR) \
-	___METAXXA___EXPAND(___METAXXA___DECLARE_POSTCINDITION_OPERATOR_CHECKER(OPERATOR_NAME, detail::Function<decltype(&SomeType::OPERATOR)>::ARGUMENT_COUNT > 0))
+	METAXXA_EXPAND_MACRO(___METAXXA___DECLARE_POSTCINDITION_OPERATOR_CHECKER(OPERATOR_NAME, detail::Function<decltype(&SomeType::OPERATOR)>::ARGUMENT_COUNT > 0))
 
 
 namespace metaxxa::detail
@@ -1658,11 +1658,11 @@ namespace metaxxa
 #if __has_include(<variant>)
     #include <variant>
 
-    #define ___METAXXA___VARIANT std::variant
+    #define METAXXA_VARIANT std::variant
 #elif __has_include(<experimental/variant>)
     #include <experimental/variant>
 
-    #define ___METAXXA___VARIANT std::experimental::variant
+    #define METAXXA_VARIANT std::experimental::variant
 #else
     #error METAXXA: Sorry, your compiler does not support neither std::variant or std::experimental::variant
 #endif // Check variant
@@ -1721,24 +1721,24 @@ namespace metaxxa
 	{
 		template <typename Tuple, typename Callable, size_t INDEX>
 		auto find(Tuple &tuple, Callable &callable)
-			-> ___METAXXA___OPTIONAL
+			-> METAXXA_OPTIONAL
 			<
-				MoveTemplateTypesUnique<___METAXXA___VARIANT, decltype(::metaxxa::wrap_of_std_tuple_types<Tuple, std::remove_cv_t>())>
+				MoveTemplateTypesUnique<METAXXA_VARIANT, decltype(::metaxxa::wrap_of_std_tuple_types<Tuple, std::remove_cv_t>())>
 			>
 		{
 			if (callable(std::get<INDEX>(tuple)))
-				return ___METAXXA___OPTIONAL
+				return METAXXA_OPTIONAL
 				<
-					MoveTemplateTypesUnique<___METAXXA___VARIANT, decltype(::metaxxa::wrap_of_std_tuple_types<Tuple, std::remove_cv_t>())>
+					MoveTemplateTypesUnique<METAXXA_VARIANT, decltype(::metaxxa::wrap_of_std_tuple_types<Tuple, std::remove_cv_t>())>
 				>(std::get<INDEX>(tuple));
 
 			else if (INDEX + 1 < std::tuple_size<Tuple>::value)
 				return find<Tuple, Callable, INDEX + 1>(tuple, callable);
 
 			else
-				return ___METAXXA___OPTIONAL
+				return METAXXA_OPTIONAL
 				<
-					MoveTemplateTypesUnique<___METAXXA___VARIANT, decltype(::metaxxa::wrap_of_std_tuple_types<Tuple, std::remove_cv_t>())>
+					MoveTemplateTypesUnique<METAXXA_VARIANT, decltype(::metaxxa::wrap_of_std_tuple_types<Tuple, std::remove_cv_t>())>
 				>();
 		}
 
@@ -2344,7 +2344,7 @@ namespace metaxxa
     template <typename Tuple, typename Callable>
     constexpr auto filter(Tuple &tuple, Callable &callable)
     {
-        using TupleOfOptionals = decltype(wrap_of_std_tuple_types<Tuple, ___METAXXA___OPTIONAL>());
+        using TupleOfOptionals = decltype(wrap_of_std_tuple_types<Tuple, METAXXA_OPTIONAL>());
         TupleOfOptionals tuple_of_optionals;
 
         return detail::filter<TupleOfOptionals, Tuple, Callable, 0>(tuple_of_optionals, tuple, callable);
