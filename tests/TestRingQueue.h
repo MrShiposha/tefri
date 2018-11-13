@@ -18,21 +18,34 @@ public:
     {
         using namespace tefri::detail;
 
-        RingQueue<int> queue(4);
-        queue.push(1);
-        queue.push(2);
-        queue.push(3);
-        queue.push(4);
+        {
+            RingQueue<int> queue(4);
+            queue.push(1);
+            queue.push(2);
+            queue.push(3);
+            queue.push(4);
 
-        size_t i = 0;
-        for(auto &&item : queue)
-            TEST(item != ++i, "class detail::RingQueue: push test failed");
+            size_t i = 0;
+            for(auto &&item : queue)
+                TEST(item == ++i, "invalid value in full queue -- possible invalid work of iterators");
 
-        queue.push(5);        
+            queue.push(5);        
 
-        i = 1;
-        for(auto &&item : queue)
-            TEST(item != ++i, "class detail::RingQueue: push test failed");
+            i = 1;
+            for(auto &&item : queue)
+                TEST(item == ++i, "invalid value in queue that was overflowed");
+        }
+
+        {
+            RingQueue<int> queue(4);
+            queue.push(1);
+            queue.push(2);
+            size_t i = 0;
+            for(auto &&item : queue)
+                TEST(item == ++i, "invalid value in queue which not full");
+            TEST(i == 2, "invalud end iterator position");
+            
+        }
 
         return true;
     }
