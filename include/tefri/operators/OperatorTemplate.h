@@ -2,6 +2,7 @@
 #define TEFRI_OPERATORTEMPLATE_H
 
 #include <memory>
+#include <utility>
 
 #include "../external/metaxxa/metaxxa.hpp"
 #include "Operator.h"
@@ -10,27 +11,35 @@ namespace tefri
 {
     namespace detail
     {
-        template <template <typename OperatorArgumentTuple> typename Operator, typename... ConstructorArguments>
+        template <template <typename...> typename Operator, typename... ConstructorArguments>
         class OperatorTemplate    
         {
+            using ConstructorArgumentsTuple = metaxxa::Tuple<ConstructorArguments...>;
         public:
             OperatorTemplate(ConstructorArguments&&... args)
             : constructor_arguments(std::forward<ConstructorArguments>(args)...)
             {}
 
-            template <typename OperatorArgumentTuple>
+            template <typename... OperatorArguments>
             auto make_operator() const
             {
-                return constructor_arguments.call_function(::tefri::make_operator<Operator<OperatorArgumentTuple>>);
+                auto new_operator = make_operator_from_tuple<Operator<OperatorArguments...>>(std::make_index_sequence<ConstructorArgumentsTuple::size()>());
+                return new_operator;
             }
 
         private:
-            metaxxa::Tuple<ConstructorArguments...> constructor_arguments;
+            template <typename OperatorInstance, size_t... INDICES>
+            auto make_operator_from_tuple(std::index_sequence<INDICES...>) const
+            {
+                return ::tefri::make_operator<OperatorInstance>(constructor_arguments.METAXXA_TEMPLATE get<INDICES>()...);
+            }
+
+            ConstructorArgumentsTuple constructor_arguments;
         };
     }
 
-    template <template <typename OperatorArgumentTuple> typename Operator, typename... ConstructorArguments>
-    auto operator_template(ConstructorArguments&&... args)
+    template <template <typename...> typename Operator, typename... ConstructorArguments>
+    auto make_operator_template(ConstructorArguments&&... args)
     {
         return std::make_shared<detail::OperatorTemplate<Operator, ConstructorArguments...>>(args...);
     }

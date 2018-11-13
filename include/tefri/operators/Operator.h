@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "../external/metaxxa/metaxxa.hpp"
+#include "../detail/Optional.h"
 
 namespace tefri
 {
@@ -11,12 +12,23 @@ namespace tefri
     class Operator
     {
     public:
-        using ArgumentTuple = metaxxa::Tuple<Arguments...>; 
-        using Result        = _Result;
+        using ArgumentsTuple = metaxxa::Tuple<Arguments...>; 
+        using Result         = _Result;
+        using OptionalResult = TEFRI_OPTIONAL<Result>;
 
         virtual ~Operator() {}
 
-        virtual Result operator()(Arguments&&... args) = 0;
+        virtual OptionalResult operator()(const Arguments&... args) = 0;
+
+        virtual OptionalResult operator()(Arguments&... args)
+        {
+            return this->operator()(std::forward<std::add_const_t<Arguments>>(args)...);
+        }
+
+        virtual OptionalResult try_complete() 
+        {
+            return OptionalResult();
+        }
     };
 
     template <typename SomeOperator, typename... Args>
