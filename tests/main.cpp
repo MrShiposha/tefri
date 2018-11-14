@@ -1,7 +1,7 @@
 #include "TestTefri.h"
 #include "TestPipeline.h"
 #include "TestRingQueue.h"
-#include "TestOperators.h"
+#include "TestTakeLast.h"
 #include "TestObjectHolder.h"
 #include "TestPipelineBuilder.h"
 #include "TestCarryOperator.h"
@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     {
         std::make_shared<TestPipeline>(),
         std::make_shared<TestRingQueue>(),
-        std::make_shared<TestOperators>(),
+        std::make_shared<TestTakeLast>(),
         std::make_shared<TestObjectHolder>(),
         std::make_shared<TestPipelineBuilder>(),
         std::make_shared<TestCarryOperator>(),

@@ -1,20 +1,12 @@
-#ifndef TEST_OPERATORS_H
-#define TEST_OPERATORS_H
+#ifndef TEST_TEFRI_TAKELAST_H
+#define TEST_TEFRI_TAKELAST_H
 
 #include "TestTefri.h"
 
-class TestOperators : public TestTefri
+class TestTakeLast : public TestTefri
 {
 public:
     virtual bool test() override
-    {
-        bool result = true;
-        result = result && test_take_last();
-
-        return result;
-    }
-
-    bool test_take_last()
     {
         using namespace tefri;
 
@@ -73,4 +65,4 @@ public:
     }
 };
 
-#endif // TEST_OPERATORS_H
+#endif // TEST_TEFRI_TAKELAST_H
