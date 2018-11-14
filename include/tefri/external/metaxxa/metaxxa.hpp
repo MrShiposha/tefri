@@ -127,7 +127,7 @@ namespace metaxxa::detail
     struct IsTemplate
     {
         template <template <typename...> typename TemplateType, typename... Args>
-        static int16_t check(TemplateType<Args...>);
+        static int16_t check(TemplateType<Args...> &&);
 
         static int8_t check(...);
 
