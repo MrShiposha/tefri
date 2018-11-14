@@ -9,7 +9,7 @@ public:
     template <typename Result, typename... Input>
     struct FakeOperator : public tefri::Operator<Result, Input...>
     {
-        using tefri::Operator<Result, Input...>::OptionalResult;
+        using typename tefri::Operator<Result, Input...>::OptionalResult;
 
         virtual OptionalResult operator()(const Input&...) override
         {

@@ -25,12 +25,9 @@ namespace tefri
                 if constexpr (CONTAINS_OPERATOR_TEMPLATES)
                 {
                     if constexpr (contains_only_operator_templates())
-                    {
-                        std::cout << "only templates" << std::endl;
                         return Pipeline(instantiate_operator_templates<std::any, 0>());
-                    }
                     else
-                        return Pipeline(std::metaxxa::Tuple<>());
+                        return Pipeline(metaxxa::Tuple<>());
                 }
                 else
                     return Pipeline(operator_ptrs_tuple);
