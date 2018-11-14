@@ -16,13 +16,21 @@ namespace tefri
         >
         {
         public:
-            using typename CarryOperator::ArgumentsTuple;
-            using typename CarryOperator::Result;
-            using typename CarryOperator::OptionalResult;
+            using Result = metaxxa::Tuple<Args...>;
+
+            using Base = CarryOperator
+            <
+                CallableResult(Args...), 
+                Result,
+                Args...
+            >;
+
+            using ArgumentsTuple = typename Base::ArgumentsTuple;
+            using OptionalResult = typename Base::OptionalResult;
 
             template <typename Callable>
             Filter(Callable callable)
-            : CarryOperator(callable)
+            : Base(callable)
             {
                 using namespace metaxxa;
                 static_assert
