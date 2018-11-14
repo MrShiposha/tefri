@@ -41,7 +41,7 @@ namespace tefri
 
         private:
             template <typename T, size_t INDEX>
-            auto instantiate_operator_template()
+            auto instantiate_operator_templates()
             {
                 using OperatorPtr = typename _OperatorPtrsTuple::template Parameter<INDEX>;
                 using Operator    = typename OperatorPtr::element_type;
@@ -59,9 +59,9 @@ namespace tefri
                 {
                     if constexpr (metaxxa::Type<Operator>::template is_instantiation_of<OperatorTemplate>())
                         return metaxxa::tuple(current_operator_template_ptr->template make_operator<T>())
-                        + instantiate_operator_template<typename decltype(current_operator_template_ptr->template make_operator<T>())::element_type::Result, INDEX + 1>();
+                        + instantiate_operator_templates<typename decltype(current_operator_template_ptr->template make_operator<T>())::element_type::Result, INDEX + 1>();
                     else
-                        return instantiate_operator_template<typename Operator::Result, INDEX + 1>();                    
+                        return instantiate_operator_templates<typename Operator::Result, INDEX + 1>();                    
                 }
             }
 
