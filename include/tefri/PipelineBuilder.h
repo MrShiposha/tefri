@@ -4,6 +4,7 @@
 #include "external/metaxxa/metaxxa.hpp"
 
 #include "Pipeline.h"
+#include "operators/OperatorTemplate.h"
 
 namespace tefri
 {
@@ -33,9 +34,9 @@ namespace tefri
                 using Operator = typename OperatorPtr::element_type;
 
                 auto new_operator_ptrs_tuple = operator_ptrs_tuple + metaxxa::tuple(new_operator);
-                constexpr bool CONTAINS_OPERATOR_TEMPLATES = metaxxa::Type<Operator>::template is_instantiation_of<OperatorTemplate>();
+                constexpr bool NEW_BUILDER_CONTAINS_OPERATOR_TEMPLATES = metaxxa::Type<Operator>::template is_instantiation_of<OperatorTemplate>();
 
-                return PipelineBuilder<decltype(new_operator_ptrs_tuple), CONTAINS_OPERATOR_TEMPLATES>(new_operator_ptrs_tuple);
+                return PipelineBuilder<decltype(new_operator_ptrs_tuple), NEW_BUILDER_CONTAINS_OPERATOR_TEMPLATES>(new_operator_ptrs_tuple);
             }
 
         private:
@@ -50,15 +51,15 @@ namespace tefri
                 if (INDEX + 1 == _OperatorPtrsTuple::size())
                 {
                     if constexpr (metaxxa::Type<Operator>::template is_instantiation_of<OperatorTemplate>())
-                        return metaxxa::tuple(current_operator_template_ptr->make_operator<T>());
+                        return metaxxa::tuple(current_operator_template_ptr->template make_operator<T>());
                     else
                         return metaxxa::Tuple<>();
                 }
                 else
                 {
                     if constexpr (metaxxa::Type<Operator>::template is_instantiation_of<OperatorTemplate>())
-                        return metaxxa::tuple(current_operator_template_ptr->make_operator<T>())
-                        + instantiate_operator_template<typename decltype(current_operator_template_ptr->make_operator<T>())::element_type::Result, INDEX + 1>();
+                        return metaxxa::tuple(current_operator_template_ptr->template make_operator<T>())
+                        + instantiate_operator_template<typename decltype(current_operator_template_ptr->template make_operator<T>())::element_type::Result, INDEX + 1>();
                     else
                         return instantiate_operator_template<typename Operator::Result, INDEX + 1>();                    
                 }
