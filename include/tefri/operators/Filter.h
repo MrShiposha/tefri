@@ -7,24 +7,22 @@ namespace tefri
 {
     namespace detail
     {
-        template <typename _Result, typename... Args>
+        template <typename CallableResult, typename... Args>
         class Filter : public CarryOperator
         <
-            _Result(Args...), 
+            CallableResult(Args...), 
             metaxxa::Tuple<Args...>, 
             Args...
         >
         {
         public:
-            using Base = CarryOperator<_Result(Args...), metaxxa::Tuple<Args...>, Args...>;
-
-            using ArgumentsTuple = typename Base::ArgumentsTuple;
-            using Result         = typename Base::Result;
-            using OptionalResult = typename Base::OptionalResult;
+            using typename CarryOperator::ArgumentsTuple;
+            using typename CarryOperator::Result;
+            using typename CarryOperator::OptionalResult;
 
             template <typename Callable>
             Filter(Callable callable)
-            : CarryOperator<_Result(Args...), metaxxa::Tuple<Args...>, Args...>(callable)
+            : CarryOperator(callable)
             {
                 using namespace metaxxa;
                 static_assert
