@@ -3,6 +3,20 @@
 
 #include "TestTefri.h"
 
+struct Some
+{
+    Some() = default;
+
+    Some(const Some &)
+    {
+        ++copies;
+    }
+
+    static size_t copies;
+};
+
+size_t Some::copies = 1;
+
 class TestObjectHolder : public TestTefri
 {
 public:
@@ -11,6 +25,7 @@ public:
         bool result = true;
         result = result && test_get_object_ref();
         result = result && test_get_object_copy();
+        result = result && test_copy_constructor();
 
         return result;
     }
@@ -90,6 +105,28 @@ public:
         }
 
         return true;   
+    }
+
+    bool test_copy_constructor()
+    {
+        using namespace tefri::detail;
+
+        {
+            ObjectHolder obj((Some()));
+            ObjectHolder obj_copy(obj);
+            
+            TEST(Some::copies == 2, "called copy constructor of holded object");
+        }
+
+        {
+            Some s;
+            ObjectHolder obj(std::ref(s));
+            ObjectHolder obj_copy(obj);
+            
+            TEST(Some::copies == 2, "called copy constructor of holded object");
+        }
+
+        return true;
     }
 };
 
