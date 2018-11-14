@@ -107,7 +107,6 @@ namespace tefri
             {
                 using Type                  = std::decay_t<T>;
                 using OperatorPtr           = typename _OperatorPtrsTuple::template Parameter<INDEX>;
-                using Operator              = typename OperatorPtr::element_type;
 				using OperatorInstantiation = Instantiation<OperatorPtr>;
 
                 auto current_operator = operator_ptrs_tuple.template get<INDEX>();
