@@ -2,6 +2,7 @@
 #define TEFRI_OPERATORS_H
 
 #include "operators/Operator.h"
+#include "operators/CarryOperator.h"
 #include "operators/OperatorTemplate.h"
 #include "operators/TakeLast.h"
 
