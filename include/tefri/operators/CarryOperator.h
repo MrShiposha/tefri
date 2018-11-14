@@ -29,7 +29,7 @@ namespace tefri
         >;
     }
 
-    template <typename Result, typename... Args>
+    template <typename Callable, typename Result, typename... Args>
     class CarryOperator : public Operator<Result, Args...>
     {
     public:
@@ -37,7 +37,7 @@ namespace tefri
         using typename Operator<Result, Args...>::Result;
         using typename Operator<Result, Args...>::OptionalResult;
 
-        CarryOperator(std::function<Result(Args...)> callable)
+        CarryOperator(std::function<Callable> callable)
         : callable(callable)
         {}
 
@@ -48,7 +48,7 @@ namespace tefri
         }
 
     private:
-        std::function<Result(Args...)> callable;
+        std::function<Callable> callable;
     };
 
     template <template <typename Result, typename... Args> typename CarryOperator, typename Callable>

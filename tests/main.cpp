@@ -5,6 +5,7 @@
 #include "TestObjectHolder.h"
 #include "TestPipelineBuilder.h"
 #include "TestCarryOperator.h"
+#include "TestFilter.h"
 
 #include <vector>
 
@@ -18,7 +19,8 @@ int main(int argc, char **argv)
         std::make_shared<TestOperators>(),
         std::make_shared<TestObjectHolder>(),
         std::make_shared<TestPipelineBuilder>(),
-        std::make_shared<TestCarryOperator>()
+        std::make_shared<TestCarryOperator>(),
+        std::make_shared<TestFilter>()
     };
 
     for(auto &&test : tests)

@@ -5,5 +5,6 @@
 #include "operators/CarryOperator.h"
 #include "operators/OperatorTemplate.h"
 #include "operators/TakeLast.h"
+#include "operators/Filter.h"
 
 #endif // TEFRI_OPERATORS_H

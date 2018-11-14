@@ -9,15 +9,17 @@ bool my_test_function(int, double, char)
 }
 
 template <typename Result, typename... Args>
-class MyTestCarryOperator : public tefri::CarryOperator<Result, Args...>
+class MyTestCarryOperator : public tefri::CarryOperator<Result(Args...), Result, Args...>
 {
 public:
-    using typename tefri::CarryOperator<Result, Args...>::ArgumentsTuple;
-    using typename tefri::CarryOperator<Result, Args...>::Result;
-    using typename tefri::CarryOperator<Result, Args...>::OptionalResult;
+    using Base = tefri::CarryOperator<Result(Args...), Result, Args...>;
+
+    using typename Base::ArgumentsTuple;
+    using typename Base::Result;
+    using typename Base::OptionalResult;
 
     MyTestCarryOperator(std::function<Result(Args...)> callable)
-    : tefri::CarryOperator<Result, Args...>(callable)
+    : Base(callable)
     {}
 
     virtual OptionalResult operator()(const Args&... args) override
