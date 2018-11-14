@@ -3,6 +3,8 @@
 
 #include "external/metaxxa/metaxxa.hpp"
 
+#include "detail/ObjectHolder.h"
+
 namespace tefri
 {
     template <typename _OperatorsTuple>

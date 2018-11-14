@@ -2,6 +2,7 @@
 #include "TestPipeline.h"
 #include "TestRingQueue.h"
 #include "TestOperators.h"
+#include "TestObjectHolder.h"
 
 #include <vector>
 
@@ -12,7 +13,8 @@ int main(int argc, char **argv)
     {
         std::make_shared<TestPipeline>(),
         std::make_shared<TestRingQueue>(),
-        std::make_shared<TestOperators>()
+        std::make_shared<TestOperators>(),
+        std::make_shared<TestObjectHolder>()
     };
 
     for(auto &&test : tests)
