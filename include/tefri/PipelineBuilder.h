@@ -12,6 +12,42 @@ namespace tefri
 {
     namespace detail
     {
+        template <typename OperatorPtr>
+        struct NonTemplate 
+        {
+            constexpr bool operator()()
+            {
+                using Operator = typename OperatorPtr::element_type;
+                return is_operator_template<Operator>();
+            }
+        };
+
+		template <typename OperatorPtr, bool IS_TEMPLATE = is_operator_template<typename OperatorPtr::element_type>()>
+		struct Instantiation 
+		{
+			template <typename T>
+			static auto instantiate(OperatorPtr last_operator)
+			{
+				return metaxxa::Tuple(last_operator->template make_operator<T>());
+			}
+
+			template <typename T>
+			using Result = typename decltype(std::declval<OperatorPtr>()->template make_operator<T>())::element_type::Result;
+		};
+
+		template <typename OperatorPtr>
+		struct Instantiation<OperatorPtr, false>
+		{
+			using Result = typename OperatorPtr::element_type::Result;
+
+			template <typename T>
+			static auto instantiate(OperatorPtr last_operator)
+			{
+				return metaxxa::Tuple(last_operator);
+			}
+		};
+
+
         template <typename _OperatorPtrsTuple, bool CONTAINS_OPERATOR_TEMPLATES = false>
         class PipelineBuilder
         {
@@ -27,7 +63,14 @@ namespace tefri
                     if constexpr (contains_only_operator_templates())
                         return Pipeline(instantiate_operator_templates<TEFRI_ANY, 0>());
                     else
-                        return Pipeline(metaxxa::Tuple<>());
+                        return Pipeline
+                        (
+                            instantiate_operator_templates
+                            <
+                                typename decltype(_OperatorPtrsTuple::template find_types<NonTemplate>())::Type, 
+                                0
+                            >()
+                        );
                 }
                 else
                     return Pipeline(operator_ptrs_tuple);
@@ -62,26 +105,18 @@ namespace tefri
             template <typename T, size_t INDEX>
             auto instantiate_operator_templates()
             {
-                using OperatorPtr = typename _OperatorPtrsTuple::template Parameter<INDEX>;
-                using Operator    = typename OperatorPtr::element_type;
+                using Type                  = std::decay_t<T>;
+                using OperatorPtr           = typename _OperatorPtrsTuple::template Parameter<INDEX>;
+                using Operator              = typename OperatorPtr::element_type;
+				using OperatorInstantiation = Instantiation<OperatorPtr>;
 
-                auto current_operator_template_ptr = operator_ptrs_tuple.template get<INDEX>();
+                auto current_operator = operator_ptrs_tuple.template get<INDEX>();
 
                 if constexpr (INDEX + 1 == _OperatorPtrsTuple::size())
-                {
-                    if constexpr (is_operator_template<Operator>())
-                        return metaxxa::tuple(current_operator_template_ptr->template make_operator<T>());
-                    else
-                        return metaxxa::Tuple<>();
-                }
+					return OperatorInstantiation::template instantiate<Type>(current_operator);
                 else
-                {
-                    if constexpr (is_operator_template<Operator>())
-                        return metaxxa::tuple(current_operator_template_ptr->template make_operator<T>())
-                        + instantiate_operator_templates<typename decltype(current_operator_template_ptr->template make_operator<T>())::element_type::Result, INDEX + 1>();
-                    else
-                        return instantiate_operator_templates<typename Operator::Result, INDEX + 1>();                    
-                }
+					return OperatorInstantiation::template instantiate<Type>(current_operator)
+					+ instantiate_operator_templates<typename OperatorInstantiation::Result, INDEX + 1>();
             }
 
             _OperatorPtrsTuple operator_ptrs_tuple;
