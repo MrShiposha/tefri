@@ -161,7 +161,7 @@ namespace tefri::detail
         using Iterator = RingQueueIterator<T>;
 
         RingQueue(size_t size)
-        : size(size), last_index(0), total_pushed(0), queue(new T[size], std::default_delete<T[]>())
+        : size(size), total_pushed(0), last_index(0), queue(new T[size], std::default_delete<T[]>())
         {}
 
         RingQueue(size_t size, const T &value)
