@@ -14,7 +14,7 @@ namespace tefri
         template <template <typename...> typename Operator, typename... ConstructorArguments>
         class OperatorTemplate    
         {
-            using ConstructorArgumentsTuple = metaxxa::Tuple<ConstructorArguments...>;
+            using ConstructorArgumentsTuple = metaxxa::Tuple<std::decay_t<ConstructorArguments>...>;
         public:
             OperatorTemplate(ConstructorArguments&&... args)
             : constructor_arguments(std::forward<ConstructorArguments>(args)...)
@@ -23,8 +23,7 @@ namespace tefri
             template <typename... OperatorArguments>
             auto make_operator() const
             {
-                auto new_operator = make_operator_from_tuple<Operator<OperatorArguments...>>(std::make_index_sequence<ConstructorArgumentsTuple::size()>());
-                return new_operator;
+                return make_operator_from_tuple<Operator<OperatorArguments...>>(std::make_index_sequence<ConstructorArgumentsTuple::size()>());
             }
 
         private:
