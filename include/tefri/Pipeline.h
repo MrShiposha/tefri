@@ -7,20 +7,35 @@
 
 namespace tefri
 {
-    template <typename _OperatorsTuple>
+    template <typename _OperatorsPtrsTuple>
     class Pipeline
     {
     public:
-        using OperatorsTuple = _OperatorsTuple;
-        static constexpr size_t LENGTH = OperatorsTuple::size();
+        // using OperatorsTuple = ////_OperatorsPtrsTuple;
+        static constexpr size_t LENGTH = _OperatorsPtrsTuple::size();
 
-        using InputTuple     = typename metaxxa::Function<typename OperatorsTuple::template Parameter<0>>::Arguments;
+        using InputTuple     = typename metaxxa::Function<typename _OperatorsPtrsTuple::template Parameter<0>>::Arguments;
         using OutputTuple    = typename metaxxa::Type
                                <
-                                   typename metaxxa::Function<typename OperatorsTuple::template Parameter<LENGTH - 1>>::Result
+                                   typename metaxxa::Function<typename _OperatorsPtrsTuple::template Parameter<LENGTH - 1>>::Result
                                >::template WrapToTemplateIfNotWrapped<metaxxa::Tuple>;
 
+        explicit Pipeline(const _OperatorsPtrsTuple &operators_ptrs_tuple)
+        : operators_ptrs_tuple(operators_ptrs_tuple)
+        {}
+
     private:
+        _OperatorsPtrsTuple operators_ptrs_tuple;
+    };
+
+    template <>
+    class Pipeline<metaxxa::Tuple<>>
+    {
+    public:
+        static constexpr size_t LENGTH = 0;
+
+        explicit Pipeline(const metaxxa::Tuple<> &operators_ptrs_tuple) 
+        {}
     };
 }
 
