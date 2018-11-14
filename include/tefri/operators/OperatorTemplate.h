@@ -11,8 +11,11 @@ namespace tefri
 {
     namespace detail
     {
+        class OperatorTemplateBase
+        {};
+
         template <template <typename...> typename Operator, typename... ConstructorArguments>
-        class OperatorTemplate    
+        class OperatorTemplate : public OperatorTemplateBase
         {
             using ConstructorArgumentsTuple = metaxxa::Tuple<std::decay_t<ConstructorArguments>...>;
         public:
@@ -41,6 +44,12 @@ namespace tefri
     auto make_operator_template(ConstructorArguments&&... args)
     {
         return std::make_shared<detail::OperatorTemplate<Operator, ConstructorArguments...>>(args...);
+    }
+
+    template <typename Operator>
+    constexpr bool is_operator_template()
+    {
+        return metaxxa::Type<Operator>::template is_derived_from<detail::OperatorTemplateBase>();
     }
 }
 

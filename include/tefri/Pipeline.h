@@ -14,10 +14,10 @@ namespace tefri
         // using OperatorsTuple = ////_OperatorsPtrsTuple;
         static constexpr size_t LENGTH = _OperatorsPtrsTuple::size();
 
-        using InputTuple     = typename metaxxa::Function<typename _OperatorsPtrsTuple::template Parameter<0>>::Arguments;
+        using InputTuple     = typename metaxxa::Function<typename _OperatorsPtrsTuple::template Parameter<0>::element_type>::Arguments;
         using OutputTuple    = typename metaxxa::Type
                                <
-                                   typename metaxxa::Function<typename _OperatorsPtrsTuple::template Parameter<LENGTH - 1>>::Result
+                                   typename metaxxa::Function<typename _OperatorsPtrsTuple::template Parameter<LENGTH - 1>::element_type>::Result
                                >::template WrapToTemplateIfNotWrapped<metaxxa::Tuple>;
 
         explicit Pipeline(const _OperatorsPtrsTuple &operators_ptrs_tuple)

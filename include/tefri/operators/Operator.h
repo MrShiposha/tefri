@@ -31,6 +31,9 @@ namespace tefri
         }
     };
 
+    template <typename T>
+    using OperatorPtr = std::shared_ptr<T>;
+
     template <typename SomeOperator, typename... Args>
     auto make_operator(Args&&... args)
     {

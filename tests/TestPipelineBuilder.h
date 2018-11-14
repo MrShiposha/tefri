@@ -32,6 +32,18 @@ public:
             static_assert(metaxxa::Type<decltype(builder.build())>() == metaxxa::Type<Pipeline<metaxxa::Tuple<>>>(), "invalid empty pipeline type"); 
         }
 
+        {
+            auto pipeline = pipeline_builder()
+                .with_operator(take_last(2)) // TODO: Add more operators
+                .build();
+
+            static_assert
+            (
+                metaxxa::Type<decltype(pipeline)>() == metaxxa::Type<Pipeline<metaxxa::Tuple<OperatorPtr<detail::TakeLast<std::any>>>>>(), 
+                "invalid pipeline with operator templates type"
+            ); 
+        }
+
         return true;
     }
 };

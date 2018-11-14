@@ -7,10 +7,14 @@ class TestPipeline : public TestTefri
 {
 public:
     template <typename Result, typename... Input>
-    struct FakeOperator
+    struct FakeOperator : public tefri::Operator<Result, Input...>
     {
-        Result operator()(Input...)
-        {}
+        using tefri::Operator<Result, Input...>::OptionalResult;
+
+        virtual OptionalResult operator()(const Input&...) override
+        {
+            return {};
+        }
     };
 
     virtual bool test()
@@ -27,8 +31,12 @@ public:
         using namespace tefri;
         using namespace metaxxa;
 
-        static_assert(std::is_same_v<typename Pipeline<Tuple<FakeOperator<double, int>, FakeOperator<float, char>>>::InputTuple, Tuple<int>>,  "class Pipeline: input types test failed");
-        static_assert(std::is_same_v<typename Pipeline<Tuple<FakeOperator<float, char>, FakeOperator<double, int>>>::InputTuple, Tuple<char>>, "class Pipeline: input types test failed");
+        auto pipeline_1 = Pipeline(metaxxa::tuple(make_operator<FakeOperator<double, int>>(), make_operator<FakeOperator<float, char>>()));
+        auto pipeline_2 = Pipeline(metaxxa::tuple(make_operator<FakeOperator<float, char>>(), make_operator<FakeOperator<double, int>>()));
+
+
+        static_assert(std::is_same_v<decltype(pipeline_1)::InputTuple, Tuple<const int &>>,  "class Pipeline: input types test failed");
+        static_assert(std::is_same_v<decltype(pipeline_2)::InputTuple, Tuple<const char &>>, "class Pipeline: input types test failed");
 
         return true;
     }
@@ -38,8 +46,11 @@ public:
         using namespace tefri;
         using namespace metaxxa;
 
-        static_assert(std::is_same_v<typename Pipeline<Tuple<FakeOperator<double, int>, FakeOperator<float, char>>>::OutputTuple, Tuple<float>>,  "class Pipeline: output types test failed");
-        static_assert(std::is_same_v<typename Pipeline<Tuple<FakeOperator<float, char>, FakeOperator<double, int>>>::OutputTuple, Tuple<double>>, "class Pipeline: output types test failed");
+        auto pipeline_1 = Pipeline(metaxxa::tuple(make_operator<FakeOperator<double, int>>(), make_operator<FakeOperator<float, char>>()));
+        auto pipeline_2 = Pipeline(metaxxa::tuple(make_operator<FakeOperator<float, char>>(), make_operator<FakeOperator<double, int>>()));
+
+        static_assert(std::is_same_v<decltype(pipeline_1)::OutputTuple, Tuple<TEFRI_OPTIONAL<float>>>,  "class Pipeline: output types test failed");
+        static_assert(std::is_same_v<decltype(pipeline_2)::OutputTuple, Tuple<TEFRI_OPTIONAL<double>>>, "class Pipeline: output types test failed");
 
         return true;
     }
