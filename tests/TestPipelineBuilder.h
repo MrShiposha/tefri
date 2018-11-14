@@ -39,7 +39,7 @@ public:
 
             static_assert
             (
-                metaxxa::Type<decltype(pipeline)>() == metaxxa::Type<Pipeline<metaxxa::Tuple<OperatorPtr<detail::TakeLast<std::any>>>>>(), 
+                metaxxa::Type<decltype(pipeline)>() == metaxxa::Type<Pipeline<metaxxa::Tuple<OperatorPtr<detail::TakeLast<TEFRI_ANY>>>>>(), 
                 "invalid pipeline with operator templates type"
             ); 
         }
