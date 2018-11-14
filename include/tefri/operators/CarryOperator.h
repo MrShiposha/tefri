@@ -1,6 +1,8 @@
 #ifndef TEFRI_CARRYOPERATOR_H
 #define TEFRI_CARRYOPERATOR_H
 
+#include <functional>
+
 #include "../external/metaxxa/metaxxa.hpp"
 
 #include "Operator.h"
@@ -9,24 +11,34 @@ namespace tefri
 {
     namespace detail
     {
-        template <typename Result>
-        struct CarryOperatorBaseImpl
+        template <template <typename Result, typename... Args> typename CarryOperator, typename Result>
+        struct CarryOperatorInstanceImpl
         {
             template <typename... Args>
-            using Type = Operator<Result, Args...>;
+            using Type = CarryOperator<Result, Args...>;
         };
 
-        template <typename Callable>
-        using CarryOperatorBase = typename metaxxa::Type<typename metaxxa::Function<Callable>::Arguments>
-        ::template MoveTemplateTypes<typename CarryOperatorBaseImpl<typename metaxxa::Function<Callable>::Result>::Type>;
+        template <template <typename Result, typename... Args> typename CarryOperator, typename Callable>
+        using CarryOperatorInstance = typename metaxxa::Type<typename metaxxa::Function<Callable>::Arguments>::template MoveTemplateTypes
+        <
+            typename CarryOperatorInstanceImpl
+            <
+                CarryOperator, 
+                typename metaxxa::Function<Callable>::Result
+            >::Type
+        >;
     }
 
-    template <typename Callable>
-    class CarryOperator : public detail::CarryOperatorBase<Callable>
+    template <typename Result, typename... Args>
+    class CarryOperator : public Operator<Result, Args...>
     {
     public:
-        CarryOperator(Callable callable)
-        : CarryOperator(), callable(callable)
+        using typename Operator<Result, Args...>::ArgumentsTuple;
+        using typename Operator<Result, Args...>::Result;
+        using typename Operator<Result, Args...>::OptionalResult;
+
+        CarryOperator(std::function<Result(Args...)> callable)
+        : callable(callable)
         {}
 
         template <typename... Args>
@@ -36,8 +48,14 @@ namespace tefri
         }
 
     private:
-        std::function<Callable> callable;
+        std::function<Result(Args...)> callable;
     };
+
+    template <template <typename Result, typename... Args> typename CarryOperator, typename Callable>
+    auto make_carry_operator(Callable callable)
+    {
+        return std::make_shared<detail::CarryOperatorInstance<CarryOperator, Callable>>(callable);
+    }
 }
 
 #endif // TEFRI_CARRYOPERATOR_H

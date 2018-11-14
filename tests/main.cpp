@@ -4,6 +4,7 @@
 #include "TestOperators.h"
 #include "TestObjectHolder.h"
 #include "TestPipelineBuilder.h"
+#include "TestCarryOperator.h"
 
 #include <vector>
 
@@ -16,7 +17,8 @@ int main(int argc, char **argv)
         std::make_shared<TestRingQueue>(),
         std::make_shared<TestOperators>(),
         std::make_shared<TestObjectHolder>(),
-        std::make_shared<TestPipelineBuilder>()
+        std::make_shared<TestPipelineBuilder>(),
+        std::make_shared<TestCarryOperator>()
     };
 
     for(auto &&test : tests)
