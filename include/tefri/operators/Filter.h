@@ -36,7 +36,7 @@ namespace tefri
                 static_assert
                 (
                     Type<typename Function<Callable>::Result>() == Type<bool>(), 
-                    "Tefri: only callable with bool return value can be carried by filer operator"
+                    "Tefri: only callable with bool return value can be carried by filter operator"
                 );
             }
 
