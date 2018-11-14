@@ -36,7 +36,7 @@ namespace tefri
 
             virtual OptionalResult operator()(const Args&... args) override
             {
-                if(invoke(args...))
+                if(this->invoke(args...))
                     return metaxxa::Tuple(args...);
                 else
                     return {};

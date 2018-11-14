@@ -21,11 +21,11 @@ namespace tefri
         template <template <typename Result, typename... Args> typename CarryOperator, typename Callable>
         using CarryOperatorInstance = typename metaxxa::Type<typename metaxxa::Function<Callable>::Arguments>::template MoveTemplateTypes
         <
-            typename CarryOperatorInstanceImpl
+            CarryOperatorInstanceImpl
             <
                 CarryOperator, 
                 typename metaxxa::Function<Callable>::Result
-            >::Type
+            >::template Type
         >;
     }
 
@@ -41,10 +41,10 @@ namespace tefri
         : callable(callable)
         {}
 
-        template <typename... Args>
-        auto invoke(Args&&... args)
+        template <typename... CallableArgs>
+        auto invoke(CallableArgs&&... args)
         {
-            return callable(std::forward<Args>(args)...);
+            return callable(std::forward<CallableArgs>(args)...);
         }
 
     private:
