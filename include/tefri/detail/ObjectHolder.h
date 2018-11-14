@@ -8,7 +8,7 @@
 
 namespace tefri::detail
 {
-    template <typename T, bool IS_REFERENCE_WRAPPER = metaxxa::Type<T>::is_instantiation_of<std::reference_wrapper>()>
+    template <typename T, bool IS_REFERENCE_WRAPPER = metaxxa::Type<T>::template is_instantiation_of<std::reference_wrapper>()>
     struct ObjectTypeImpl 
     {
         using Type = T;
