@@ -7,11 +7,21 @@
 
 namespace tefri
 {
+    namespace detail
+    {
+        template <typename OperatorPtr>
+        struct UnwrapOperatorPtr
+        {
+        public:
+            constexpr auto operator()() -> typename OperatorPtr::element_type;
+        };
+    }
+
     template <typename _OperatorsPtrsTuple>
     class Pipeline
     {
     public:
-        // using OperatorsTuple = ////_OperatorsPtrsTuple;
+        using OperatorsTuple = decltype(_OperatorsPtrsTuple::map_types<detail::UnwrapOperatorPtr>());
         static constexpr size_t LENGTH = _OperatorsPtrsTuple::size();
 
         using InputTuple     = typename metaxxa::Function<typename _OperatorsPtrsTuple::template Parameter<0>::element_type>::Arguments;

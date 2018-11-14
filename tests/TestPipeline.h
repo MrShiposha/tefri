@@ -20,10 +20,21 @@ public:
     virtual bool test()
     {
         bool result = true;
+        result = result && test_operators_tuple();
         result = result && test_input_types();
         result = result && test_output_types();
 
         return result;
+    }
+
+    bool test_operators_tuple()
+    {
+        using namespace tefri;
+        using namespace metaxxa;
+        using PipelineInstance = decltype(Pipeline(metaxxa::tuple(make_operator<FakeOperator<double, int>>(), make_operator<FakeOperator<float, char>>()))); 
+
+        static_assert(Type<typename PipelineInstance::OperatorsTuple>() == Type<Tuple<FakeOperator<double, int>, FakeOperator<float, char>>>(), "invalid operators tuple");
+        return true;
     }
 
     bool test_input_types()
