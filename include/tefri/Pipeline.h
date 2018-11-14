@@ -21,7 +21,7 @@ namespace tefri
     class Pipeline
     {
     public:
-        using OperatorsTuple = decltype(_OperatorsPtrsTuple::map_types<detail::UnwrapOperatorPtr>());
+        using OperatorsTuple = decltype(_OperatorsPtrsTuple::template map_types<detail::UnwrapOperatorPtr>());
         static constexpr size_t LENGTH = _OperatorsPtrsTuple::size();
 
         using InputTuple     = typename metaxxa::Function<typename _OperatorsPtrsTuple::template Parameter<0>::element_type>::Arguments;
