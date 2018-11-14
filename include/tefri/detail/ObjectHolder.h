@@ -61,6 +61,10 @@ namespace tefri::detail
         : wrapped_object(make_object_wrapper<T>(object))
         {}
 
+        ObjectHolder(T &&object)
+        : wrapped_object(make_object_wrapper<T>(object))
+        {}
+
         ObjectHolder(const ObjectHolder &) = default;
 
         ObjectHolder(ObjectHolder &&) = default;
