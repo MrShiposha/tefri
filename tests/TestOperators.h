@@ -33,6 +33,8 @@ public:
             TEST(take_last_2_first, "no value on complete take last 2");
             if(take_last_2_first) 
                 TEST(take_last_2_first.value() == 42, "invalid value on complete take last 2");
+            
+            TEST(!take_last_2->try_complete(), "take last 2 doesn't complete when expected");
 
             TEST(take_last_2_second, "no value on complete take last 2");
             if(take_last_2_second)
@@ -63,6 +65,8 @@ public:
                 if(taken)
                     TEST(taken.value() == values[i], "invalid value on complete take last 3");
             }
+
+            TEST(!take_last_3->try_complete(), "take last 3 doesn't complete when expected");
         }
 
         return true;
