@@ -11,12 +11,12 @@ namespace tefri
         class Filter : public CarryOperator
         <
             CallableResult(Args...), 
-            metaxxa::Tuple<Args...>, 
+            metaxxa::Tuple<const Args&...>, 
             Args...
         >
         {
         public:
-            using Result = metaxxa::Tuple<Args...>;
+            using Result = metaxxa::Tuple<const Args&...>;
 
             using Base = CarryOperator
             <
@@ -43,7 +43,7 @@ namespace tefri
             virtual OptionalResult operator()(const Args&... args) override
             {
                 if(this->invoke(args...))
-                    return metaxxa::Tuple(args...);
+                    return Result(args...);
                 else
                     return {};
             }
