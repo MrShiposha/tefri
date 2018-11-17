@@ -13,7 +13,8 @@ namespace tefri
         struct UnwrapOperatorPtr
         {
         public:
-            constexpr auto operator()() -> typename OperatorPtr::element_type;
+            constexpr auto operator()() -> typename OperatorPtr::element_type
+            { throw; }
         };
     }
 

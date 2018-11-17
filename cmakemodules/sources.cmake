@@ -1,6 +1,11 @@
 SET(TEFRI_TESTS_SOURCES
     TestPipeline.h
     TestRingQueue.h
-    TestOperators.h
+    TestTakeLast.h
+    TestFilter.h
+    TestObjectHolder.h
+    TestCarryOperator.h
+    TestPipelineBuilder.h
+    TestTefri.h
     main.cpp
 )
