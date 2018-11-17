@@ -128,7 +128,7 @@ namespace metaxxa::detail
     struct IsTemplate
     {
         template <template <typename...> typename TemplateType, typename... Args>
-        static int16_t check(TemplateType<Args...>);
+        static int16_t check(TemplateType<Args...> &&);
 
         static int8_t check(...);
 
@@ -546,9 +546,9 @@ namespace metaxxa::detail
 
 
 
-#define METAXXA_EXPAND_MACRO_DEEP(...) __VA_ARGS__
+#define ___METAXXA___EXPAND_DEEP(...) __VA_ARGS__
 
-#define METAXXA_EXPAND_MACRO(...) METAXXA_EXPAND_MACRO_DEEP(__VA_ARGS__)
+#define METAXXA_EXPAND_MACRO(...) ___METAXXA___EXPAND_DEEP(__VA_ARGS__)
 
 
 
