@@ -141,7 +141,7 @@ namespace tefri
                             typename Instantiator::template InstatiatedOperatorResult<std::decay_t<Arguments>...>
                           >::template MoveTemplateTypes
                              <
-                                OperatorTemplatesInstatiation
+                                typename PipelineBuilder::template OperatorTemplatesInstatiation
                              >::template instantiate<INDEX + 1>(operator_ptrs_tuple);
                 }
             };
@@ -160,7 +160,7 @@ namespace tefri
                     Tuple
                 >::template MoveTemplateTypes
                     <
-                        OperatorTemplatesInstatiation
+                        typename PipelineBuilder::template OperatorTemplatesInstatiation
                     >::template instantiate<0>(operator_ptrs_tuple);
             }
 
