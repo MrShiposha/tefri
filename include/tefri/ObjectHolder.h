@@ -4,9 +4,9 @@
 #include <type_traits>
 #include <functional>
 
-#include "../external/metaxxa/metaxxa.hpp"
+#include "external/metaxxa/metaxxa.hpp"
 
-namespace tefri::detail
+namespace tefri
 {
     template <typename T, bool IS_REFERENCE_WRAPPER = metaxxa::Type<T>::template is_instantiation_of<std::reference_wrapper>()>
     struct ObjectTypeImpl 

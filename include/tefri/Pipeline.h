@@ -3,7 +3,7 @@
 
 #include "external/metaxxa/metaxxa.hpp"
 
-#include "detail/ObjectHolder.h"
+#include "ObjectHolder.h"
 
 namespace tefri
 {

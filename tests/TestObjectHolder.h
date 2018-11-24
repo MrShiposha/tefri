@@ -32,7 +32,7 @@ public:
 
     bool test_get_object_copy()
     {
-        using namespace tefri::detail;
+        using namespace tefri;
 
         int value = 42;
 
@@ -72,7 +72,7 @@ public:
 
     bool test_get_object_ref()
     {
-        using namespace tefri::detail;
+        using namespace tefri;
 
        int value = 42;
 
@@ -109,7 +109,7 @@ public:
 
     bool test_copy_constructor()
     {
-        using namespace tefri::detail;
+        using namespace tefri;
 
         {
             ObjectHolder obj((Some()));
