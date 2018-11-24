@@ -83,6 +83,36 @@ public:
 
         return true;
     }
+
+    bool test_general_operators_build()
+    {
+        using namespace tefri;
+
+        {
+            auto pipeline = pipeline_builder()
+                .with_operator(take_last(2))
+                .with_operator(filter([](int v) { return v > 10; }))
+                .build();
+
+            static_assert
+            (
+                metaxxa::Type<decltype(pipeline)>() == metaxxa::Type
+                <
+                    Pipeline
+                    <
+                        metaxxa::Tuple
+                        <
+                            OperatorPtr<detail::TakeLast<int>>,
+                            OperatorPtr<detail::Filter<bool, int>>
+                        >
+                    >
+                >(), 
+                "invalid pipeline with carry operators"
+            ); 
+        }
+
+        return true;
+    }
 };
 
 #endif // TEFRI_TEST_PIPELINEBUILDER_H
