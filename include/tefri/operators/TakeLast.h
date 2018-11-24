@@ -9,28 +9,28 @@ namespace tefri
 {
     namespace detail
     {
-        template <typename HoldedType>
-        class TakeLast : public Operator<HoldedType, HoldedType>
+        template <typename... HoldedTypes>
+        class TakeLast : public Operator<metaxxa::Tuple<HoldedTypes...>, HoldedTypes...>
         {
         public:
-            using typename Operator<HoldedType, HoldedType>::ArgumentsTuple;
-            using typename Operator<HoldedType, HoldedType>::Result;
-            using typename Operator<HoldedType, HoldedType>::OptionalResult;
+            using typename Operator<metaxxa::Tuple<HoldedTypes...>, HoldedTypes...>::ArgumentsTuple;
+            using typename Operator<metaxxa::Tuple<HoldedTypes...>, HoldedTypes...>::Result;
+            using typename Operator<metaxxa::Tuple<HoldedTypes...>, HoldedTypes...>::OptionalResult;
 
             TakeLast(size_t num)
             : queue(num), iterator(nullptr)
             {}
 
-            virtual OptionalResult operator()(const HoldedType &arg) override
+            virtual OptionalResult operator()(const HoldedTypes&... args) override
             {
-                queue.push(arg);
+                queue.push(args...);
                 return OptionalResult();
             }
 
             virtual OptionalResult try_complete() override
             {
                 if(iterator == nullptr)
-                    iterator = std::make_shared<typename RingQueue<HoldedType>::Iterator>(queue.begin());
+                    iterator = std::make_shared<typename RingQueue<metaxxa::Tuple<HoldedTypes...>>::Iterator>(queue.begin());
                 
                 if(*iterator == queue.end())
                     return OptionalResult();
@@ -42,8 +42,8 @@ namespace tefri
             }
 
         private:
-            RingQueue<HoldedType> queue;
-            std::shared_ptr<typename RingQueue<HoldedType>::Iterator> iterator;
+            RingQueue<metaxxa::Tuple<HoldedTypes...>> queue;
+            std::shared_ptr<typename RingQueue<metaxxa::Tuple<HoldedTypes...>>::Iterator> iterator;
         };
     }
 

@@ -24,13 +24,13 @@ public:
 
             TEST(take_last_2_first, "no value on complete take last 2");
             if(take_last_2_first) 
-                TEST(take_last_2_first.value() == 42, "invalid value on complete take last 2");
+                TEST(take_last_2_first.value() == metaxxa::Tuple(42), "invalid value on complete take last 2");
             
             TEST(!take_last_2->try_complete(), "take last 2 doesn't complete when expected");
 
             TEST(take_last_2_second, "no value on complete take last 2");
             if(take_last_2_second)
-                TEST(take_last_2_second.value() == 41, "invalid value on complete take last 2");
+                TEST(take_last_2_second.value() == metaxxa::Tuple(41), "invalid value on complete take last 2");
         }
 
         {
@@ -55,7 +55,7 @@ public:
                 auto taken = take_last_3->try_complete();
                 TEST(taken, "no value on complete take last 3");   
                 if(taken)
-                    TEST(taken.value() == values[i], "invalid value on complete take last 3");
+                    TEST(taken.value() == metaxxa::Tuple(values[i]), "invalid value on complete take last 3");
             }
 
             TEST(!take_last_3->try_complete(), "take last 3 doesn't complete when expected");

@@ -25,14 +25,14 @@ namespace tefri
 		template <typename OperatorPtr, bool IS_TEMPLATE = is_operator_template<typename OperatorPtr::element_type>()>
 		struct Instantiation 
 		{
-			template <typename T>
+			template <typename... T>
 			static auto instantiate(OperatorPtr last_operator)
 			{
-				return metaxxa::Tuple(last_operator->template make_operator<T>());
+				return metaxxa::Tuple(last_operator->template make_operator<T...>());
 			}
 
-			template <typename T>
-			using Result = typename decltype(std::declval<OperatorPtr>()->template make_operator<T>())::element_type::Result;
+			template <typename... T>
+			using Result = typename decltype(std::declval<OperatorPtr>()->template make_operator<T...>())::element_type::Result;
 		};
 
 		template <typename OperatorPtr>
@@ -40,7 +40,7 @@ namespace tefri
 		{
 			using Result = typename OperatorPtr::element_type::Result;
 
-			template <typename T>
+			template <typename... T>
 			static auto instantiate(OperatorPtr last_operator)
 			{
 				return metaxxa::Tuple(last_operator);
