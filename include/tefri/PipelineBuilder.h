@@ -65,9 +65,9 @@ namespace tefri
                     else
                         return Pipeline
                         (
-                            instantiate_operator_templates
+                            instantiate_operator_templates_with_tuple
                             <
-                                typename decltype(_OperatorPtrsTuple::template find_types<NonTemplate>())::Type
+                                typename decltype(_OperatorPtrsTuple::template find_types<NonTemplate>())::Type::ArgumentsTuple
                             >()
                         );
                 }
@@ -130,6 +130,18 @@ namespace tefri
             auto instantiate_operator_templates()
             {
                 return OperatorTemplatesInstatiation<T...>::template instantiate<0>(operator_ptrs_tuple);
+            }
+
+            template <typename Tuple>
+            auto instantiate_operator_templates_with_tuple()
+            {
+                return typename metaxxa::Type
+                <
+                    Tuple
+                >::template MoveTemplateTypes
+                    <
+                        OperatorTemplatesInstatiation
+                    >::template instantiate<0>(operator_ptrs_tuple);
             }
 
             _OperatorPtrsTuple operator_ptrs_tuple;
