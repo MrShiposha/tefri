@@ -52,7 +52,7 @@ namespace tefri::detail
 
         RingQueueIterator(RingQueueIterator &&) = default;
 
-        RingQueueIterator(size_t index, size_t queue_size, size_t total_pushed, std::shared_ptr<T> queue)
+        RingQueueIterator(size_t index, size_t queue_size, size_t total_pushed, std::shared_ptr<uint8_t> queue)
         : index(index), processed_elements(0), total_pushed(total_pushed), queue_size(queue_size), queue(queue)
         {}
 
@@ -129,7 +129,7 @@ namespace tefri::detail
                 throw NoQueueIsSpecified();
             else if(index == NO_INDEX)
                 throw DereferencingIteratorEnd();
-            return queue.get()[index];
+            return *reinterpret_cast<T*>(&queue.get()[index*sizeof(T)]);
         }
 
         const pointer operator->() const
@@ -143,7 +143,7 @@ namespace tefri::detail
                 throw NoQueueIsSpecified();
             else if(index == NO_INDEX)
                 throw DereferencingIteratorEnd();
-            return &queue[index];
+            return reinterpret_cast<T*>(&queue[index]);
         }
 
     private:
@@ -151,7 +151,7 @@ namespace tefri::detail
         size_t             processed_elements;
         size_t             total_pushed;
         size_t             queue_size;
-        std::shared_ptr<T> queue;
+        std::shared_ptr<uint8_t> queue;
     };
 
     template <typename T>
@@ -161,18 +161,27 @@ namespace tefri::detail
         using Iterator = RingQueueIterator<T>;
 
         RingQueue(size_t size)
-        : size(size), total_pushed(0), last_index(0), queue(new T[size], std::default_delete<T[]>())
+        : size(size), total_pushed(0), last_index(0), queue(new uint8_t[size*sizeof(T)], std::default_delete<uint8_t[]>())
         {}
 
         RingQueue(size_t size, const T &value)
         : RingQueue(size) 
         {
-            std::fill(&queue[0], &queue[size], value);
+            for(size_t i = 0; i < size; ++i)
+                push(value);
         }
 
         void push(const T &value)
         {
-            queue.get()[last_index] = value;
+            new (&queue.get()[last_index*sizeof(T)]) T(value);
+            last_index = (last_index + 1) % size;
+            ++total_pushed;
+        }
+
+        template <typename... Args>
+        void emplace(Args&&... args)
+        {
+            new (&queue.get()[last_index*sizeof(T)]) T(std::forward<Args>(args)...);
             last_index = (last_index + 1) % size;
             ++total_pushed;
         }
@@ -184,7 +193,7 @@ namespace tefri::detail
 
         T &operator[](size_t i)
         {
-            return queue.get()[(i + (total_pushed / (size + 1))) % size];
+            return *reinterpret_cast<T*>(&queue.get()[(i + (total_pushed / (size + 1))) % size]);
         }
 
         Iterator begin()
@@ -211,7 +220,7 @@ namespace tefri::detail
         size_t             size;
         size_t             total_pushed;
         size_t             last_index;
-        std::shared_ptr<T> queue;
+        std::shared_ptr<uint8_t> queue;
     };
 }
 

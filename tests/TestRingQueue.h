@@ -49,6 +49,45 @@ public:
 
         return true;
     }
+
+    bool test_emplace()
+    {
+        using namespace tefri::detail;
+
+        {
+            RingQueue<std::tuple<int, char>> queue(4);
+            queue.emplace(1, 'a');
+            queue.emplace(2, 'b');
+            queue.emplace(3, 'c');
+            queue.emplace(4, 'd');
+
+            size_t i = 0;
+            char c = 'a';
+            for(auto &&item : queue)
+                TEST(item == std::tuple(++i, c++), "invalid value in full queue -- possible invalid work of iterators");
+
+            queue.emplace(5, 'e');        
+
+            i = 2;
+            c = 'b';
+            for(auto &&item : queue)
+                TEST(item == std::tuple(i, c), "invalid value in queue that was overflowed");
+        }
+
+        {
+            RingQueue<std::tuple<int, char>> queue(4);
+            queue.emplace(1, 'a');
+            queue.emplace(2, 'b');
+            size_t i = 0;
+            char c = 'a';
+            for(auto &&item : queue)
+                TEST(item == std::tuple(++i, c++), "invalid value in queue which not full");
+            TEST(i == 2, "invalud end iterator position");
+            
+        }
+
+        return true;
+    }
 };
 
 #endif // TEST_TEFRI_DETAIL_RINGQUEUE_H
