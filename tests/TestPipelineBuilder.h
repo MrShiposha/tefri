@@ -13,6 +13,8 @@ public:
         result = result && test_empty_build();
         result = result && test_operator_template_build();
         result = result && test_carry_operator_build();
+        result = result && test_general_operators_build();
+        result = result && test_general_operators_multiple_arguments_build();
 
         return result;
     }
@@ -136,6 +138,60 @@ public:
 
         return true;
     }
+
+    bool test_general_operators_multiple_arguments_build()
+    {
+        using namespace tefri;
+
+        {
+            auto pipeline = pipeline_builder()
+                .with_operator(take_last(2))
+                .with_operator(filter([](int v, char c) { return v > 10 && c != 'a'; }))
+                .build();
+
+            static_assert
+            (
+                metaxxa::Type<decltype(pipeline)>() == metaxxa::Type
+                <
+                    Pipeline
+                    <
+                        metaxxa::Tuple
+                        <
+                            OperatorPtr<detail::TakeLast<int, char>>,
+                            OperatorPtr<detail::Filter<bool, int, char>>
+                        >
+                    >
+                >(), 
+                "invalid pipeline with carry operators"
+            ); 
+        }
+
+        {
+            auto pipeline = pipeline_builder()
+                .with_operator(filter([](int v, char c) { return v > 10 && c != 'a'; }))
+                .with_operator(take_last(2))
+                .build();
+
+            static_assert
+            (
+                metaxxa::Type<decltype(pipeline)>() == metaxxa::Type
+                <
+                    Pipeline
+                    <
+                        metaxxa::Tuple
+                        <
+                            OperatorPtr<detail::Filter<bool, int, char>>,
+                            OperatorPtr<detail::TakeLast<int, char>>
+                        >
+                    >
+                >(), 
+                "invalid pipeline with carry operators"
+            ); 
+        }
+
+        return true;
+    }
+
 };
 
 #endif // TEFRI_TEST_PIPELINEBUILDER_H
