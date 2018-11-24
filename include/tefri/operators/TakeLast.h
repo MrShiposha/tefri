@@ -23,7 +23,7 @@ namespace tefri
 
             virtual OptionalResult operator()(const HoldedTypes&... args) override
             {
-                queue.push(args...);
+                queue.push(metaxxa::Tuple<HoldedTypes...>(args...));
                 return OptionalResult();
             }
 
