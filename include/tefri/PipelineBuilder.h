@@ -61,14 +61,14 @@ namespace tefri
                 if constexpr (CONTAINS_OPERATOR_TEMPLATES)
                 {
                     if constexpr (contains_only_operator_templates())
-                        return Pipeline(instantiate_operator_templates<TEFRI_ANY, 0>());
+                        return Pipeline(instantiate_operator_templates<0, TEFRI_ANY>());
                     else
                         return Pipeline
                         (
                             instantiate_operator_templates
                             <
-                                typename decltype(_OperatorPtrsTuple::template find_types<NonTemplate>())::Type, 
-                                0
+                                0,
+                                typename decltype(_OperatorPtrsTuple::template find_types<NonTemplate>())::Type
                             >()
                         );
                 }
@@ -102,7 +102,7 @@ namespace tefri
                 return _OperatorPtrsTuple::template every_types<ContainsOnlyOperatorTemplates>();
             }
 
-            template <typename T, size_t INDEX>
+            template <size_t INDEX, typename T>
             auto instantiate_operator_templates()
             {
                 using Type                  = std::decay_t<T>;
@@ -115,7 +115,7 @@ namespace tefri
 					return OperatorInstantiation::template instantiate<Type>(current_operator);
                 else
 					return OperatorInstantiation::template instantiate<Type>(current_operator)
-					+ instantiate_operator_templates<typename OperatorInstantiation::Result, INDEX + 1>();
+					+ instantiate_operator_templates<INDEX + 1, typename OperatorInstantiation::Result>();
             }
 
             _OperatorPtrsTuple operator_ptrs_tuple;
