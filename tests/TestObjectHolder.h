@@ -121,7 +121,7 @@ public:
         {
             Some s;
             ObjectHolder obj(std::ref(s));
-            ObjectHolder obj_copy(obj);
+            [[maybe_unused]] ObjectHolder obj_copy(obj);
             
             TEST(Some::copies == 2, "called copy constructor of holded object");
         }
