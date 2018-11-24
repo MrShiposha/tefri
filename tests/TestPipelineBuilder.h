@@ -111,6 +111,29 @@ public:
             ); 
         }
 
+        {
+            auto pipeline = pipeline_builder()
+                .with_operator(filter([](int v) { return v > 10; }))
+                .with_operator(take_last(2))
+                .build();
+
+            static_assert
+            (
+                metaxxa::Type<decltype(pipeline)>() == metaxxa::Type
+                <
+                    Pipeline
+                    <
+                        metaxxa::Tuple
+                        <
+                            OperatorPtr<detail::Filter<bool, int>>,
+                            OperatorPtr<detail::TakeLast<int>>
+                        >
+                    >
+                >(), 
+                "invalid pipeline with carry operators"
+            ); 
+        }
+
         return true;
     }
 };
