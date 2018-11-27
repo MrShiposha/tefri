@@ -5,7 +5,7 @@ import re
 def main():
     file_prefix = 'include/tefri'
     exluded_files = []
-    header_guard_regex = r'#[A-Za-z]+( )*((//( )*)|(/\*( )*))?((TEFRI_[A-Za-z]+(_[A-Za-z]+)*)|(METAXXA))_H(( )*\*/)?'
+    header_guard_regex = r'#[A-Za-z]+( )*((//( )*)|(/\*( )*))?(TEFRI_[A-Za-z]+(_[A-Za-z]+)*)_H(( )*\*/)?'
 
     if not os.path.exists('release') or os.path.isfile('release'):
         os.makedirs('release')
