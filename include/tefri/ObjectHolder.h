@@ -5,25 +5,10 @@
 #include <functional>
 
 #include "external/metaxxa/metaxxa.hpp"
+#include "detail/UnwrapReferenceWrapper.h"
 
 namespace tefri
 {
-    template <typename T, bool IS_REFERENCE_WRAPPER = metaxxa::Type<T>::template is_instantiation_of<std::reference_wrapper>()>
-    struct ObjectTypeImpl 
-    {
-        using Type = T;
-    };
-
-    template <typename T>
-    struct ObjectTypeImpl<T, true>
-    {
-        using Type = typename T::type;
-    };
-
-    template <typename T>
-    using ObjectType = typename ObjectTypeImpl<T>::Type;
-
-
     template <typename T, bool IS_REFERENCE_WRAPPER = metaxxa::Type<T>::template is_instantiation_of<std::reference_wrapper>()>
     struct ObjectWrapperImpl 
     {
@@ -53,7 +38,7 @@ namespace tefri
     class ObjectHolder
     {
     public:
-        using Object        = ObjectType<T>;
+        using Object        = detail::UnwrapReferenceWrapper<T>;
         using ObjectRef     = std::add_lvalue_reference_t<Object>;
         using ObjectWrapper = ObjectWrapper<T>;
 

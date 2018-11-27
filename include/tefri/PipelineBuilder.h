@@ -7,6 +7,7 @@
 #include "operators/OperatorTemplate.h"
 
 #include "detail/Any.h"
+#include "detail/UnwrapObjectHolders.h"
 
 namespace tefri
 {
