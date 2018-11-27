@@ -24,7 +24,7 @@ int main(int argc, char **argv)
         std::make_shared<TestFilter>()
     };
 
-    for(size_t i = 0, size = tests.size(); i < size; ++i)
+    for(int i = 0, size = static_cast<int>(tests.size()); i < size; ++i)
         if(!tests[i]->test())
             return -(i + 1);
 
