@@ -13,8 +13,9 @@ file(GLOB TEST_SRC
 
 add_executable(tefri-tests ${TEST_SRC})
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "linux")
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+
     find_package(Threads)
 
     target_link_libraries(tefri-tests ${CMAKE_THREAD_LIBS_INIT})
-endif(${CMAKE_SYSTEM_NAME} STREQUAL "linux")
+endif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
