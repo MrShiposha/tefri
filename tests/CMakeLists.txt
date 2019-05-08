@@ -11,8 +11,8 @@ file(GLOB TEST_SRC
     "*.cpp"
 )
 
-add_executable(tefri-tests ${TEST_SRC})
-
 if(${CMAKE_SYSTEM_NAME} STREQUAL "linux")
-    target_link_libraries(tefri-tests pthread)
+    add_definitions(-pthread)
 endif(${CMAKE_SYSTEM_NAME} STREQUAL "linux")
+
+add_executable(tefri-tests ${TEST_SRC})
