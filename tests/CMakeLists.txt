@@ -11,8 +11,10 @@ file(GLOB TEST_SRC
     "*.cpp"
 )
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "linux")
-    add_definitions(-pthread)
-endif(${CMAKE_SYSTEM_NAME} STREQUAL "linux")
-
 add_executable(tefri-tests ${TEST_SRC})
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "linux")
+    find_package(Threads)
+
+    target_link_libraries(tefri-tests ${CMAKE_THREAD_LIBS_INIT})
+endif(${CMAKE_SYSTEM_NAME} STREQUAL "linux")
