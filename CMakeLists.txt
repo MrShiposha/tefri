@@ -1,10 +1,29 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
-PROJECT(tefri)
+cmake_minimum_required(VERSION 3.9)
+project(tefri)
 
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmakemodules/util.cmake)
-INCLUDE(${CMAKE_CURRENT_LIST_DIR}/cmakemodules/sources.cmake)
+if(MSVC_VERSION GREATER_EQUAL "1900")
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("/std:c++latest" _cpp_latest_flag_supported)
+    if(_cpp_latest_flag_supported)
+        add_compile_options("/std:c++latest")
+    else()
+        message(FATAL_ERROR "C++17 is required")
+    endif()
+endif()
 
-MAKE_HEADER_ONLY()
-REQUIRE_CXX_17()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-ADD_SUBDIRECTORY(tests)
+find_package(Python3 COMPONENTS Interpreter)
+if(${Python3_Interpreter_FOUND})
+        add_custom_target(
+            make_header_only ALL
+            COMMAND ${Python3_EXECUTABLE} "script/maheo.py" "include/tefri.h" "-o" "tefri.hpp"
+            WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
+            COMMENT "Creating release header"
+        )
+else()
+    message(FATAL_ERROR "python3 is not found")
+endif()
+
+add_subdirectory(tests)

@@ -1,8 +1,0 @@
-#ifndef TEFRI_DETAIL_OPTIONAL_H
-#define TEFRI_DETAIL_OPTIONAL_H
-
-#include "../external/metaxxa/metaxxa.hpp"
-
-#define TEFRI_OPTIONAL METAXXA_EXPAND_MACRO(METAXXA_OPTIONAL)
-
-#endif // TEFRI_DETAIL_OPTIONAL_H

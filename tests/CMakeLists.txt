@@ -1,7 +1,14 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
-PROJECT(tefri-tests)
+cmake_minimum_required(VERSION 3.9)
+project(tefri-tests)
 
-INCLUDE_DIRECTORIES(../include)
+include_directories(
+    ../include
+    ../lib
+)
 
-ADD_EXECUTABLE(tefri-tests ${TEFRI_TESTS_SOURCES})
-ADD_DEPENDENCIES(tefri-tests make_header_only)
+file(GLOB TEST_SRC
+    "*.h"
+    "*.cpp"
+)
+
+add_executable(tefri-tests ${TEST_SRC})
