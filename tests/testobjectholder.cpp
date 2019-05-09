@@ -1,6 +1,3 @@
-#ifndef TEFRI_TEST_OBJECTHOLDER_H
-#define TEFRI_TEST_OBJECTHOLDER_H
-
 #include <thread>
 #include <chrono>
 
@@ -134,5 +131,3 @@ TEST_CASE("test_future_constructor", "[tefri::ObjectHolder]")
     REQUIRE(obj.get_ref() == 42);
 
 }
-
-#endif // TEFRI_TEST_OBJECTHOLDER_H
