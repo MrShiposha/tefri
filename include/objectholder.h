@@ -5,7 +5,7 @@
 #include <future>
 #include <chrono>
 
-#include "../lib/metaxxa.hpp"
+#include "../lib/metaxxa/metaxxa.hpp"
 
 #include "flowvalue.h"
 

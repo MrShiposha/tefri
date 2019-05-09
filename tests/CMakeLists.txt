@@ -4,6 +4,7 @@ project(tefri-tests)
 include_directories(
     ../include
     ../lib
+    ../lib/metaxxa
 )
 
 file(GLOB TEST_SRC

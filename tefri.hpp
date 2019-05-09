@@ -30,7 +30,6 @@
 #include <type_traits>
 #include <utility>
 #include <functional>
-#include <cstring>
 #include <atomic>
 
 #ifndef TEFRI_H
@@ -108,10 +107,6 @@
 #else
     #define metaxxa_inline inline
 #endif
-
-#if __has_include("metaxxa_specs.h")
-#   include "metaxxa_specs.h"
-#endif // specializations
 
 #endif // METAXXA_DEF_H
 
@@ -871,186 +866,6 @@ namespace metaxxa
 #endif // METAXXA_INDEXRANGE_H
 
 
-#ifndef METAXXA_TUPLE_H
-#define METAXXA_TUPLE_H
-
-
-
-namespace metaxxa
-{
-    namespace detail
-    {
-        struct NotTupleElement {};
-    }
-
-    template <typename... Types>
-    class Tuple : public TypeTuple<Types...>
-    {
-    public:
-        using TypeTuple = metaxxa::TypeTuple<Types...>;
-        using TypeTuple::size;
-
-        Tuple();
-
-        Tuple(Types&&... args);
-
-        Tuple(const Types&... args);
-
-        template <typename TupleT>
-        Tuple(const TupleT &);
-
-        Tuple(const Tuple &);
-
-        Tuple(Tuple &&);
-
-        ~Tuple();
-
-        template <typename TupleT>
-        Tuple &operator=(const TupleT &);
-
-        Tuple &operator=(const Tuple &);
-
-        Tuple &operator=(Tuple &&);
-
-        template <std::size_t INDEX>
-        metaxxa_inline auto &get();
-
-        template <std::size_t INDEX>
-        metaxxa_inline const auto &get() const;
-
-        template <typename T>
-        metaxxa_inline auto &get(std::size_t index);
-
-        template <typename T>
-        metaxxa_inline const auto &get(std::size_t index) const;
-
-        metaxxa_inline void *get(std::size_t index);
-
-        metaxxa_inline const void *get(std::size_t index) const;
-
-        metaxxa_inline std::size_t capacity() const;
-
-        metaxxa_inline void shrink_to_fit();
-
-        // template <typename TupleRHS>
-        // metaxxa_inline auto concat(const TupleRHS &) const;
-
-        // template <typename TupleRHS>
-        // metaxxa_inline auto concat_shared(const TupleRHS &) const;
-
-        // template <typename TupleRHS>
-        // metaxxa_inline auto concat_shared_greedy(const TupleRHS &) const;
-
-        template <std::size_t... INDICES>
-        metaxxa_inline auto only_indices
-        (
-            std::index_sequence<INDICES...> 
-#       ifndef _MSC_VER
-            = std::index_sequence<INDICES...> {}
-#       endif // _MSC_VER
-        ) const;
-
-#ifdef _MSC_VER
-        template <std::size_t... INDICES>
-        metaxxa_inline auto only_indices() const;
-#endif // _MSC_VER
-
-        template <std::size_t FROM, std::size_t TO>
-        metaxxa_inline auto take_range() const;
-
-        template <std::size_t FROM, std::size_t TO>
-        metaxxa_inline auto take_range_shared() const;
-
-        template <std::size_t N>
-        metaxxa_inline auto take_first() const;
-
-        template <std::size_t N>
-        metaxxa_inline auto take_first_shared() const;
-
-        template <std::size_t N>
-        metaxxa_inline auto take_last() const;
-
-        template <std::size_t N>
-        metaxxa_inline auto take_last_shared() const;
-
-        template <std::size_t N>
-        metaxxa_inline auto skip_first() const;
-
-        template <std::size_t N>
-        metaxxa_inline auto skip_first_shared() const;
-
-        template <std::size_t N>
-        metaxxa_inline auto skip_last() const;
-
-        template <std::size_t N>
-        metaxxa_inline auto skip_last_shared() const;
-
-    private:
-        template <typename...>
-        friend class Tuple;
-
-        Tuple(detail::NotTupleElement, std::shared_ptr<unsigned char>, std::size_t memory_size, std::size_t offset);
-
-        metaxxa_inline void reallocate(std::size_t);
-
-        template <std::size_t... INDICES>
-        metaxxa_inline void init_offsets(std::size_t start, std::index_sequence<INDICES...>);
-
-        template <std::size_t... INDICES>
-        metaxxa_inline void construct(std::index_sequence<INDICES...>);
-
-        template <std::size_t... INDICES>
-        metaxxa_inline void construct(Types&&... args, std::index_sequence<INDICES...>);
-
-        template <std::size_t... INDICES>
-        metaxxa_inline void construct(const Types&... args, std::index_sequence<INDICES...>);
-
-        template <typename OtherTuple, std::size_t... INDICES>
-        metaxxa_inline void construct(const OtherTuple &other, std::index_sequence<INDICES...>);
-
-        template <std::size_t... INDICES>
-        metaxxa_inline void deallocate(unsigned char *, std::index_sequence<INDICES...>);
-
-        template <std::size_t INDEX, typename T>
-        metaxxa_inline void deallocate();
-
-        std::shared_ptr<unsigned char> data;
-        std::size_t memory_size;
-        std::size_t offsets[TypeTuple::size()];
-    };
-
-    template <typename TupleT>
-    using TupleFrom = MoveParameters<Tuple, TupleT>;
-}
-
-namespace std
-{
-    template <std::size_t INDEX, typename... Args>
-    class tuple_element<INDEX, metaxxa::Tuple<Args...>>
-    {
-    public:
-        using type = std::tuple_element_t<INDEX, typename metaxxa::Tuple<Args...>::TypeTuple>;
-    };
-
-    template <typename... Args>
-    class tuple_size<metaxxa::Tuple<Args...>>
-    {
-    public:
-        static constexpr std::size_t value = std::tuple_size_v<typename metaxxa::Tuple<Args...>::TypeTuple>;
-    };
-
-    template <std::size_t INDEX, typename... Args>
-    auto &get(metaxxa::Tuple<Args...> &);
-
-    template <std::size_t INDEX, typename... Args>
-    auto &get(const metaxxa::Tuple<Args...> &);
-
-    template <typename Callable, typename... Args>
-    constexpr auto apply(Callable &&, metaxxa::Tuple<Args...> &&);
-}
-
-#endif // METAXXA_TUPLE_H
-
 #ifndef METAXXA_ALGORITHM_H
 #define METAXXA_ALGORITHM_H
 
@@ -1494,38 +1309,47 @@ namespace metaxxa
 
 #endif // METAXXA_ALGORITHM_FILTER_H
 
-#ifndef METAXXA_ALGORITHM_APPLY_INC
-#define METAXXA_ALGORITHM_APPLY_INC
+#ifndef METAXXA_ALGORITHM_EVERY_H
+#define METAXXA_ALGORITHM_EVERY_H
 
 
 namespace metaxxa
 {
     namespace detail
     {
-        template <typename Callable, typename Tuple, std::size_t... INDICES>
-        auto apply(Callable &&function, Tuple &&tuple, std::index_sequence<INDICES...>)
+        template 
+        <
+            template <typename> typename Predicate,
+            typename TupleT, 
+            std::size_t... INDICES
+        >
+        constexpr bool every(std::index_sequence<INDICES...>)
         {
-            return std::invoke
-            (
-                std::forward<Callable>(function), 
-                std::get<INDICES>(std::forward<Tuple>(tuple))...
-            );
+            return (true && ... && Predicate<std::tuple_element_t<INDICES, TupleT>>::value);
         }
     }
 
-    template <typename Function, typename Tuple>
-    constexpr auto apply(Function &&function, Tuple &&tuple)
-    {
-        return detail::apply
-        (
-            std::forward<Function>(function), 
-            std::forward<Tuple>(tuple), 
-            std::make_index_sequence<std::tuple_size_v<std::decay_t<Tuple>>>()
-        );
-    }
+    template
+    <
+        template <typename> typename Predicate,
+        typename TupleT
+    >
+    struct Every 
+        : public std::bool_constant
+        <
+            detail::every<Predicate, TupleT>(std::make_index_sequence<std::tuple_size_v<TupleT>>())
+        >
+    {};
+
+    template
+    <
+        template <typename> typename Predicate,
+        typename TupleT
+    >
+    constexpr bool every = Every<Predicate, TupleT>::value;
 }
 
-#endif // METAXXA_ALGORITHM_APPLY_INC
+#endif // METAXXA_ALGORITHM_EVERY_H
 
 
 #ifndef METAXXA_ALGORITHM_INVOKEFUNCTIONS_INC
@@ -1949,377 +1773,6 @@ namespace metaxxa
 #endif // METAXXA_ISINSTANTIATIONOF_H
 
 
-#ifndef METAXXA_TUPLE_INC
-#define METAXXA_TUPLE_INC
-
-
-
-#define ALLOCATE_DATA() \
-    data                                                                                                    \
-    (                                                                                                       \
-        static_cast<unsigned char *>(malloc(detail::memory_size<Args...>())),                               \
-        [this](unsigned char *addr) { deallocate(addr, MakeReverseIndexRange<size(), 0>()); }               \
-    ),                                                                                                      \
-    memory_size(detail::memory_size<Args...>())
-
-namespace metaxxa
-{
-    namespace detail
-    {
-        template <typename... Args>
-        constexpr std::size_t memory_size()
-        {
-            return (0 + ... + sizeof(Args));
-        }
-
-        template <template <typename...> typename Tuple, typename... Args>
-        constexpr std::size_t memory_size(Tuple<Args...> &&)
-        {
-            return memory_size<Args...>();
-        }
-    }
-
-    template <typename... Args>
-    Tuple<Args...>::Tuple()
-    : ALLOCATE_DATA()
-    {
-        construct(std::make_index_sequence<size()>());
-    }
-
-    template <typename... Args>
-    Tuple<Args...>::Tuple(Args&&... args)
-    : ALLOCATE_DATA()
-    {
-        construct(std::forward<Args>(args)..., std::make_index_sequence<size()>());
-    }
-
-    template <typename... Args>
-    Tuple<Args...>::Tuple(const Args&... args)
-    : ALLOCATE_DATA()
-    {
-        construct(args..., std::make_index_sequence<size()>());
-    }
-
-    template <typename... Args>
-    template <typename TupleT>
-    Tuple<Args...>::Tuple(const TupleT &other)
-    : ALLOCATE_DATA()
-    {
-        construct(other, std::make_index_sequence<std::tuple_size_v<TupleT>>());
-    }
-
-    template <typename... Args>
-    Tuple<Args...>::Tuple(const Tuple &other)
-    : ALLOCATE_DATA()
-    {
-        construct(other, std::make_index_sequence<size()>());
-    }
-
-    template <typename... Args>
-    Tuple<Args...>::Tuple(Tuple &&other)
-    : data(other.data), memory_size(other.memory_size)
-    {
-        other.data = nullptr;
-        for(std::size_t i = 0; i < size(); ++i)
-            offsets[i] = other.offsets[i];
-    }
-
-    template <typename... Args>
-    Tuple<Args...>::Tuple(detail::NotTupleElement, std::shared_ptr<unsigned char> data, std::size_t memory_size, std::size_t offset)
-    : data(data), memory_size(memory_size)
-    {
-        init_offsets(offset, std::make_index_sequence<TypeTuple::size()>());
-    }
-
-    template <typename... Args>
-    Tuple<Args...>::~Tuple()
-    {}
-
-    template <typename... Args>
-    template <typename TupleT>
-    Tuple<Args...> &Tuple<Args...>::operator=(const TupleT &rhs)
-    {
-        return *this = std::move(Tuple(rhs));
-    }
-
-    template <typename... Args>
-    Tuple<Args...> &Tuple<Args...>::operator=(const Tuple &rhs)
-    {
-        if(this != &rhs)
-            *this = std::move(Tuple(rhs));
-
-        return *this;
-    }
-
-    template <typename... Args>
-    Tuple<Args...> &Tuple<Args...>::operator=(Tuple &&rhs)
-    {
-        data = rhs.data;
-        rhs.data = nullptr;
-        return *this;
-    }
-
-    template <typename... Args>
-    metaxxa_inline void *Tuple<Args...>::get(std::size_t index)
-    {
-        return static_cast<void *>(data.get() + offsets[index]);
-    }
-
-    template <typename... Args>
-    metaxxa_inline const void *Tuple<Args...>::get(std::size_t index) const
-    {
-        return const_cast<Tuple<Args...>*>(this)->get(index);
-    }
-
-    template <typename... Args>
-    template <typename T>
-    metaxxa_inline auto &Tuple<Args...>::get(std::size_t index)
-    {
-        return *static_cast<T*>(get(index));
-    }
-
-    template <typename... Args>
-    template <typename T>
-    metaxxa_inline const auto &Tuple<Args...>::get(std::size_t index) const
-    {
-        return const_cast<Tuple<Args...>*>(this)->template get<T>(index);
-    }
-
-    template <typename... Args>
-    template <std::size_t INDEX>
-    metaxxa_inline auto &Tuple<Args...>::get()
-    {
-        return get<typename TypeTuple::template Get<INDEX>>(INDEX);
-    }
-
-    template <typename... Args>
-    template <std::size_t INDEX>
-    metaxxa_inline const auto &Tuple<Args...>::get() const
-    {
-        return const_cast<Tuple<Args...>*>(this)->template get<INDEX>();
-    }
-
-    template <typename... Args>
-    metaxxa_inline std::size_t Tuple<Args...>::capacity() const
-    {
-        return memory_size;
-    }
-
-    template <typename... Args>
-    metaxxa_inline void Tuple<Args...>::shrink_to_fit()
-    {
-        reallocate(detail::memory_size<Args...>());
-    }
-
-    // template <typename... Args>
-    // template <typename TupleRHS>
-    // metaxxa_inline auto Tuple<Args...>::concat(const TupleRHS &rhs) const
-    // {
-    //     using ResultTuple = Concat<::metaxxa::Tuple, Tuple, TupleRHS>;
-    //     return ResultTuple();
-    // }
-
-    // template <typename... Args>
-    // template <typename TupleRHS>
-    // metaxxa_inline auto Tuple<Args...>::concat_shared(const TupleRHS &rhs) const
-    // {
-
-    // }
-
-    // template <typename... Args>
-    // template <typename TupleRHS>
-    // metaxxa_inline auto Tuple<Args...>::concat_shared_greedy(const TupleRHS &rhs) const
-    // {
-
-    // }
-
-    template <typename... Args>
-    template <std::size_t... INDICES>
-    metaxxa_inline auto Tuple<Args...>::only_indices(std::index_sequence<INDICES...>) const
-    {
-        return Tuple<std::tuple_element_t<INDICES, Tuple>...>(get<INDICES>()...);
-    }
-
-#   ifdef _MSC_VER
-    template <typename... Args>
-    template <std::size_t... INDICES>
-    metaxxa_inline auto Tuple<Args...>::only_indices() const
-    {
-        return Tuple<std::tuple_element_t<INDICES, Tuple>...>(get<INDICES>()...);
-    }
-#   endif // _MSC_VER
-
-
-    template <typename... Args>
-    template <std::size_t FROM, std::size_t TO>
-    metaxxa_inline auto Tuple<Args...>::take_range() const
-    {
-        return only_indices(MakeIndexRange<FROM, TO>());
-    }
-
-    template <typename... Args>
-    template <std::size_t FROM, std::size_t TO>
-    metaxxa_inline auto Tuple<Args...>::take_range_shared() const
-    {
-        using ResultTuple = TakeRange<::metaxxa::Tuple, Tuple, FROM, TO>;
-        return ResultTuple(detail::NotTupleElement{}, data, memory_size, offsets[FROM]);
-    }
-
-    template <typename... Args>
-    template <std::size_t N>
-    metaxxa_inline auto Tuple<Args...>::take_first() const
-    {
-        return take_range<0, N>();
-    }
-
-    template <typename... Args>
-    template <std::size_t N>
-    metaxxa_inline auto Tuple<Args...>::take_first_shared() const
-    {
-        return take_range_shared<0, N>();
-    }
-
-    template <typename... Args>
-    template <std::size_t N>
-    metaxxa_inline auto Tuple<Args...>::take_last() const
-    {
-        return take_range<size() - N, size()>();
-    }
-
-    template <typename... Args>
-    template <std::size_t N>
-    metaxxa_inline auto Tuple<Args...>::take_last_shared() const
-    {
-        return take_range_shared<size() - N, size()>();
-    }
-
-    template <typename... Args>
-    template <std::size_t N>
-    metaxxa_inline auto Tuple<Args...>::skip_first() const
-    {
-        return take_range<N, size()>();
-    }
-
-    template <typename... Args>
-    template <std::size_t N>
-    metaxxa_inline auto Tuple<Args...>::skip_first_shared() const
-    {
-        return take_range_shared<N, size()>();
-    }
-
-    template <typename... Args>
-    template <std::size_t N>
-    metaxxa_inline auto Tuple<Args...>::skip_last() const
-    {
-        return take_range<0, size() - N>();
-    }
-
-    template <typename... Args>
-    template <std::size_t N>
-    metaxxa_inline auto Tuple<Args...>::skip_last_shared() const
-    {
-        return take_range_shared<0, size() - N>();
-    }
-
-    template <typename... Args>
-    metaxxa_inline void Tuple<Args...>::reallocate(std::size_t new_memory_size)
-    {
-        if(new_memory_size != memory_size)
-        {
-            auto *new_data = static_cast<unsigned char *>(malloc(new_memory_size));
-            std::memcpy(new_data, data.get(), std::min(new_memory_size, memory_size));
-            data.reset(new_data);   
-
-            memory_size = new_memory_size;
-        }
-    }
-
-    template <typename... Args>
-    template <std::size_t... INDICES>
-    metaxxa_inline void Tuple<Args...>::init_offsets(std::size_t start, std::index_sequence<INDICES...>)
-    {
-        ((void)(offsets[INDICES] = start + detail::memory_size(TakeFirst<TypeList, TypeTuple, INDICES>())), ...);
-    }
-
-    template <typename... Args>
-    template <std::size_t... INDICES>
-    metaxxa_inline void Tuple<Args...>::construct(std::index_sequence<INDICES...> seq)
-    {
-        init_offsets(0, seq);
-
-        if(data)
-            ((void)(new (get(INDICES)) typename TypeTuple::template Get<INDICES>()), ...);
-    }
-
-    template <typename... Args>
-    template <std::size_t... INDICES>
-    metaxxa_inline void Tuple<Args...>::construct(Args&&... args, std::index_sequence<INDICES...> seq)
-    {
-        init_offsets(0, seq);
-
-        if(data)
-            ((void)(new (get(INDICES)) typename TypeTuple::template Get<INDICES>(std::forward<Args>(args))), ...);
-    }
-
-    template <typename... Args>
-    template <std::size_t... INDICES>
-    metaxxa_inline void Tuple<Args...>::construct(const Args&... args, std::index_sequence<INDICES...> seq)
-    {
-        init_offsets(0, seq);
-
-        if(data)
-            ((void)(new (get(INDICES)) typename TypeTuple::template Get<INDICES>(args)), ...);
-    }
-
-    template <typename... Args>
-    template <typename OtherTuple, std::size_t... INDICES>
-    metaxxa_inline void Tuple<Args...>::construct(const OtherTuple &other, std::index_sequence<INDICES...> seq)
-    {
-        init_offsets(0, seq);
-
-        if(data)
-            ((void)(new (get(INDICES)) typename TypeTuple::template Get<INDICES>(std::get<INDICES>(other))), ...);
-    }
-
-    template <typename... Args>
-    template <std::size_t... INDICES>
-    metaxxa_inline void Tuple<Args...>::deallocate(unsigned char *addr, std::index_sequence<INDICES...>)
-    {
-        if(data)
-        {
-            (deallocate<INDICES, typename TypeTuple::template Get<INDICES>>(), ...);
-            ::free(addr);
-        }
-    }
-
-    template <typename... Args>
-    template <std::size_t INDEX, typename T>
-    metaxxa_inline void Tuple<Args...>::deallocate()
-    {
-        get<INDEX>().~T();
-    }
-}
-
-namespace std
-{
-    template <std::size_t INDEX, typename... Args>
-    auto &get(metaxxa::Tuple<Args...> &tuple)
-    {
-        return tuple.template get<INDEX>();
-    }
-
-    template <std::size_t INDEX, typename... Args>
-    auto &get(const metaxxa::Tuple<Args...> &tuple)
-    {
-        return tuple.template get<INDEX>();
-    }
-}
-
-#undef ALLOCATE_DATA
-
-#endif // METAXXA_TUPLE_INC
-
-
 #endif // METAXXA_HPP
 
 
@@ -2585,6 +2038,388 @@ namespace tefri
 }
 
 #endif // TEFRI_OBJECTHOLDER_INC
+
+#ifndef TEFRI_TUPLE_INC
+#define TEFRI_TUPLE_INC
+
+
+#ifndef TEFRI_TUPLE_H
+#define TEFRI_TUPLE_H
+
+
+
+namespace tefri
+{
+    namespace detail
+    {
+        struct ShareTuple {};
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Types
+    >
+    class Tuple final : public metaxxa::TypeTuple<Types...>
+    {
+    public:
+        using TypeTuple         = metaxxa::TypeTuple<Types...>;
+        
+        template <typename T>
+        using ContainerTemplate = PtrContainer<T>;
+        using Container         = PtrContainer<std::shared_ptr<void>>;
+        using Objects           = std::shared_ptr<Container>;
+
+        using TypeTuple::is_empty;
+        using TypeTuple::get_size;
+        using TypeTuple::size;
+
+        Tuple(Types&&...);
+
+        Tuple(const Types &...);
+
+        Tuple(Types*...);
+
+        Tuple(std::shared_ptr<Types>...);
+
+        Tuple(const Tuple &);
+
+        Tuple(Tuple &&);
+
+        ~Tuple();
+
+        Tuple &operator=(const Tuple &);
+
+        Tuple &operator=(Tuple &&);
+
+        template <std::size_t INDEX>
+        auto get()
+            -> typename TypeTuple::template Get<INDEX> &;
+
+        template <std::size_t INDEX>
+        auto get() const
+            -> std::add_const_t<typename TypeTuple::template Get<INDEX>> &;
+
+        template <std::size_t INDEX>
+        auto get_ptr()
+            -> std::shared_ptr<typename TypeTuple::template Get<INDEX>>;
+
+        template <std::size_t INDEX>
+        auto get_ptr() const
+            -> std::shared_ptr<std::add_const_t<typename TypeTuple::template Get<INDEX>>>;
+
+        std::shared_ptr<void> get_ptr(std::size_t index);
+
+        std::shared_ptr<const void> get_ptr(std::size_t index) const;
+
+        Objects raw_objects();
+
+        const Objects raw_objects() const;
+
+        Tuple share();
+
+        const Tuple share() const;
+
+    private:
+        Tuple(detail::ShareTuple, Objects);
+
+        template <std::size_t... INDICES>
+        void deallocate(std::index_sequence<INDICES...>);
+
+        Objects objects;
+    };
+}
+
+namespace std
+{
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
+    class tuple_element<INDEX, tefri::Tuple<PtrContainer, Args...>>
+    {
+    public:
+        using type = std::tuple_element_t<INDEX, metaxxa::TypeTuple<Args...>>;
+    };
+
+    template <template <typename, typename...> typename PtrContainer, typename... Args>
+    class tuple_size<tefri::Tuple<PtrContainer, Args...>> 
+        : public std::integral_constant<std::size_t, sizeof...(Args)>
+    {};
+
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
+    auto &get(tefri::Tuple<PtrContainer, Args...> &);
+
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
+    const auto &get(const tefri::Tuple<PtrContainer, Args...> &);
+}
+
+#endif // TEFRI_TUPLE_H
+
+namespace tefri
+{
+    using namespace metaxxa;
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    Tuple<PtrContainer, Args...>::Tuple(Args&&... args)
+    : objects
+    (
+        std::make_shared<Container>
+        (
+            std::initializer_list<std::shared_ptr<void>> 
+            {
+                std::static_pointer_cast<void>(std::make_shared<Args>(std::forward<Args>(args)))...
+            }
+        )
+    )
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    Tuple<PtrContainer, Args...>::Tuple(const Args &... args)
+    : objects
+    (
+        std::make_shared<Container>
+        (
+            std::initializer_list<std::shared_ptr<void>> 
+            {
+                std::static_pointer_cast<void>(std::make_shared<Args>(args))...
+            }
+        )
+    )
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    Tuple<PtrContainer, Args...>::Tuple(Args*... args)
+    : Tuple(std::shared_ptr<Args>(args)...)
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    Tuple<PtrContainer, Args...>::Tuple(std::shared_ptr<Args>... args)
+    : objects
+    (
+        std::make_shared<Container>
+        (
+            std::initializer_list<std::shared_ptr<void>> 
+            { 
+                std::static_pointer_cast<void>(args)... 
+            }
+        )
+    )
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    Tuple<PtrContainer, Args...>::Tuple(const Tuple &o)
+    : objects(std::make_shared<Container>(*o.objects))
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    Tuple<PtrContainer, Args...>::Tuple(Tuple &&o)
+    : objects(std::move(o.objects))
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    Tuple<PtrContainer, Args...>::~Tuple()
+    {
+        deallocate(MakeReverseIndexRange<size(), 0>());
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    Tuple<PtrContainer, Args...>::Tuple(detail::ShareTuple, Objects objects)
+    : objects(objects)
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    Tuple<PtrContainer, Args...> &Tuple<PtrContainer, Args...>::operator=(const Tuple &rhs)
+    {
+        if(this != &rhs)
+            *this = std::move(Tuple<PtrContainer, Args...>(rhs));
+
+        return *this;
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    Tuple<PtrContainer, Args...> &Tuple<PtrContainer, Args...>::operator=(Tuple &&rhs)
+    {
+        objects = std::move(rhs.objects);
+        return *this;
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t... INDICES>
+    void Tuple<PtrContainer, Args...>::deallocate(std::index_sequence<INDICES...>)
+    {
+        ((*objects)[INDICES].reset(), ...);
+        objects.reset();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t INDEX>
+    auto Tuple<PtrContainer, Args...>::get()
+        -> typename TypeTuple::template Get<INDEX> &
+    {
+        return *get_ptr<INDEX>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t INDEX>
+    auto Tuple<PtrContainer, Args...>::get() const
+        -> std::add_const_t<typename TypeTuple::template Get<INDEX>> &
+    {
+        return const_cast<Tuple>(this)->template get<INDEX>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t INDEX>
+    auto Tuple<PtrContainer, Args...>::get_ptr()
+        -> std::shared_ptr<typename TypeTuple::template Get<INDEX>>
+    {
+        return std::static_pointer_cast<typename TypeTuple::template Get<INDEX>>(get_ptr(INDEX));        
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t INDEX>
+    auto Tuple<PtrContainer, Args...>::get_ptr() const
+        -> std::shared_ptr<std::add_const_t<typename TypeTuple::template Get<INDEX>>>
+    {
+        return const_cast<Tuple>(this)->template get_ptr<INDEX>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    std::shared_ptr<void> Tuple<PtrContainer, Args...>::get_ptr(std::size_t index)
+    {
+        assert(index < objects->size());
+
+        return *(objects->begin() + index);
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    std::shared_ptr<const void> Tuple<PtrContainer, Args...>::get_ptr(std::size_t index) const
+    {
+        return const_cast<Tuple>(this)->get_ptr(index);
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    typename Tuple<PtrContainer, Args...>::Objects Tuple<PtrContainer, Args...>::raw_objects()
+    {
+        return objects;
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    const typename Tuple<PtrContainer, Args...>::Objects Tuple<PtrContainer, Args...>::raw_objects() const
+    {
+        return const_cast<Tuple>(this)->objects();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    Tuple<PtrContainer, Args...> Tuple<PtrContainer, Args...>::share()
+    {
+        return Tuple(detail::ShareTuple{}, objects);
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    const Tuple<PtrContainer, Args...> Tuple<PtrContainer, Args...>::share() const
+    {
+        return Tuple(detail::ShareTuple{}, objects);
+    }
+}
+
+namespace std
+{
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
+    auto &get(tefri::Tuple<PtrContainer, Args...> &tuple)
+    {
+        return tuple.template get<INDEX>();
+    }
+
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
+    const auto &get(const tefri::Tuple<PtrContainer, Args...> &tuple)
+    {
+        return tuple.template get<INDEX>();
+    }
+}
+
+#endif // TEFRI_TUPLE_INC
 
 #endif // TEFRI_H
 
