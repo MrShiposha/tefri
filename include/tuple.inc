@@ -12,6 +12,24 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
+    Tuple<PtrContainer, Args...>::Tuple()
+    : objects
+    (
+        std::make_shared<Container>
+        (
+            std::initializer_list<std::shared_ptr<void>> 
+            {
+                std::static_pointer_cast<void>(std::make_shared<Args>())...
+            }
+        )
+    )
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
     Tuple<PtrContainer, Args...>::Tuple(Args&&... args)
     : objects
     (
@@ -94,9 +112,7 @@ namespace tefri
         typename... Args
     >
     Tuple<PtrContainer, Args...>::~Tuple()
-    {
-        deallocate(MakeReverseIndexRange<size(), 0>());
-    }
+    {}
 
     template 
     <
@@ -129,18 +145,6 @@ namespace tefri
     {
         objects = std::move(rhs.objects);
         return *this;
-    }
-
-    template 
-    <
-        template <typename, typename...> typename PtrContainer,
-        typename... Args
-    >
-    template <std::size_t... INDICES>
-    void Tuple<PtrContainer, Args...>::deallocate(std::index_sequence<INDICES...>)
-    {
-        ((*objects)[INDICES].reset(), ...);
-        objects.reset();
     }
 
     template 
@@ -218,6 +222,54 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
+    template <typename T>
+    Tuple<PtrContainer, Args..., T> Tuple<PtrContainer, Args...>::push_back(T &&obj)
+    {
+        objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(std::forward<T>(obj))));
+        return reinterpret<Args..., T>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename T>
+    Tuple<PtrContainer, Args..., T> Tuple<PtrContainer, Args...>::push_back(const T &obj)
+    {
+        objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(obj)));
+        return reinterpret<Args..., T>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename T, typename... ArgsT>
+    Tuple<PtrContainer, Args..., T> Tuple<PtrContainer, Args...>::emplace_back(ArgsT&&... args)
+    {
+        objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(std::forward<Args>(args)...)));
+        return reinterpret<Args..., T>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename T, typename... ArgsT>
+    Tuple<PtrContainer, Args..., T> Tuple<PtrContainer, Args...>::emplace_back(const ArgsT &... args)
+    {
+        objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(args...)));
+        return reinterpret<Args..., T>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
     typename Tuple<PtrContainer, Args...>::Objects Tuple<PtrContainer, Args...>::raw_objects()
     {
         return objects;
@@ -252,6 +304,191 @@ namespace tefri
     {
         return Tuple(detail::ShareTuple{}, objects);
     }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename... NewTypes>
+    Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer, Args...>::reinterpret()
+    {
+        return Tuple<PtrContainer, NewTypes...>(detail::ShareTuple{}, objects);
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename... NewTypes>
+    const Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer, Args...>::reinterpret() const
+    {
+        return const_cast<Tuple>(this)->reinterpret<NewTypes...>();
+    }
+
+
+    // empty spec //
+    
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    Tuple<PtrContainer>::Tuple()
+    : objects(std::make_shared<Container>())
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    Tuple<PtrContainer>::Tuple(const Tuple &)
+    : objects(std::make_shared<Container>())
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    Tuple<PtrContainer>::Tuple(Tuple &&o)
+    : objects(std::move(o.objects))
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    Tuple<PtrContainer>::Tuple(detail::ShareTuple, Objects objects)
+    : objects(objects)
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    Tuple<PtrContainer>::~Tuple()
+    {}
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    Tuple<PtrContainer> &Tuple<PtrContainer>::operator=(const Tuple &rhs)
+    {
+        return *this;
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    Tuple<PtrContainer> &Tuple<PtrContainer>::operator=(Tuple &&rhs)
+    {
+        objects = std::move(rhs.objects);
+        return *this;
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    template <typename NewObject>
+    Tuple<PtrContainer, NewObject> Tuple<PtrContainer>::push_back(NewObject &&obj)
+    {
+        objects->push_back(std::static_pointer_cast<void>(std::make_shared<NewObject>(std::forward<NewObject>(obj))));
+        return reinterpret<NewObject>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    template <typename NewObject>
+    Tuple<PtrContainer, NewObject> Tuple<PtrContainer>::push_back(const NewObject &obj)
+    {
+        objects->push_back(std::static_pointer_cast<void>(std::make_shared<NewObject>(obj)));
+        return reinterpret<NewObject>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    template <typename NewObject, typename... Args>
+    Tuple<PtrContainer, NewObject> Tuple<PtrContainer>::emplace_back(Args&&... args)
+    {
+        objects->push_back(std::static_pointer_cast<void>(std::make_shared<NewObject>(std::forward<Args>(args)...)));
+        return reinterpret<NewObject>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    template <typename NewObject, typename... Args>
+    Tuple<PtrContainer, NewObject> Tuple<PtrContainer>::emplace_back(const Args &... args)
+    {
+        objects->push_back(std::static_pointer_cast<void>(std::make_shared<NewObject>(args...)));
+        return reinterpret<NewObject>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    typename Tuple<PtrContainer>::Objects Tuple<PtrContainer>::raw_objects()
+    {
+        return objects;
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    const typename Tuple<PtrContainer>::Objects Tuple<PtrContainer>::raw_objects() const
+    {
+        return const_cast<Tuple>(this)->objects();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    Tuple<PtrContainer> Tuple<PtrContainer>::share()
+    {
+        return Tuple(detail::ShareTuple{}, objects);
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    const Tuple<PtrContainer> Tuple<PtrContainer>::share() const
+    {
+        return const_cast<Tuple>(this)->share();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    template <typename... NewTypes>
+    Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer>::reinterpret()
+    {
+        return Tuple<PtrContainer, NewTypes...>(detail::ShareTuple{}, objects);
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    template <typename... NewTypes>
+    const Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer>::reinterpret() const
+    {
+        return const_cast<Tuple>(this)->reinterpret<NewTypes...>();
+    }
+
+    // empty spec //
 }
 
 namespace std

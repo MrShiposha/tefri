@@ -1,5 +1,7 @@
 #include "tests.h"
 
+#include <iostream>
+
 using namespace tefri;
 
 TEST_CASE("Tuple creation/getting", "[tefri::Tuple]")
@@ -71,4 +73,21 @@ TEST_CASE("Test share", "[tefri::Tuple]")
     auto shared = tuple.share();
 
     REQUIRE(tuple.raw_objects() == shared.raw_objects());
+}
+
+TEST_CASE("Add element", "[tefri::Tuple]")
+{
+    Tuple<std::vector> t0;
+
+    auto t1 = t0.push_back(144);
+    auto t2 = t1.push_back(3.14);
+    auto t3 = t2.push_back('z');
+
+    REQUIRE(t0.raw_objects() == t1.raw_objects());
+    REQUIRE(t1.raw_objects() == t2.raw_objects());
+    REQUIRE(t3.raw_objects() == t3.raw_objects());
+
+    REQUIRE(t3.template get<0>() == 144);
+    REQUIRE(t3.template get<1>() == Approx(3.14));
+    REQUIRE(t3.template get<2>() == 'z');
 }

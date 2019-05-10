@@ -31,6 +31,8 @@ namespace tefri
         using TypeTuple::get_size;
         using TypeTuple::size;
 
+        Tuple();
+
         Tuple(Types&&...);
 
         Tuple(const Types &...);
@@ -69,6 +71,18 @@ namespace tefri
 
         std::shared_ptr<const void> get_ptr(std::size_t index) const;
 
+        template <typename NewObject>
+        Tuple<PtrContainer, Types..., NewObject> push_back(NewObject &&);
+
+        template <typename NewObject>
+        Tuple<PtrContainer, Types..., NewObject> push_back(const NewObject &);
+
+        template <typename NewObject, typename... Args>
+        Tuple<PtrContainer, Types..., NewObject> emplace_back(Args&&...);
+
+        template <typename NewObject, typename... Args>
+        Tuple<PtrContainer, Types..., NewObject> emplace_back(const Args &...);
+
         Objects raw_objects();
 
         const Objects raw_objects() const;
@@ -77,13 +91,89 @@ namespace tefri
 
         const Tuple share() const;
 
+        template <typename... NewTypes>
+        Tuple<PtrContainer, NewTypes...> reinterpret();
+
+        template <typename... NewTypes>
+        const Tuple<PtrContainer, NewTypes...> reinterpret() const;
+
+    private:
+        template 
+        <
+            template <typename, typename...> typename, 
+            typename...
+        >
+        friend class Tuple;
+
+        Tuple(detail::ShareTuple, Objects);
+
+        Objects objects;
+    };
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    class Tuple<PtrContainer> final : public metaxxa::TypeTuple<>
+    {
+    public:
+        using TypeTuple         = metaxxa::TypeTuple<>;
+        
+        template <typename T>
+        using ContainerTemplate = PtrContainer<T>;
+        using Container         = PtrContainer<std::shared_ptr<void>>;
+        using Objects           = std::shared_ptr<Container>;
+
+        Tuple();
+
+        Tuple(const Tuple &);
+
+        Tuple(Tuple &&);
+
+        ~Tuple();
+
+        Tuple &operator=(const Tuple &);
+
+        Tuple &operator=(Tuple &&);
+
+        template <typename NewObject>
+        Tuple<PtrContainer, NewObject> push_back(NewObject &&);
+
+        template <typename NewObject>
+        Tuple<PtrContainer, NewObject> push_back(const NewObject &);
+
+        template <typename NewObject, typename... Args>
+        Tuple<PtrContainer, NewObject> emplace_back(Args&&...);
+
+        template <typename NewObject, typename... Args>
+        Tuple<PtrContainer, NewObject> emplace_back(const Args &...);
+
+        Objects raw_objects();
+
+        const Objects raw_objects() const;
+
+        Tuple share();
+
+        const Tuple share() const;
+
+        template <typename... NewTypes>
+        Tuple<PtrContainer, NewTypes...> reinterpret();
+
+        template <typename... NewTypes>
+        const Tuple<PtrContainer, NewTypes...> reinterpret() const;
+
     private:
         Tuple(detail::ShareTuple, Objects);
 
-        template <std::size_t... INDICES>
-        void deallocate(std::index_sequence<INDICES...>);
-
         Objects objects;
+    };
+
+    template <template <typename, typename...> typename PtrContainer>
+    class DraftTuple
+    {
+    public:
+        template <typename... Types>
+        using Tuple = ::tefri::Tuple<PtrContainer, Types...>;
     };
 }
 
