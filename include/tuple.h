@@ -105,7 +105,7 @@ namespace tefri
         >
         friend class Tuple;
 
-        Tuple(detail::ShareTuple, Objects);
+        Tuple(Objects);
 
         Objects objects;
     };
@@ -163,7 +163,7 @@ namespace tefri
         const Tuple<PtrContainer, NewTypes...> reinterpret() const;
 
     private:
-        Tuple(detail::ShareTuple, Objects);
+        Tuple(Objects);
 
         Objects objects;
     };

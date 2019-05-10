@@ -2148,7 +2148,7 @@ namespace tefri
         >
         friend class Tuple;
 
-        Tuple(detail::ShareTuple, Objects);
+        Tuple(Objects);
 
         Objects objects;
     };
@@ -2206,7 +2206,7 @@ namespace tefri
         const Tuple<PtrContainer, NewTypes...> reinterpret() const;
 
     private:
-        Tuple(detail::ShareTuple, Objects);
+        Tuple(Objects);
 
         Objects objects;
     };
@@ -2359,7 +2359,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...>::Tuple(detail::ShareTuple, Objects objects)
+    Tuple<PtrContainer, Args...>::Tuple(Objects objects)
     : objects(objects)
     {}
 
@@ -2532,7 +2532,7 @@ namespace tefri
     >
     Tuple<PtrContainer, Args...> Tuple<PtrContainer, Args...>::share()
     {
-        return Tuple(detail::ShareTuple{}, objects);
+        return Tuple(objects);
     }
 
     template 
@@ -2542,7 +2542,7 @@ namespace tefri
     >
     const Tuple<PtrContainer, Args...> Tuple<PtrContainer, Args...>::share() const
     {
-        return Tuple(detail::ShareTuple{}, objects);
+        return Tuple(objects);
     }
 
     template 
@@ -2553,7 +2553,7 @@ namespace tefri
     template <typename... NewTypes>
     Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer, Args...>::reinterpret()
     {
-        return Tuple<PtrContainer, NewTypes...>(detail::ShareTuple{}, objects);
+        return Tuple<PtrContainer, NewTypes...>(objects);
     }
 
     template 
@@ -2598,7 +2598,7 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    Tuple<PtrContainer>::Tuple(detail::ShareTuple, Objects objects)
+    Tuple<PtrContainer>::Tuple(Objects objects)
     : objects(objects)
     {}
 
@@ -2696,7 +2696,7 @@ namespace tefri
     >
     Tuple<PtrContainer> Tuple<PtrContainer>::share()
     {
-        return Tuple(detail::ShareTuple{}, objects);
+        return Tuple(objects);
     }
 
     template 
@@ -2715,7 +2715,7 @@ namespace tefri
     template <typename... NewTypes>
     Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer>::reinterpret()
     {
-        return Tuple<PtrContainer, NewTypes...>(detail::ShareTuple{}, objects);
+        return Tuple<PtrContainer, NewTypes...>(objects);
     }
 
     template 
