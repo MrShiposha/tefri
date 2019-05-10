@@ -324,7 +324,7 @@ namespace tefri
     template <typename... NewTypes>
     const Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer, Args...>::reinterpret() const
     {
-        return const_cast<Tuple>(this)->reinterpret<NewTypes...>();
+        return const_cast<Tuple>(this)->template reinterpret<NewTypes...>();
     }
 
 
@@ -485,7 +485,7 @@ namespace tefri
     template <typename... NewTypes>
     const Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer>::reinterpret() const
     {
-        return const_cast<Tuple>(this)->reinterpret<NewTypes...>();
+        return const_cast<Tuple>(this)->template reinterpret<NewTypes...>();
     }
 
     // empty spec //
