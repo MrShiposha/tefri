@@ -226,6 +226,192 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
+    template <std::size_t FROM, std::size_t TO>
+    auto GeneralTuple<PtrContainer, Args...>::take_range() const 
+        -> metaxxa::TakeRange
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            FROM, TO
+        >
+    {
+        using Result = metaxxa::TakeRange
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            FROM, TO
+        >;
+
+        Objects objects_copy = std::make_shared<Container>(*objects);
+
+        return Result(objects_copy, FROM); 
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t FROM, std::size_t TO>
+    auto GeneralTuple<PtrContainer, Args...>::take_range_shared() const 
+        -> metaxxa::TakeRange
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            FROM, TO
+        >
+    {
+        using Result = metaxxa::TakeRange
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            FROM, TO
+        >;
+
+        return Result(objects, FROM); 
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t N>
+    auto GeneralTuple<PtrContainer, Args...>::take_first() const 
+        -> metaxxa::TakeFirst
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            N
+        >
+    {
+        return take_range<0, N>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t N>
+    auto GeneralTuple<PtrContainer, Args...>::take_first_shared() const 
+        -> metaxxa::TakeFirst
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            N
+        >
+    {
+        return take_range_shared<0, N>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t N>
+    auto GeneralTuple<PtrContainer, Args...>::take_last() const 
+        -> metaxxa::TakeLast
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            N
+        >
+    {
+        return take_range<size() - N, size()>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t N>
+    auto GeneralTuple<PtrContainer, Args...>::take_last_shared() const 
+        -> metaxxa::TakeLast
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            N
+        >
+    {
+        return take_range_shared<size() - N, size()>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t N>
+    auto GeneralTuple<PtrContainer, Args...>::skip_first() const 
+        -> metaxxa::SkipFirst
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            N
+        >
+    {
+        return take_range<N, size()>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t N>
+    auto GeneralTuple<PtrContainer, Args...>::skip_first_shared() const 
+        -> metaxxa::SkipFirst
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            N
+        >
+    {
+        return take_range_shared<N, size()>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t N>
+    auto GeneralTuple<PtrContainer, Args...>::skip_last() const 
+        -> metaxxa::SkipLast
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            N
+        >
+    {
+        return take_range<0, size() - N>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <std::size_t N>
+    auto GeneralTuple<PtrContainer, Args...>::skip_last_shared() const 
+        -> metaxxa::SkipLast
+        <
+            DraftTuple<PtrContainer>::template Tuple,
+            TypeTuple,
+            N
+        >
+    {
+        return take_range_shared<0, size() - N>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
     template <typename T>
     GeneralTuple<PtrContainer, Args..., T> GeneralTuple<PtrContainer, Args...>::push_back(T &&obj)
     {

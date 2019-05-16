@@ -91,3 +91,123 @@ TEST_CASE("Add element", "[tefri::GeneralTuple]")
     REQUIRE(t3.template get<1>() == Approx(3.14));
     REQUIRE(t3.template get<2>() == 'z');
 }
+
+TEST_CASE("Take range", "[tefri::GeneralTuple]")
+{
+    GeneralTuple<std::vector, int, double, char, std::string> tuple(42, 3.14, 'z', "Hello");
+
+    auto middle = tuple.template take_range<1, 3>();
+
+    static_assert(std::is_same_v<decltype(middle), GeneralTuple<std::vector, double, char>>);
+    REQUIRE(middle.template get<0>() == Approx(3.14));
+    REQUIRE(middle.template get<1>() == 'z');
+    REQUIRE(middle.raw_objects() != tuple.raw_objects());
+}
+
+TEST_CASE("Take range shared", "[tefri::GeneralTuple]")
+{
+    GeneralTuple<std::vector, int, double, char, std::string> tuple(42, 3.14, 'z', "Hello");
+
+    auto middle = tuple.template take_range_shared<1, 3>();
+
+    static_assert(std::is_same_v<decltype(middle), GeneralTuple<std::vector, double, char>>);
+    REQUIRE(middle.template get<0>() == Approx(3.14));
+    REQUIRE(middle.template get<1>() == 'z');
+    REQUIRE(middle.raw_objects() == tuple.raw_objects());
+}
+
+TEST_CASE("Take first", "[tefri::GeneralTuple]")
+{
+    GeneralTuple<std::vector, int, double, char, std::string> tuple(42, 3.14, 'z', "Hello");
+
+    auto first = tuple.template take_first<2>();
+
+    static_assert(std::is_same_v<decltype(first), GeneralTuple<std::vector, int, double>>);
+    REQUIRE(first.template get<0>() == 42);
+    REQUIRE(first.template get<1>() == Approx(3.14));
+    REQUIRE(first.raw_objects() != tuple.raw_objects());
+}
+
+TEST_CASE("Take first shared", "[tefri::GeneralTuple]")
+{
+    GeneralTuple<std::vector, int, double, char, std::string> tuple(42, 3.14, 'z', "Hello");
+
+    auto first = tuple.template take_first_shared<2>();
+
+    static_assert(std::is_same_v<decltype(first), GeneralTuple<std::vector, int, double>>);
+    REQUIRE(first.template get<0>() == 42);
+    REQUIRE(first.template get<1>() == Approx(3.14));
+    REQUIRE(first.raw_objects() == tuple.raw_objects());
+}
+
+TEST_CASE("Take last", "[tefri::GeneralTuple]")
+{
+    GeneralTuple<std::vector, int, double, char, std::string> tuple(42, 3.14, 'z', "Hello");
+
+    auto last = tuple.template take_last<2>();
+
+    static_assert(std::is_same_v<decltype(last), GeneralTuple<std::vector, char, std::string>>);
+    REQUIRE(last.template get<0>() == 'z');
+    REQUIRE(last.template get<1>() == "Hello");
+    REQUIRE(last.raw_objects() != tuple.raw_objects());
+}
+
+TEST_CASE("Take last shared", "[tefri::GeneralTuple]")
+{
+    GeneralTuple<std::vector, int, double, char, std::string> tuple(42, 3.14, 'z', "Hello");
+
+    auto last = tuple.template take_last_shared<2>();
+
+    static_assert(std::is_same_v<decltype(last), GeneralTuple<std::vector, char, std::string>>);
+    REQUIRE(last.template get<0>() == 'z');
+    REQUIRE(last.template get<1>() == "Hello");
+    REQUIRE(last.raw_objects() == tuple.raw_objects());
+}
+
+TEST_CASE("Skip first", "[tefri::GeneralTuple]")
+{
+    GeneralTuple<std::vector, int, double, char, std::string> tuple(42, 3.14, 'z', "Hello");
+
+    auto last = tuple.template skip_first<2>();
+
+    static_assert(std::is_same_v<decltype(last), GeneralTuple<std::vector, char, std::string>>);
+    REQUIRE(last.template get<0>() == 'z');
+    REQUIRE(last.template get<1>() == "Hello");
+    REQUIRE(last.raw_objects() != tuple.raw_objects());
+}
+
+TEST_CASE("Skip first shared", "[tefri::GeneralTuple]")
+{
+    GeneralTuple<std::vector, int, double, char, std::string> tuple(42, 3.14, 'z', "Hello");
+
+    auto last = tuple.template skip_first_shared<2>();
+
+    static_assert(std::is_same_v<decltype(last), GeneralTuple<std::vector, char, std::string>>);
+    REQUIRE(last.template get<0>() == 'z');
+    REQUIRE(last.template get<1>() == "Hello");
+    REQUIRE(last.raw_objects() == tuple.raw_objects());
+}
+
+TEST_CASE("Skip last", "[tefri::GeneralTuple]")
+{
+    GeneralTuple<std::vector, int, double, char, std::string> tuple(42, 3.14, 'z', "Hello");
+
+    auto first = tuple.template skip_last<2>();
+
+    static_assert(std::is_same_v<decltype(first), GeneralTuple<std::vector, int, double>>);
+    REQUIRE(first.template get<0>() == 42);
+    REQUIRE(first.template get<1>() == Approx(3.14));
+    REQUIRE(first.raw_objects() != tuple.raw_objects());
+}
+
+TEST_CASE("Skip last shared", "[tefri::GeneralTuple]")
+{
+    GeneralTuple<std::vector, int, double, char, std::string> tuple(42, 3.14, 'z', "Hello");
+
+    auto first = tuple.template skip_last_shared<2>();
+
+    static_assert(std::is_same_v<decltype(first), GeneralTuple<std::vector, int, double>>);
+    REQUIRE(first.template get<0>() == 42);
+    REQUIRE(first.template get<1>() == Approx(3.14));
+    REQUIRE(first.raw_objects() == tuple.raw_objects());
+}
