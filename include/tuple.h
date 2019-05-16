@@ -17,7 +17,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Types
     >
-    class Tuple final : public metaxxa::TypeTuple<Types...>
+    class GeneralTuple final : public metaxxa::TypeTuple<Types...>
     {
     public:
         using TypeTuple         = metaxxa::TypeTuple<Types...>;
@@ -31,25 +31,25 @@ namespace tefri
         using TypeTuple::get_size;
         using TypeTuple::size;
 
-        Tuple();
+        GeneralTuple();
 
-        Tuple(Types&&...);
+        GeneralTuple(Types&&...);
 
-        Tuple(const Types &...);
+        GeneralTuple(const Types &...);
 
-        Tuple(Types*...);
+        GeneralTuple(Types*...);
 
-        Tuple(std::shared_ptr<Types>...);
+        GeneralTuple(std::shared_ptr<Types>...);
 
-        Tuple(const Tuple &);
+        GeneralTuple(const GeneralTuple &);
 
-        Tuple(Tuple &&);
+        GeneralTuple(GeneralTuple &&);
 
-        ~Tuple();
+        ~GeneralTuple();
 
-        Tuple &operator=(const Tuple &);
+        GeneralTuple &operator=(const GeneralTuple &);
 
-        Tuple &operator=(Tuple &&);
+        GeneralTuple &operator=(GeneralTuple &&);
 
         template <std::size_t INDEX>
         auto get()
@@ -72,30 +72,30 @@ namespace tefri
         std::shared_ptr<const void> get_ptr(std::size_t index) const;
 
         template <typename NewObject>
-        Tuple<PtrContainer, Types..., NewObject> push_back(NewObject &&);
+        GeneralTuple<PtrContainer, Types..., NewObject> push_back(NewObject &&);
 
         template <typename NewObject>
-        Tuple<PtrContainer, Types..., NewObject> push_back(const NewObject &);
+        GeneralTuple<PtrContainer, Types..., NewObject> push_back(const NewObject &);
 
         template <typename NewObject, typename... Args>
-        Tuple<PtrContainer, Types..., NewObject> emplace_back(Args&&...);
+        GeneralTuple<PtrContainer, Types..., NewObject> emplace_back(Args&&...);
 
         template <typename NewObject, typename... Args>
-        Tuple<PtrContainer, Types..., NewObject> emplace_back(const Args &...);
+        GeneralTuple<PtrContainer, Types..., NewObject> emplace_back(const Args &...);
 
         Objects raw_objects();
 
         const Objects raw_objects() const;
 
-        Tuple share();
+        GeneralTuple share();
 
-        const Tuple share() const;
-
-        template <typename... NewTypes>
-        Tuple<PtrContainer, NewTypes...> reinterpret();
+        const GeneralTuple share() const;
 
         template <typename... NewTypes>
-        const Tuple<PtrContainer, NewTypes...> reinterpret() const;
+        GeneralTuple<PtrContainer, NewTypes...> reinterpret();
+
+        template <typename... NewTypes>
+        const GeneralTuple<PtrContainer, NewTypes...> reinterpret() const;
 
     private:
         template 
@@ -103,9 +103,9 @@ namespace tefri
             template <typename, typename...> typename, 
             typename...
         >
-        friend class Tuple;
+        friend class GeneralTuple;
 
-        Tuple(Objects);
+        GeneralTuple(Objects);
 
         Objects objects;
     };
@@ -114,7 +114,7 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    class Tuple<PtrContainer> final : public metaxxa::TypeTuple<>
+    class GeneralTuple<PtrContainer> final : public metaxxa::TypeTuple<>
     {
     public:
         using TypeTuple         = metaxxa::TypeTuple<>;
@@ -124,46 +124,46 @@ namespace tefri
         using Container         = PtrContainer<std::shared_ptr<void>>;
         using Objects           = std::shared_ptr<Container>;
 
-        Tuple();
+        GeneralTuple();
 
-        Tuple(const Tuple &);
+        GeneralTuple(const GeneralTuple &);
 
-        Tuple(Tuple &&);
+        GeneralTuple(GeneralTuple &&);
 
-        ~Tuple();
+        ~GeneralTuple();
 
-        Tuple &operator=(const Tuple &);
+        GeneralTuple &operator=(const GeneralTuple &);
 
-        Tuple &operator=(Tuple &&);
-
-        template <typename NewObject>
-        Tuple<PtrContainer, NewObject> push_back(NewObject &&);
+        GeneralTuple &operator=(GeneralTuple &&);
 
         template <typename NewObject>
-        Tuple<PtrContainer, NewObject> push_back(const NewObject &);
+        GeneralTuple<PtrContainer, NewObject> push_back(NewObject &&);
+
+        template <typename NewObject>
+        GeneralTuple<PtrContainer, NewObject> push_back(const NewObject &);
 
         template <typename NewObject, typename... Args>
-        Tuple<PtrContainer, NewObject> emplace_back(Args&&...);
+        GeneralTuple<PtrContainer, NewObject> emplace_back(Args&&...);
 
         template <typename NewObject, typename... Args>
-        Tuple<PtrContainer, NewObject> emplace_back(const Args &...);
+        GeneralTuple<PtrContainer, NewObject> emplace_back(const Args &...);
 
         Objects raw_objects();
 
         const Objects raw_objects() const;
 
-        Tuple share();
+        GeneralTuple share();
 
-        const Tuple share() const;
-
-        template <typename... NewTypes>
-        Tuple<PtrContainer, NewTypes...> reinterpret();
+        const GeneralTuple share() const;
 
         template <typename... NewTypes>
-        const Tuple<PtrContainer, NewTypes...> reinterpret() const;
+        GeneralTuple<PtrContainer, NewTypes...> reinterpret();
+
+        template <typename... NewTypes>
+        const GeneralTuple<PtrContainer, NewTypes...> reinterpret() const;
 
     private:
-        Tuple(Objects);
+        GeneralTuple(Objects);
 
         Objects objects;
     };
@@ -173,29 +173,32 @@ namespace tefri
     {
     public:
         template <typename... Types>
-        using Tuple = ::tefri::Tuple<PtrContainer, Types...>;
+        using Tuple = ::tefri::GeneralTuple<PtrContainer, Types...>;
     };
+
+    template <typename... Types>
+    using Tuple = typename DraftTuple<std::vector>::template Tuple<Types...>;
 }
 
 namespace std
 {
     template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    class tuple_element<INDEX, tefri::Tuple<PtrContainer, Args...>>
+    class tuple_element<INDEX, tefri::GeneralTuple<PtrContainer, Args...>>
     {
     public:
         using type = std::tuple_element_t<INDEX, metaxxa::TypeTuple<Args...>>;
     };
 
     template <template <typename, typename...> typename PtrContainer, typename... Args>
-    class tuple_size<tefri::Tuple<PtrContainer, Args...>> 
+    class tuple_size<tefri::GeneralTuple<PtrContainer, Args...>> 
         : public std::integral_constant<std::size_t, sizeof...(Args)>
     {};
 
     template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    auto &get(tefri::Tuple<PtrContainer, Args...> &);
+    auto &get(tefri::GeneralTuple<PtrContainer, Args...> &);
 
     template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    const auto &get(const tefri::Tuple<PtrContainer, Args...> &);
+    const auto &get(const tefri::GeneralTuple<PtrContainer, Args...> &);
 }
 
 #endif // TEFRI_TUPLE_H

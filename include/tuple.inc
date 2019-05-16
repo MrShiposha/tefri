@@ -12,7 +12,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...>::Tuple()
+    GeneralTuple<PtrContainer, Args...>::GeneralTuple()
     : objects
     (
         std::make_shared<Container>
@@ -30,7 +30,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...>::Tuple(Args&&... args)
+    GeneralTuple<PtrContainer, Args...>::GeneralTuple(Args&&... args)
     : objects
     (
         std::make_shared<Container>
@@ -48,7 +48,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...>::Tuple(const Args &... args)
+    GeneralTuple<PtrContainer, Args...>::GeneralTuple(const Args &... args)
     : objects
     (
         std::make_shared<Container>
@@ -66,8 +66,8 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...>::Tuple(Args*... args)
-    : Tuple(std::shared_ptr<Args>(args)...)
+    GeneralTuple<PtrContainer, Args...>::GeneralTuple(Args*... args)
+    : GeneralTuple(std::shared_ptr<Args>(args)...)
     {}
 
     template 
@@ -75,7 +75,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...>::Tuple(std::shared_ptr<Args>... args)
+    GeneralTuple<PtrContainer, Args...>::GeneralTuple(std::shared_ptr<Args>... args)
     : objects
     (
         std::make_shared<Container>
@@ -93,7 +93,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...>::Tuple(const Tuple &o)
+    GeneralTuple<PtrContainer, Args...>::GeneralTuple(const GeneralTuple &o)
     : objects(std::make_shared<Container>(*o.objects))
     {}
 
@@ -102,7 +102,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...>::Tuple(Tuple &&o)
+    GeneralTuple<PtrContainer, Args...>::GeneralTuple(GeneralTuple &&o)
     : objects(std::move(o.objects))
     {}
 
@@ -111,7 +111,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...>::~Tuple()
+    GeneralTuple<PtrContainer, Args...>::~GeneralTuple()
     {}
 
     template 
@@ -119,7 +119,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...>::Tuple(Objects objects)
+    GeneralTuple<PtrContainer, Args...>::GeneralTuple(Objects objects)
     : objects(objects)
     {}
 
@@ -128,10 +128,10 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...> &Tuple<PtrContainer, Args...>::operator=(const Tuple &rhs)
+    GeneralTuple<PtrContainer, Args...> &GeneralTuple<PtrContainer, Args...>::operator=(const GeneralTuple &rhs)
     {
         if(this != &rhs)
-            *this = std::move(Tuple<PtrContainer, Args...>(rhs));
+            *this = std::move(GeneralTuple<PtrContainer, Args...>(rhs));
 
         return *this;
     }
@@ -141,7 +141,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...> &Tuple<PtrContainer, Args...>::operator=(Tuple &&rhs)
+    GeneralTuple<PtrContainer, Args...> &GeneralTuple<PtrContainer, Args...>::operator=(GeneralTuple &&rhs)
     {
         objects = std::move(rhs.objects);
         return *this;
@@ -153,7 +153,7 @@ namespace tefri
         typename... Args
     >
     template <std::size_t INDEX>
-    auto Tuple<PtrContainer, Args...>::get()
+    auto GeneralTuple<PtrContainer, Args...>::get()
         -> typename TypeTuple::template Get<INDEX> &
     {
         return *get_ptr<INDEX>();
@@ -165,10 +165,10 @@ namespace tefri
         typename... Args
     >
     template <std::size_t INDEX>
-    auto Tuple<PtrContainer, Args...>::get() const
+    auto GeneralTuple<PtrContainer, Args...>::get() const
         -> std::add_const_t<typename TypeTuple::template Get<INDEX>> &
     {
-        return const_cast<Tuple>(this)->template get<INDEX>();
+        return const_cast<GeneralTuple>(this)->template get<INDEX>();
     }
 
     template 
@@ -177,7 +177,7 @@ namespace tefri
         typename... Args
     >
     template <std::size_t INDEX>
-    auto Tuple<PtrContainer, Args...>::get_ptr()
+    auto GeneralTuple<PtrContainer, Args...>::get_ptr()
         -> std::shared_ptr<typename TypeTuple::template Get<INDEX>>
     {
         return std::static_pointer_cast<typename TypeTuple::template Get<INDEX>>(get_ptr(INDEX));        
@@ -189,10 +189,10 @@ namespace tefri
         typename... Args
     >
     template <std::size_t INDEX>
-    auto Tuple<PtrContainer, Args...>::get_ptr() const
+    auto GeneralTuple<PtrContainer, Args...>::get_ptr() const
         -> std::shared_ptr<std::add_const_t<typename TypeTuple::template Get<INDEX>>>
     {
-        return const_cast<Tuple>(this)->template get_ptr<INDEX>();
+        return const_cast<GeneralTuple>(this)->template get_ptr<INDEX>();
     }
 
     template 
@@ -200,7 +200,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    std::shared_ptr<void> Tuple<PtrContainer, Args...>::get_ptr(std::size_t index)
+    std::shared_ptr<void> GeneralTuple<PtrContainer, Args...>::get_ptr(std::size_t index)
     {
         assert(index < objects->size());
 
@@ -212,9 +212,9 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    std::shared_ptr<const void> Tuple<PtrContainer, Args...>::get_ptr(std::size_t index) const
+    std::shared_ptr<const void> GeneralTuple<PtrContainer, Args...>::get_ptr(std::size_t index) const
     {
-        return const_cast<Tuple>(this)->get_ptr(index);
+        return const_cast<GeneralTuple>(this)->get_ptr(index);
     }
 
     template 
@@ -223,7 +223,7 @@ namespace tefri
         typename... Args
     >
     template <typename T>
-    Tuple<PtrContainer, Args..., T> Tuple<PtrContainer, Args...>::push_back(T &&obj)
+    GeneralTuple<PtrContainer, Args..., T> GeneralTuple<PtrContainer, Args...>::push_back(T &&obj)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(std::forward<T>(obj))));
         return reinterpret<Args..., T>();
@@ -235,7 +235,7 @@ namespace tefri
         typename... Args
     >
     template <typename T>
-    Tuple<PtrContainer, Args..., T> Tuple<PtrContainer, Args...>::push_back(const T &obj)
+    GeneralTuple<PtrContainer, Args..., T> GeneralTuple<PtrContainer, Args...>::push_back(const T &obj)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(obj)));
         return reinterpret<Args..., T>();
@@ -247,7 +247,7 @@ namespace tefri
         typename... Args
     >
     template <typename T, typename... ArgsT>
-    Tuple<PtrContainer, Args..., T> Tuple<PtrContainer, Args...>::emplace_back(ArgsT&&... args)
+    GeneralTuple<PtrContainer, Args..., T> GeneralTuple<PtrContainer, Args...>::emplace_back(ArgsT&&... args)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(std::forward<Args>(args)...)));
         return reinterpret<Args..., T>();
@@ -259,7 +259,7 @@ namespace tefri
         typename... Args
     >
     template <typename T, typename... ArgsT>
-    Tuple<PtrContainer, Args..., T> Tuple<PtrContainer, Args...>::emplace_back(const ArgsT &... args)
+    GeneralTuple<PtrContainer, Args..., T> GeneralTuple<PtrContainer, Args...>::emplace_back(const ArgsT &... args)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(args...)));
         return reinterpret<Args..., T>();
@@ -270,7 +270,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    typename Tuple<PtrContainer, Args...>::Objects Tuple<PtrContainer, Args...>::raw_objects()
+    typename GeneralTuple<PtrContainer, Args...>::Objects GeneralTuple<PtrContainer, Args...>::raw_objects()
     {
         return objects;
     }
@@ -280,9 +280,9 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    const typename Tuple<PtrContainer, Args...>::Objects Tuple<PtrContainer, Args...>::raw_objects() const
+    const typename GeneralTuple<PtrContainer, Args...>::Objects GeneralTuple<PtrContainer, Args...>::raw_objects() const
     {
-        return const_cast<Tuple>(this)->objects();
+        return const_cast<GeneralTuple>(this)->objects();
     }
 
     template 
@@ -290,9 +290,9 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    Tuple<PtrContainer, Args...> Tuple<PtrContainer, Args...>::share()
+    GeneralTuple<PtrContainer, Args...> GeneralTuple<PtrContainer, Args...>::share()
     {
-        return Tuple(objects);
+        return GeneralTuple(objects);
     }
 
     template 
@@ -300,20 +300,9 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    const Tuple<PtrContainer, Args...> Tuple<PtrContainer, Args...>::share() const
+    const GeneralTuple<PtrContainer, Args...> GeneralTuple<PtrContainer, Args...>::share() const
     {
-        return Tuple(objects);
-    }
-
-    template 
-    <
-        template <typename, typename...> typename PtrContainer,
-        typename... Args
-    >
-    template <typename... NewTypes>
-    Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer, Args...>::reinterpret()
-    {
-        return Tuple<PtrContainer, NewTypes...>(objects);
+        return GeneralTuple(objects);
     }
 
     template 
@@ -322,9 +311,20 @@ namespace tefri
         typename... Args
     >
     template <typename... NewTypes>
-    const Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer, Args...>::reinterpret() const
+    GeneralTuple<PtrContainer, NewTypes...> GeneralTuple<PtrContainer, Args...>::reinterpret()
     {
-        return const_cast<Tuple>(this)->template reinterpret<NewTypes...>();
+        return GeneralTuple<PtrContainer, NewTypes...>(objects);
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename... NewTypes>
+    const GeneralTuple<PtrContainer, NewTypes...> GeneralTuple<PtrContainer, Args...>::reinterpret() const
+    {
+        return const_cast<GeneralTuple>(this)->template reinterpret<NewTypes...>();
     }
 
 
@@ -334,7 +334,7 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    Tuple<PtrContainer>::Tuple()
+    GeneralTuple<PtrContainer>::GeneralTuple()
     : objects(std::make_shared<Container>())
     {}
 
@@ -342,7 +342,7 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    Tuple<PtrContainer>::Tuple(const Tuple &)
+    GeneralTuple<PtrContainer>::GeneralTuple(const GeneralTuple &)
     : objects(std::make_shared<Container>())
     {}
 
@@ -350,7 +350,7 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    Tuple<PtrContainer>::Tuple(Tuple &&o)
+    GeneralTuple<PtrContainer>::GeneralTuple(GeneralTuple &&o)
     : objects(std::move(o.objects))
     {}
 
@@ -358,7 +358,7 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    Tuple<PtrContainer>::Tuple(Objects objects)
+    GeneralTuple<PtrContainer>::GeneralTuple(Objects objects)
     : objects(objects)
     {}
 
@@ -366,14 +366,14 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    Tuple<PtrContainer>::~Tuple()
+    GeneralTuple<PtrContainer>::~GeneralTuple()
     {}
 
     template 
     <
         template <typename, typename...> typename PtrContainer
     >
-    Tuple<PtrContainer> &Tuple<PtrContainer>::operator=(const Tuple &rhs)
+    GeneralTuple<PtrContainer> &GeneralTuple<PtrContainer>::operator=(const GeneralTuple &rhs)
     {
         return *this;
     }
@@ -382,7 +382,7 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    Tuple<PtrContainer> &Tuple<PtrContainer>::operator=(Tuple &&rhs)
+    GeneralTuple<PtrContainer> &GeneralTuple<PtrContainer>::operator=(GeneralTuple &&rhs)
     {
         objects = std::move(rhs.objects);
         return *this;
@@ -393,7 +393,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer
     >
     template <typename NewObject>
-    Tuple<PtrContainer, NewObject> Tuple<PtrContainer>::push_back(NewObject &&obj)
+    GeneralTuple<PtrContainer, NewObject> GeneralTuple<PtrContainer>::push_back(NewObject &&obj)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<NewObject>(std::forward<NewObject>(obj))));
         return reinterpret<NewObject>();
@@ -404,7 +404,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer
     >
     template <typename NewObject>
-    Tuple<PtrContainer, NewObject> Tuple<PtrContainer>::push_back(const NewObject &obj)
+    GeneralTuple<PtrContainer, NewObject> GeneralTuple<PtrContainer>::push_back(const NewObject &obj)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<NewObject>(obj)));
         return reinterpret<NewObject>();
@@ -415,7 +415,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer
     >
     template <typename NewObject, typename... Args>
-    Tuple<PtrContainer, NewObject> Tuple<PtrContainer>::emplace_back(Args&&... args)
+    GeneralTuple<PtrContainer, NewObject> GeneralTuple<PtrContainer>::emplace_back(Args&&... args)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<NewObject>(std::forward<Args>(args)...)));
         return reinterpret<NewObject>();
@@ -426,7 +426,7 @@ namespace tefri
         template <typename, typename...> typename PtrContainer
     >
     template <typename NewObject, typename... Args>
-    Tuple<PtrContainer, NewObject> Tuple<PtrContainer>::emplace_back(const Args &... args)
+    GeneralTuple<PtrContainer, NewObject> GeneralTuple<PtrContainer>::emplace_back(const Args &... args)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<NewObject>(args...)));
         return reinterpret<NewObject>();
@@ -436,7 +436,7 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    typename Tuple<PtrContainer>::Objects Tuple<PtrContainer>::raw_objects()
+    typename GeneralTuple<PtrContainer>::Objects GeneralTuple<PtrContainer>::raw_objects()
     {
         return objects;
     }
@@ -445,37 +445,27 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    const typename Tuple<PtrContainer>::Objects Tuple<PtrContainer>::raw_objects() const
+    const typename GeneralTuple<PtrContainer>::Objects GeneralTuple<PtrContainer>::raw_objects() const
     {
-        return const_cast<Tuple>(this)->objects();
+        return const_cast<GeneralTuple>(this)->objects();
     }
 
     template 
     <
         template <typename, typename...> typename PtrContainer
     >
-    Tuple<PtrContainer> Tuple<PtrContainer>::share()
+    GeneralTuple<PtrContainer> GeneralTuple<PtrContainer>::share()
     {
-        return Tuple(objects);
+        return GeneralTuple(objects);
     }
 
     template 
     <
         template <typename, typename...> typename PtrContainer
     >
-    const Tuple<PtrContainer> Tuple<PtrContainer>::share() const
+    const GeneralTuple<PtrContainer> GeneralTuple<PtrContainer>::share() const
     {
-        return const_cast<Tuple>(this)->share();
-    }
-
-    template 
-    <
-        template <typename, typename...> typename PtrContainer
-    >
-    template <typename... NewTypes>
-    Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer>::reinterpret()
-    {
-        return Tuple<PtrContainer, NewTypes...>(objects);
+        return const_cast<GeneralTuple>(this)->share();
     }
 
     template 
@@ -483,9 +473,19 @@ namespace tefri
         template <typename, typename...> typename PtrContainer
     >
     template <typename... NewTypes>
-    const Tuple<PtrContainer, NewTypes...> Tuple<PtrContainer>::reinterpret() const
+    GeneralTuple<PtrContainer, NewTypes...> GeneralTuple<PtrContainer>::reinterpret()
     {
-        return const_cast<Tuple>(this)->template reinterpret<NewTypes...>();
+        return GeneralTuple<PtrContainer, NewTypes...>(objects);
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    template <typename... NewTypes>
+    const GeneralTuple<PtrContainer, NewTypes...> GeneralTuple<PtrContainer>::reinterpret() const
+    {
+        return const_cast<GeneralTuple>(this)->template reinterpret<NewTypes...>();
     }
 
     // empty spec //
@@ -494,13 +494,13 @@ namespace tefri
 namespace std
 {
     template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    auto &get(tefri::Tuple<PtrContainer, Args...> &tuple)
+    auto &get(tefri::GeneralTuple<PtrContainer, Args...> &tuple)
     {
         return tuple.template get<INDEX>();
     }
 
     template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    const auto &get(const tefri::Tuple<PtrContainer, Args...> &tuple)
+    const auto &get(const tefri::GeneralTuple<PtrContainer, Args...> &tuple)
     {
         return tuple.template get<INDEX>();
     }

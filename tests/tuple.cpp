@@ -4,11 +4,11 @@
 
 using namespace tefri;
 
-TEST_CASE("Tuple creation/getting", "[tefri::Tuple]")
+TEST_CASE("GeneralTuple creation/getting", "[tefri::GeneralTuple]")
 {
     SECTION("Move types... constructor")
     {
-        Tuple<std::vector, int, double> tuple(1, 3.14);
+        GeneralTuple<std::vector, int, double> tuple(1, 3.14);
 
         REQUIRE(tuple.template get<0>() == 1);
         REQUIRE(tuple.template get<1>() == Approx(3.14));
@@ -19,7 +19,7 @@ TEST_CASE("Tuple creation/getting", "[tefri::Tuple]")
         int i = 42;
         char c = 'z';
 
-        Tuple<std::vector, int, char> tuple(i, c);
+        GeneralTuple<std::vector, int, char> tuple(i, c);
         REQUIRE(tuple.template get<0>() == i);
         REQUIRE(tuple.template get<1>() == c);
     }
@@ -29,7 +29,7 @@ TEST_CASE("Tuple creation/getting", "[tefri::Tuple]")
         int *i = new int(42);
         char *c = new char('z');
 
-        Tuple<std::vector, int, char> tuple(i, c);
+        GeneralTuple<std::vector, int, char> tuple(i, c);
         REQUIRE(tuple.template get<0>() == *i);
         REQUIRE(tuple.template get<1>() == *c);
         REQUIRE(tuple.template get_ptr<0>().get() == i);
@@ -43,7 +43,7 @@ TEST_CASE("Tuple creation/getting", "[tefri::Tuple]")
         auto i = std::make_shared<int>(42);
         auto c = std::make_shared<char>('z');
 
-        Tuple<std::vector, int, char> tuple(i, c);
+        GeneralTuple<std::vector, int, char> tuple(i, c);
         REQUIRE(tuple.template get<0>() == *i);
         REQUIRE(tuple.template get<1>() == *c);
         REQUIRE(tuple.template get_ptr<0>() == i);
@@ -53,9 +53,9 @@ TEST_CASE("Tuple creation/getting", "[tefri::Tuple]")
     }
 }
 
-TEST_CASE("Test types", "[tefri::Tuple]")
+TEST_CASE("Test types", "[tefri::GeneralTuple]")
 {
-    using T = Tuple<std::vector, int, double>;
+    using T = GeneralTuple<std::vector, int, double>;
 
     static_assert(std::is_same_v<std::tuple_element_t<0, T>, int>);
     static_assert(std::is_same_v<std::tuple_element_t<1, T>, double>);
@@ -67,17 +67,17 @@ TEST_CASE("Test types", "[tefri::Tuple]")
     REQUIRE(std::get<1>(tuple) == Approx(3.14));
 }
 
-TEST_CASE("Test share", "[tefri::Tuple]")
+TEST_CASE("Test share", "[tefri::GeneralTuple]")
 {
-    Tuple<std::vector, int, char> tuple(42, 'z');
+    GeneralTuple<std::vector, int, char> tuple(42, 'z');
     auto shared = tuple.share();
 
     REQUIRE(tuple.raw_objects() == shared.raw_objects());
 }
 
-TEST_CASE("Add element", "[tefri::Tuple]")
+TEST_CASE("Add element", "[tefri::GeneralTuple]")
 {
-    Tuple<std::vector> t0;
+    GeneralTuple<std::vector> t0;
 
     auto t1 = t0.push_back(144);
     auto t2 = t1.push_back(3.14);
