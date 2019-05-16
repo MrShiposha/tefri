@@ -105,9 +105,10 @@ namespace tefri
         >
         friend class GeneralTuple;
 
-        GeneralTuple(Objects);
+        GeneralTuple(Objects, std::size_t offset = 0);
 
         Objects objects;
+        std::size_t offset;
     };
 
     template 
@@ -163,9 +164,10 @@ namespace tefri
         const GeneralTuple<PtrContainer, NewTypes...> reinterpret() const;
 
     private:
-        GeneralTuple(Objects);
+        GeneralTuple(Objects, std::size_t offset = 0);
 
         Objects objects;
+        std::size_t offset;
     };
 
     template <template <typename, typename...> typename PtrContainer>

@@ -22,7 +22,8 @@ namespace tefri
                 std::static_pointer_cast<void>(std::make_shared<Args>())...
             }
         )
-    )
+    ),
+    offset(0)
     {}
 
     template 
@@ -40,7 +41,8 @@ namespace tefri
                 std::static_pointer_cast<void>(std::make_shared<Args>(std::forward<Args>(args)))...
             }
         )
-    )
+    ),
+    offset(0)
     {}
 
     template 
@@ -58,7 +60,8 @@ namespace tefri
                 std::static_pointer_cast<void>(std::make_shared<Args>(args))...
             }
         )
-    )
+    ),
+    offset(0)
     {}
 
     template 
@@ -85,7 +88,8 @@ namespace tefri
                 std::static_pointer_cast<void>(args)... 
             }
         )
-    )
+    ),
+    offset(0)
     {}
 
     template 
@@ -94,7 +98,7 @@ namespace tefri
         typename... Args
     >
     GeneralTuple<PtrContainer, Args...>::GeneralTuple(const GeneralTuple &o)
-    : objects(std::make_shared<Container>(*o.objects))
+    : objects(std::make_shared<Container>(*o.objects)), offset(o.offset)
     {}
 
     template 
@@ -103,7 +107,7 @@ namespace tefri
         typename... Args
     >
     GeneralTuple<PtrContainer, Args...>::GeneralTuple(GeneralTuple &&o)
-    : objects(std::move(o.objects))
+    : objects(std::move(o.objects)), offset(o.offset)
     {}
 
     template 
@@ -119,8 +123,8 @@ namespace tefri
         template <typename, typename...> typename PtrContainer,
         typename... Args
     >
-    GeneralTuple<PtrContainer, Args...>::GeneralTuple(Objects objects)
-    : objects(objects)
+    GeneralTuple<PtrContainer, Args...>::GeneralTuple(Objects objects, std::size_t offset)
+    : objects(objects), offset(offset)
     {}
 
     template 
@@ -204,7 +208,7 @@ namespace tefri
     {
         assert(index < objects->size());
 
-        return *(objects->begin() + index);
+        return *(objects->begin() + index + offset);
     }
 
     template 
@@ -335,15 +339,15 @@ namespace tefri
         template <typename, typename...> typename PtrContainer
     >
     GeneralTuple<PtrContainer>::GeneralTuple()
-    : objects(std::make_shared<Container>())
+    : objects(std::make_shared<Container>()), offset(0)
     {}
 
     template 
     <
         template <typename, typename...> typename PtrContainer
     >
-    GeneralTuple<PtrContainer>::GeneralTuple(const GeneralTuple &)
-    : objects(std::make_shared<Container>())
+    GeneralTuple<PtrContainer>::GeneralTuple(const GeneralTuple &o)
+    : objects(std::make_shared<Container>()), offset(o.offset)
     {}
 
     template 
@@ -351,15 +355,15 @@ namespace tefri
         template <typename, typename...> typename PtrContainer
     >
     GeneralTuple<PtrContainer>::GeneralTuple(GeneralTuple &&o)
-    : objects(std::move(o.objects))
+    : objects(std::move(o.objects)), offset(o.offset)
     {}
 
     template 
     <
         template <typename, typename...> typename PtrContainer
     >
-    GeneralTuple<PtrContainer>::GeneralTuple(Objects objects)
-    : objects(objects)
+    GeneralTuple<PtrContainer>::GeneralTuple(Objects objects, std::size_t offset)
+    : objects(objects), offset(offset)
     {}
 
     template 
