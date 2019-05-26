@@ -57,9 +57,9 @@ namespace tefri
 
         ObjectHolder() = delete;
 
-        ObjectHolder(const T &object);
+        ObjectHolder(const std::remove_reference_t<T> &object);
 
-        ObjectHolder(T &&object);
+        ObjectHolder(std::remove_reference_t<T> &&object);
 
         ObjectHolder(Future future);
 
@@ -82,6 +82,9 @@ namespace tefri
     private:
         Future future;
     };
+
+    template <typename T>
+    ObjectHolder(T) -> ObjectHolder<T>;
 
     template <typename T>
     ObjectHolder(std::shared_future<WrapObject<T>>) -> ObjectHolder<T>;

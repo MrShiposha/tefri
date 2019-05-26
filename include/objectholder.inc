@@ -16,12 +16,12 @@ namespace tefri
     }
 
     template <typename T>
-    ObjectHolder<T>::ObjectHolder(const T &object)
+    ObjectHolder<T>::ObjectHolder(const std::remove_reference_t<T> &object)
     : future(hold_future<T>(object))
     {}
 
     template <typename T>
-    ObjectHolder<T>::ObjectHolder(T &&object)
+    ObjectHolder<T>::ObjectHolder(std::remove_reference_t<T> &&object)
     : future(hold_future<T>(object))
     {}
 

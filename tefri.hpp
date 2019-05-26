@@ -1923,9 +1923,9 @@ namespace tefri
 
         ObjectHolder() = delete;
 
-        ObjectHolder(const T &object);
+        ObjectHolder(const std::remove_reference_t<T> &object);
 
-        ObjectHolder(T &&object);
+        ObjectHolder(std::remove_reference_t<T> &&object);
 
         ObjectHolder(Future future);
 
@@ -1948,6 +1948,9 @@ namespace tefri
     private:
         Future future;
     };
+
+    template <typename T>
+    ObjectHolder(T) -> ObjectHolder<T>;
 
     template <typename T>
     ObjectHolder(std::shared_future<WrapObject<T>>) -> ObjectHolder<T>;
@@ -2028,12 +2031,12 @@ namespace tefri
     }
 
     template <typename T>
-    ObjectHolder<T>::ObjectHolder(const T &object)
+    ObjectHolder<T>::ObjectHolder(const std::remove_reference_t<T> &object)
     : future(hold_future<T>(object))
     {}
 
     template <typename T>
-    ObjectHolder<T>::ObjectHolder(T &&object)
+    ObjectHolder<T>::ObjectHolder(std::remove_reference_t<T> &&object)
     : future(hold_future<T>(object))
     {}
 
