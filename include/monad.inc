@@ -90,7 +90,7 @@ namespace tefri
     template <typename Types, typename... Functions>
     template <std::size_t N>
     auto Monad<Types, Functions...>::next() 
-        -> typename Monad<Types, Functions...>::template NextMonad<N>
+        -> NextMonad<N>
     {
         return NextMonad<N>(functions->template take_range_shared<N, decltype(functions)::element_type::size()>());
     }
