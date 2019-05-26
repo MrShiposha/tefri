@@ -581,6 +581,16 @@ namespace metaxxa
 
         constexpr TypeTuple() = default;
 
+        constexpr TypeTuple(const TypeTuple &) = default;
+
+        constexpr TypeTuple(TypeTuple &&) = default;
+
+        virtual ~TypeTuple() = default;
+
+        TypeTuple &operator=(const TypeTuple &) = default;
+
+        TypeTuple &operator=(TypeTuple &&) = default;
+
         static constexpr bool is_empty();
 
         static constexpr std::size_t get_size();
@@ -1772,6 +1782,29 @@ namespace metaxxa
 
 #endif // METAXXA_ISINSTANTIATIONOF_H
 
+#ifndef METAXXA_ISARRAYOF_H
+#define METAXXA_ISARRAYOF_H
+
+
+namespace metaxxa
+{
+    template <typename T, typename Of>
+    constexpr bool is_array_of()
+    {
+        using TNCV = std::remove_cv_t<std::remove_reference_t<T>>;
+        using OfNCV = std::remove_cv_t<std::remove_reference_t<Of>>;
+
+        return std::is_array_v<TNCV> 
+        && std::is_same_v
+        <
+            TNCV, 
+            OfNCV[std::extent_v<TNCV>]
+        >;
+    }    
+}
+
+#endif // METAXXA_ISARRAYOF_H
+
 
 #endif // METAXXA_HPP
 
@@ -1890,7 +1923,7 @@ namespace tefri
 
         ObjectHolder() = delete;
 
-        ObjectHolder(T &object);
+        ObjectHolder(const T &object);
 
         ObjectHolder(T &&object);
 
@@ -1995,7 +2028,7 @@ namespace tefri
     }
 
     template <typename T>
-    ObjectHolder<T>::ObjectHolder(T &object)
+    ObjectHolder<T>::ObjectHolder(const T &object)
     : future(hold_future<T>(object))
     {}
 
@@ -2315,6 +2348,13 @@ namespace tefri
         const GeneralTuple<PtrContainer, NewTypes...> reinterpret() const;
 
     private:
+        template 
+        <
+            template <typename, typename...> typename, 
+            typename...
+        >
+        friend class GeneralTuple;
+
         GeneralTuple(Objects, std::size_t offset = 0);
 
         Objects objects;
@@ -2514,7 +2554,7 @@ namespace tefri
     auto GeneralTuple<PtrContainer, Args...>::get() const
         -> std::add_const_t<typename TypeTuple::template Get<INDEX>> &
     {
-        return const_cast<GeneralTuple>(this)->template get<INDEX>();
+        return const_cast<GeneralTuple*>(this)->template get<INDEX>();
     }
 
     template 
@@ -3039,6 +3079,220 @@ namespace std
 }
 
 #endif // TEFRI_TUPLE_INC
+
+#ifndef TEFRI_MONAD_INC
+#define TEFRI_MONAD_INC
+
+
+#ifndef TEFRI_MONAD_H
+#define TEFRI_MONAD_H
+
+
+
+#ifndef TEFRI_MONADBASE_H
+#define TEFRI_MONADBASE_H
+
+
+namespace tefri
+{
+    template <typename Monad, typename InputTupleVariants>
+    class MonadBase // : public AbstractMonad<InputTupleVariants>
+    {
+    public:
+        // TODO
+    };
+
+    template <typename Monad>
+    class MonadBase<Monad, Tuple<>>
+    {
+    public:
+        template <typename... Args>
+        void operator()(Args&&... args)
+        {
+            *(static_cast<Monad*>(this))(std::forward<Args>(args)...);
+        }
+
+        template <typename... Args>
+        void operator()(const Args &... args)
+        {
+            *(static_cast<Monad*>(this))(args...);
+        }
+    };
+}
+
+#endif // TEFRI_MONADBASE_H
+
+namespace tefri
+{
+    template <typename InputTupleVariants, typename... Functions>
+    class Monad;
+
+    namespace detail
+    {
+        template <typename InputTupleVariants>
+        struct DraftMonad
+        {
+            template <typename... Functions>
+            using Monad = ::tefri::Monad<InputTupleVariants, Functions...>;
+        };
+
+        template <typename Monad, typename... Args>
+        struct Invoker;
+
+        struct Unspecified {};
+    }
+
+    template <typename InputTupleVariants, typename... Functions>
+    class Monad : public MonadBase<Monad<InputTupleVariants, Functions...>, InputTupleVariants>
+    {
+        using FunctionsTuple    = Tuple<Functions...>;
+        using FunctionsTuplePtr = std::shared_ptr<FunctionsTuple>;
+    public:
+        using Base = MonadBase<Monad<InputTupleVariants, Functions...>, InputTupleVariants>;
+
+        template <std::size_t N>
+        using NextMonad = metaxxa::TakeRange
+        <
+            detail::DraftMonad<InputTupleVariants>::template Monad,
+            metaxxa::TypeTuple<Functions...>,
+            N, sizeof...(Functions)
+        >;
+
+        Monad(FunctionsTuplePtr functions);
+
+        Monad(FunctionsTuple &&functions);
+
+        template <typename Function>
+        auto operator>>(Function &&) && 
+            -> Monad<InputTupleVariants, Functions..., Function>;
+
+        template <typename Function>
+        auto operator>>(Function &) && 
+            -> Monad<InputTupleVariants, Functions..., Function>;
+
+        template <typename... Args>
+        void operator()(const Args &... args);
+
+        template <std::size_t N>
+        auto next() -> NextMonad<N>;
+
+    private:
+        template <typename Variants>
+        friend auto monad() -> Monad<Variants>;
+
+        template <typename Monad, typename... Args>
+        friend struct detail::Invoker;
+
+        FunctionsTuplePtr functions;
+    };
+
+    template <typename InputTupleVariants = metaxxa::TypeTuple<>>
+    auto monad() -> Monad<InputTupleVariants>;
+}
+
+#endif // TEFRI_MONAD_H
+
+namespace tefri
+{
+    namespace detail
+    {
+        template <typename Monad, typename... Args>
+        struct Invoker
+        {
+        public:
+            template <typename T>
+                using HoldType = typename If<is_array_of<T, char>()>
+                        ::template Then<std::string>
+                        ::template Else<T>
+                        ::Type;
+
+            static void invoke(Monad &monad, const Args &... args)
+            {
+                using ArgsTuple     = Tuple<ObjectHolder<HoldType<Args>>...>;
+                using FunctionsType = typename Monad::FunctionsTuple;
+
+                auto hold = [](const auto &arg)
+                { 
+                    using Arg = std::remove_cv_t<std::remove_reference_t<decltype(arg)>>;
+
+                    return ObjectHolder<HoldType<Arg>> {arg}; 
+                };
+
+                if constexpr 
+                (
+                    std::is_invocable_v
+                    <
+                        std::tuple_element_t<0, FunctionsType>,
+                        decltype(std::declval<ArgsTuple>()), decltype(monad.template next<1>())
+                    >
+                ) monad.functions->template get<0>()(ArgsTuple(hold(args)...), monad.template next<1>());
+            }
+        };
+
+        template <typename InputTupleVariants, typename... Args>
+        struct Invoker<Monad<InputTupleVariants>, Args...>
+        {
+        public:
+            static void invoke(Monad<InputTupleVariants> &, const Args &...)
+            {
+                
+            }
+        };
+    }
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...>::Monad(FunctionsTuplePtr functions)
+        : functions(functions)
+    {}
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...>::Monad(FunctionsTuple &&functions)
+        : functions(std::make_shared<FunctionsTuple>(std::forward<FunctionsTuple>(functions)))
+    {}
+
+    template <typename Types, typename... Functions>
+    template <typename Function>
+    auto Monad<Types, Functions...>::operator>>(Function &&function) &&
+        -> Monad<Types, Functions..., Function>
+    {
+        return Monad<Types, Functions..., Function>(functions->template push_back<Function>(function));
+    }
+
+    template <typename Types, typename... Functions>
+    template <typename Function>
+    auto Monad<Types, Functions...>::operator>>(Function &function) &&
+        -> Monad<Types, Functions..., Function>
+    {
+        return Monad<Types, Functions..., Function>(functions->template push_back<Function>(function));
+    }
+
+    template <typename Types, typename... Functions>
+    template <typename... Args>
+    void Monad<Types, Functions...>::operator()(const Args &... args)
+    {
+        detail::Invoker<Monad<Types, Functions...>, Args...>
+            ::invoke(*this, args...);
+    }
+
+    template <typename Types, typename... Functions>
+    template <std::size_t N>
+    auto Monad<Types, Functions...>::next() 
+        -> typename Monad<Types, Functions...>::template NextMonad<N>
+    {
+        return NextMonad<N>(functions->template take_range_shared<N, decltype(functions)::element_type::size()>());
+    }
+
+    template <typename InputTupleVariants>
+    auto monad() -> Monad<InputTupleVariants>
+    {
+        return Monad<InputTupleVariants>
+        (
+            std::make_shared<typename Monad<InputTupleVariants>::FunctionsTuple>()
+        );
+    }
+}
+
+#endif // TEFRI_MONAD_INC
 
 #endif // TEFRI_H
 

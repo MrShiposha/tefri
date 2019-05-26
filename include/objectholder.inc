@@ -16,7 +16,7 @@ namespace tefri
     }
 
     template <typename T>
-    ObjectHolder<T>::ObjectHolder(T &object)
+    ObjectHolder<T>::ObjectHolder(const T &object)
     : future(hold_future<T>(object))
     {}
 

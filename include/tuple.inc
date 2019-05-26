@@ -172,7 +172,7 @@ namespace tefri
     auto GeneralTuple<PtrContainer, Args...>::get() const
         -> std::add_const_t<typename TypeTuple::template Get<INDEX>> &
     {
-        return const_cast<GeneralTuple>(this)->template get<INDEX>();
+        return const_cast<GeneralTuple*>(this)->template get<INDEX>();
     }
 
     template 

@@ -272,6 +272,13 @@ namespace tefri
         const GeneralTuple<PtrContainer, NewTypes...> reinterpret() const;
 
     private:
+        template 
+        <
+            template <typename, typename...> typename, 
+            typename...
+        >
+        friend class GeneralTuple;
+
         GeneralTuple(Objects, std::size_t offset = 0);
 
         Objects objects;

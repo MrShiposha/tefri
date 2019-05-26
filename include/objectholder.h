@@ -57,7 +57,7 @@ namespace tefri
 
         ObjectHolder() = delete;
 
-        ObjectHolder(T &object);
+        ObjectHolder(const T &object);
 
         ObjectHolder(T &&object);
 
