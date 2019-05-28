@@ -6,4 +6,6 @@
 #include "tuple.inc"
 #include "monad.inc"
 
+#include "operator/operator.h"
+
 #endif // TEFRI_H

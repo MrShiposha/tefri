@@ -211,3 +211,15 @@ TEST_CASE("Skip last shared", "[tefri::GeneralTuple]")
     REQUIRE(first.template get<1>() == Approx(3.14));
     REQUIRE(first.raw_objects() == tuple.raw_objects());
 }
+
+TEST_CASE("Apply", "[metaxxa::GeneralTuple]")
+{
+    GeneralTuple<std::vector, int, int, int> tuple(0, 0, 0);
+
+    bool result = tuple.apply([](auto... args) 
+    { 
+        return (true && ... && (args == 0));
+    });
+
+    REQUIRE(result);
+}

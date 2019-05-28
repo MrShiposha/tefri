@@ -7,6 +7,15 @@ namespace tefri
 {
     using namespace metaxxa;
 
+    namespace detail
+    {
+        template <typename Tuple, typename Callable, std::size_t... INDICES>
+        auto apply(Tuple tuple, Callable callable, std::index_sequence<INDICES...>)
+        {
+            return callable(tuple.template get<INDICES>()...);
+        }
+    }
+
     template 
     <
         template <typename, typename...> typename PtrContainer,
@@ -517,6 +526,49 @@ namespace tefri
         return const_cast<GeneralTuple>(this)->template reinterpret<NewTypes...>();
     }
 
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer, Args...>::apply(const Callable &callable) const
+    {
+        return detail::apply<const GeneralTuple<PtrContainer, Args...> &, const Callable &>(*this, callable, std::make_index_sequence<size()>());
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer, Args...>::apply(Callable &callable) const
+    {
+        return detail::apply<const GeneralTuple<PtrContainer, Args...> &, Callable &>(*this, callable, std::make_index_sequence<size()>());
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer, Args...>::apply(const Callable &callable)
+    {
+        return detail::apply<GeneralTuple<PtrContainer, Args...> &, const Callable &>(*this, callable, std::make_index_sequence<size()>());
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer, Args...>::apply(Callable &callable)
+    {
+        return detail::apply<GeneralTuple<PtrContainer, Args...> &, Callable &>(*this, callable, std::make_index_sequence<size()>());
+    }
 
     // empty spec //
     
@@ -676,6 +728,26 @@ namespace tefri
     const GeneralTuple<PtrContainer, NewTypes...> GeneralTuple<PtrContainer>::reinterpret() const
     {
         return const_cast<GeneralTuple>(this)->template reinterpret<NewTypes...>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer>::apply(const Callable &callable) const
+    {
+        return callable();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer>::apply(Callable &callable) const
+    {
+        return callable();
     }
 
     // empty spec //

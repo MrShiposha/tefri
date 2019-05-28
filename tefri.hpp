@@ -2284,6 +2284,18 @@ namespace tefri
         template <typename... NewTypes>
         const GeneralTuple<PtrContainer, NewTypes...> reinterpret() const;
 
+        template <typename Callable>
+        auto apply(const Callable &) const;
+
+        template <typename Callable>
+        auto apply(Callable &) const;
+
+        template <typename Callable>
+        auto apply(const Callable &);
+
+        template <typename Callable>
+        auto apply(Callable &);
+
     private:
         template 
         <
@@ -2350,6 +2362,12 @@ namespace tefri
         template <typename... NewTypes>
         const GeneralTuple<PtrContainer, NewTypes...> reinterpret() const;
 
+        template <typename Callable>
+        auto apply(const Callable &) const;
+
+        template <typename Callable>
+        auto apply(Callable &) const;
+
     private:
         template 
         <
@@ -2391,6 +2409,15 @@ namespace std
 namespace tefri
 {
     using namespace metaxxa;
+
+    namespace detail
+    {
+        template <typename Tuple, typename Callable, std::size_t... INDICES>
+        auto apply(Tuple tuple, Callable callable, std::index_sequence<INDICES...>)
+        {
+            return callable(tuple.template get<INDICES>()...);
+        }
+    }
 
     template 
     <
@@ -2902,6 +2929,49 @@ namespace tefri
         return const_cast<GeneralTuple>(this)->template reinterpret<NewTypes...>();
     }
 
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer, Args...>::apply(const Callable &callable) const
+    {
+        return detail::apply<const GeneralTuple<PtrContainer, Args...> &, const Callable &>(*this, callable, std::make_index_sequence<size()>());
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer, Args...>::apply(Callable &callable) const
+    {
+        return detail::apply<const GeneralTuple<PtrContainer, Args...> &, Callable &>(*this, callable, std::make_index_sequence<size()>());
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer, Args...>::apply(const Callable &callable)
+    {
+        return detail::apply<GeneralTuple<PtrContainer, Args...> &, const Callable &>(*this, callable, std::make_index_sequence<size()>());
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer,
+        typename... Args
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer, Args...>::apply(Callable &callable)
+    {
+        return detail::apply<GeneralTuple<PtrContainer, Args...> &, Callable &>(*this, callable, std::make_index_sequence<size()>());
+    }
 
     // empty spec //
     
@@ -3061,6 +3131,26 @@ namespace tefri
     const GeneralTuple<PtrContainer, NewTypes...> GeneralTuple<PtrContainer>::reinterpret() const
     {
         return const_cast<GeneralTuple>(this)->template reinterpret<NewTypes...>();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer>::apply(const Callable &callable) const
+    {
+        return callable();
+    }
+
+    template 
+    <
+        template <typename, typename...> typename PtrContainer
+    >
+    template <typename Callable>
+    auto GeneralTuple<PtrContainer>::apply(Callable &callable) const
+    {
+        return callable();
     }
 
     // empty spec //
@@ -3296,6 +3386,76 @@ namespace tefri
 }
 
 #endif // TEFRI_MONAD_INC
+
+
+#ifndef TEFRI_OPERATOR_H
+#define TEFRI_OPERATOR_H
+
+
+#ifndef TEFRI_MAPPING_OPERATOR_INC
+#define TEFRI_MAPPING_OPERATOR_INC
+
+
+
+#ifndef TEFRI_MAPPING_OPERATOR_H
+#define TEFRI_MAPPING_OPERATOR_H
+
+namespace tefri
+{
+    struct MappingOperatorTag {};
+
+    template <typename Callable>
+    class Mapping : public MappingOperatorTag
+    {
+    public:
+        Mapping(const Callable &);
+
+        Mapping(Callable &);
+
+        Mapping(Callable &&);
+
+        template <typename Args, typename Next>
+        void operator()(const Args &, Next &);
+        
+    private:
+        Callable callable;
+    };
+}
+
+#endif // TEFRI_MAPPING_OPERATOR_H
+
+namespace tefri
+{
+    template <typename Callable>
+    Mapping<Callable>::Mapping(const Callable &callable)
+    : callable(callable)
+    {}
+
+    template <typename Callable>
+    Mapping<Callable>::Mapping(Callable &callable)
+    : callable(callable)
+    {}
+
+    template <typename Callable>
+    Mapping<Callable>::Mapping(Callable &&callable)
+    : callable(std::forward<Callable>(callable))
+    {}
+
+    template <typename Callable>
+    template <typename Args, typename Next>
+    void Mapping<Callable>::operator()(const Args &args, Next &next)
+    {
+        args.apply([&](const auto&... holders)
+        {
+            if constexpr(std::is_invocable_v<Callable, decltype(holders.get_copy())...>)
+                next(std::invoke(callable, holders.get_ref()...));
+        });
+    }
+}
+
+#endif // TEFRI_MAPPING_OPERATOR_INC
+
+#endif // TEFRI_OPERATOR_H
 
 #endif // TEFRI_H
 

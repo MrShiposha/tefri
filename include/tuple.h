@@ -205,6 +205,18 @@ namespace tefri
         template <typename... NewTypes>
         const GeneralTuple<PtrContainer, NewTypes...> reinterpret() const;
 
+        template <typename Callable>
+        auto apply(const Callable &) const;
+
+        template <typename Callable>
+        auto apply(Callable &) const;
+
+        template <typename Callable>
+        auto apply(const Callable &);
+
+        template <typename Callable>
+        auto apply(Callable &);
+
     private:
         template 
         <
@@ -270,6 +282,12 @@ namespace tefri
 
         template <typename... NewTypes>
         const GeneralTuple<PtrContainer, NewTypes...> reinterpret() const;
+
+        template <typename Callable>
+        auto apply(const Callable &) const;
+
+        template <typename Callable>
+        auto apply(Callable &) const;
 
     private:
         template 
