@@ -14,10 +14,10 @@ namespace tefri
         {
         public:
             template <typename T>
-                using HoldType = typename If<is_array_of<T, char>()>
-                        ::template Then<std::string>
-                        ::template Else<T>
-                        ::Type;
+            using HoldType = typename If<is_array_of<T, char>()>
+                    ::template Then<std::string>
+                    ::template Else<T>
+                    ::Type;
 
             static void invoke(Monad &monad, const Args &... args)
             {
