@@ -3274,6 +3274,11 @@ namespace tefri
         template <typename... Args>
         void operator()(const Args &... args);
 
+        template <typename... Args>
+        void operator()(const ObjectHolder<Args> &... args);
+
+        void operator()();
+
         template <std::size_t N>
         auto next() -> NextMonad<N>;
 
@@ -3297,26 +3302,22 @@ namespace tefri
 {
     namespace detail
     {
+        template <typename T>
+        using HoldType = ObjectHolder
+        <
+            typename metaxxa::If<metaxxa::is_array_of<T, char>()>
+                ::template Then<std::string>
+                ::template Else<T>
+                ::Type
+        >;
+
         template <typename Monad, typename... Args>
         struct Invoker
         {
         public:
-            template <typename T>
-            using HoldType = typename metaxxa::If<metaxxa::is_array_of<T, char>()>
-                    ::template Then<std::string>
-                    ::template Else<T>
-                    ::Type;
-
-            static void invoke(Monad &monad, const Args &... args)
+            static void invoke(Monad &monad, const HoldType<Args> &... args)
             {
                 using FunctionsType = typename Monad::FunctionsTuple;
-
-                auto hold = [](const auto &arg)
-                { 
-                    using Arg = std::remove_cv_t<std::remove_reference_t<decltype(arg)>>;
-
-                    return ObjectHolder<HoldType<Arg>> {arg}; 
-                };
 
                 if constexpr 
                 (
@@ -3324,9 +3325,21 @@ namespace tefri
                     <
                         std::tuple_element_t<0, FunctionsType>,
                         decltype(monad.template next<1>()),
-                        ObjectHolder<HoldType<Args>>...
+                        HoldType<Args>...
                     >
-                ) monad.functions->template get<0>()(monad.template next<1>(), hold(args)...);
+                ) monad.functions->template get<0>()(monad.template next<1>(), args...);
+            }
+
+            static void invoke(Monad &monad, const Args &... args)
+            {
+                auto hold = [](const auto &arg)
+                { 
+                    using Arg = std::remove_cv_t<std::remove_reference_t<decltype(arg)>>;
+
+                    return HoldType<Arg> {arg}; 
+                };
+
+                invoke(monad, hold(args)...);
             }
         };
 
@@ -3335,9 +3348,18 @@ namespace tefri
         {
         public:
             static void invoke(Monad<InputTupleVariants> &, const Args &...)
-            {
-                
-            }
+            {}
+
+            static void invoke(Monad<InputTupleVariants> &monad, const HoldType<Args> &... args)
+            {}
+        };
+
+        template <typename InputTupleVariants>
+        struct Invoker<Monad<InputTupleVariants>>
+        {
+        public:
+            static void invoke(Monad<InputTupleVariants> &)
+            {}
         };
     }
 
@@ -3391,6 +3413,21 @@ namespace tefri
     {
         detail::Invoker<Monad<Types, Functions...>, Args...>
             ::invoke(*this, args...);
+    }
+
+    template <typename Types, typename... Functions>
+    template <typename... Args>
+    void Monad<Types, Functions...>::operator()(const ObjectHolder<Args> &... args)
+    {
+        detail::Invoker<Monad<Types, Functions...>, Args...>
+            ::invoke(*this, args...);
+    }
+
+    template <typename Types, typename... Functions>
+    void Monad<Types, Functions...>::operator()()
+    {
+        detail::Invoker<Monad<Types, Functions...>>
+            ::invoke(*this);
     }
 
     template <typename Types, typename... Functions>
@@ -3666,7 +3703,7 @@ namespace tefri
         if constexpr(std::is_invocable_v<Callable, decltype(args.get_copy())...>)
         {
             if(std::invoke(this->callable, args.get_ref()...))
-                next(args.get_ref()...);
+                next(args...);
         }
     }
 
@@ -3677,7 +3714,7 @@ namespace tefri
         if constexpr((true && ... && std::is_invocable_v<Callable, decltype(args.get_copy())>))
         {
             if((true && ... && std::invoke(this->callable, args.get_ref())))
-                next(args.get_ref()...);
+                next(args...);
         }
     }
 

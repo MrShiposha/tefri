@@ -12,7 +12,7 @@ namespace tefri
         if constexpr(std::is_invocable_v<Callable, decltype(args.get_copy())...>)
         {
             if(std::invoke(this->callable, args.get_ref()...))
-                next(args.get_ref()...);
+                next(args...);
         }
     }
 
@@ -23,7 +23,7 @@ namespace tefri
         if constexpr((true && ... && std::is_invocable_v<Callable, decltype(args.get_copy())>))
         {
             if((true && ... && std::invoke(this->callable, args.get_ref())))
-                next(args.get_ref()...);
+                next(args...);
         }
     }
 
