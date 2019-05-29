@@ -3301,7 +3301,6 @@ namespace tefri
 
             static void invoke(Monad &monad, const Args &... args)
             {
-                using ArgsTuple     = Tuple<ObjectHolder<HoldType<Args>>...>;
                 using FunctionsType = typename Monad::FunctionsTuple;
 
                 auto hold = [](const auto &arg)
@@ -3316,9 +3315,10 @@ namespace tefri
                     std::is_invocable_v
                     <
                         std::tuple_element_t<0, FunctionsType>,
-                        decltype(std::declval<ArgsTuple>()), decltype(monad.template next<1>())
+                        decltype(monad.template next<1>()),
+                        ObjectHolder<HoldType<Args>>...
                     >
-                ) monad.functions->template get<0>()(ArgsTuple(hold(args)...), monad.template next<1>());
+                ) monad.functions->template get<0>()(monad.template next<1>(), hold(args)...);
             }
         };
 
@@ -3390,70 +3390,6 @@ namespace tefri
 
 #ifndef TEFRI_OPERATOR_H
 #define TEFRI_OPERATOR_H
-
-
-#ifndef TEFRI_MAPPING_OPERATOR_INC
-#define TEFRI_MAPPING_OPERATOR_INC
-
-
-
-#ifndef TEFRI_MAPPING_OPERATOR_H
-#define TEFRI_MAPPING_OPERATOR_H
-
-namespace tefri
-{
-    struct MappingOperatorTag {};
-
-    template <typename Callable>
-    class Mapping : public MappingOperatorTag
-    {
-    public:
-        Mapping(const Callable &);
-
-        Mapping(Callable &);
-
-        Mapping(Callable &&);
-
-        template <typename Args, typename Next>
-        void operator()(const Args &, Next &);
-        
-    private:
-        Callable callable;
-    };
-}
-
-#endif // TEFRI_MAPPING_OPERATOR_H
-
-namespace tefri
-{
-    template <typename Callable>
-    Mapping<Callable>::Mapping(const Callable &callable)
-    : callable(callable)
-    {}
-
-    template <typename Callable>
-    Mapping<Callable>::Mapping(Callable &callable)
-    : callable(callable)
-    {}
-
-    template <typename Callable>
-    Mapping<Callable>::Mapping(Callable &&callable)
-    : callable(std::forward<Callable>(callable))
-    {}
-
-    template <typename Callable>
-    template <typename Args, typename Next>
-    void Mapping<Callable>::operator()(const Args &args, Next &next)
-    {
-        args.apply([&](const auto&... holders)
-        {
-            if constexpr(std::is_invocable_v<Callable, decltype(holders.get_copy())...>)
-                next(std::invoke(callable, holders.get_ref()...));
-        });
-    }
-}
-
-#endif // TEFRI_MAPPING_OPERATOR_INC
 
 #endif // TEFRI_OPERATOR_H
 

@@ -1,6 +1,6 @@
 #include "tests.h"
 
-#include <iostream>
+#include <string>
 
 TEST_CASE("[tefri::Monad]")
 {
@@ -16,9 +16,8 @@ TEST_CASE("[tefri::Monad]")
         bool f1_called = false;
         bool f2_called = false;
 
-        auto m = monad() >> [&](const auto &args, auto next) 
+        auto m = monad() >> [&](auto &&next, const auto &i_hld, const auto &c_hld) 
         { 
-            auto &[i_hld, c_hld] = args;
             auto &i = i_hld.get_ref();
             auto &c = c_hld.get_ref();
 
@@ -26,16 +25,13 @@ TEST_CASE("[tefri::Monad]")
             REQUIRE(c == 'z');
 
             f1_called = true;
-            next("mod(i)", i * 10);
+            next("return(" + std::to_string(i * 10) + ")");
         }
-        >> [&](const auto &args, auto next)
+        >> [&](auto &&next, const auto &m_hld)
         {
-            auto &[m_hld, i_hld] = args;
             auto &m = m_hld.get_ref();
-            auto &i = i_hld.get_ref();
 
-            REQUIRE(m == "mod(i)");
-            REQUIRE(i == 420);
+            REQUIRE(m == "return(420)");
 
             f2_called = true;
             next();

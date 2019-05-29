@@ -21,7 +21,6 @@ namespace tefri
 
             static void invoke(Monad &monad, const Args &... args)
             {
-                using ArgsTuple     = Tuple<ObjectHolder<HoldType<Args>>...>;
                 using FunctionsType = typename Monad::FunctionsTuple;
 
                 auto hold = [](const auto &arg)
@@ -36,9 +35,10 @@ namespace tefri
                     std::is_invocable_v
                     <
                         std::tuple_element_t<0, FunctionsType>,
-                        decltype(std::declval<ArgsTuple>()), decltype(monad.template next<1>())
+                        decltype(monad.template next<1>()),
+                        ObjectHolder<HoldType<Args>>...
                     >
-                ) monad.functions->template get<0>()(ArgsTuple(hold(args)...), monad.template next<1>());
+                ) monad.functions->template get<0>()(monad.template next<1>(), hold(args)...);
             }
         };
 
