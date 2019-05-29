@@ -54,6 +54,24 @@ namespace tefri
     }
 
     template <typename Types, typename... Functions>
+    Monad<Types, Functions...>::Monad() = default;
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...>::Monad(const Monad &) = default;
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...>::Monad(Monad &&) = default;
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...>::~Monad() = default;
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...> &Monad<Types, Functions...>::operator=(const Monad &) = default;
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...> &Monad<Types, Functions...>::operator=(Monad &&) = default;
+
+    template <typename Types, typename... Functions>
     Monad<Types, Functions...>::Monad(FunctionsTuplePtr functions)
         : functions(functions)
     {}

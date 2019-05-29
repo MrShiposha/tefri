@@ -3236,7 +3236,7 @@ namespace tefri
     }
 
     template <typename InputTupleVariants, typename... Functions>
-    class Monad : public MonadBase<Monad<InputTupleVariants, Functions...>, InputTupleVariants>
+    class Monad final : public MonadBase<Monad<InputTupleVariants, Functions...>, InputTupleVariants>
     {
         using FunctionsTuple    = Tuple<Functions...>;
         using FunctionsTuplePtr = std::shared_ptr<FunctionsTuple>;
@@ -3250,6 +3250,18 @@ namespace tefri
             metaxxa::TypeTuple<Functions...>,
             N, sizeof...(Functions)
         >;
+
+        Monad();
+
+        Monad(const Monad &);
+
+        Monad(Monad &&);
+
+        ~Monad();
+
+        Monad &operator=(const Monad &);
+
+        Monad &operator=(Monad &&);
 
         Monad(FunctionsTuplePtr functions);
 
@@ -3332,6 +3344,24 @@ namespace tefri
             }
         };
     }
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...>::Monad() = default;
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...>::Monad(const Monad &) = default;
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...>::Monad(Monad &&) = default;
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...>::~Monad() = default;
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...> &Monad<Types, Functions...>::operator=(const Monad &) = default;
+
+    template <typename Types, typename... Functions>
+    Monad<Types, Functions...> &Monad<Types, Functions...>::operator=(Monad &&) = default;
 
     template <typename Types, typename... Functions>
     Monad<Types, Functions...>::Monad(FunctionsTuplePtr functions)
