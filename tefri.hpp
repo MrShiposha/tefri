@@ -3391,6 +3391,193 @@ namespace tefri
 #ifndef TEFRI_OPERATOR_H
 #define TEFRI_OPERATOR_H
 
+
+#ifndef TEFRI_MAPPING_OPERATOR_INC
+#define TEFRI_MAPPING_OPERATOR_INC
+
+
+
+#ifndef TEFRI_MAPPING_OPERATOR_H
+#define TEFRI_MAPPING_OPERATOR_H
+
+namespace tefri
+{
+    struct MappingOperatorTag {};
+
+    template <typename Callable>
+    class Mapping : public MappingOperatorTag
+    {
+    public:
+        Mapping();
+
+        Mapping(const Mapping &);
+
+        Mapping(Mapping &&);
+
+        Mapping(const Callable &);
+
+        Mapping(Callable &);
+
+        Mapping(Callable &&);
+
+        Mapping &operator=(const Mapping &);
+
+        Mapping &operator=(Mapping &&);
+
+        virtual ~Mapping();
+
+    protected:
+        Callable callable;
+    };
+}
+
+#endif // TEFRI_MAPPING_OPERATOR_H
+
+namespace tefri
+{
+    template <typename Callable>
+    Mapping<Callable>::Mapping() = default;
+
+    template <typename Callable>
+    Mapping<Callable>::Mapping(const Mapping &) = default;
+
+    template <typename Callable>
+    Mapping<Callable>::Mapping(Mapping &&) = default;
+
+    template <typename Callable>
+    Mapping<Callable>::Mapping(const Callable &callable)
+    : callable(callable)
+    {}
+
+    template <typename Callable>
+    Mapping<Callable>::Mapping(Callable &callable)
+    : callable(callable)
+    {}
+
+    template <typename Callable>
+    Mapping<Callable>::Mapping(Callable &&callable)
+    : callable(std::forward<Callable>(callable))
+    {}
+
+    template <typename Callable>
+    Mapping<Callable> &Mapping<Callable>::operator=(const Mapping &) = default;
+
+    template <typename Callable>
+    Mapping<Callable> &Mapping<Callable>::operator=(Mapping &&) = default;
+
+    template <typename Callable>
+    Mapping<Callable>::~Mapping() = default;
+}
+
+#endif // TEFRI_MAPPING_OPERATOR_INC
+
+#ifndef TEFRI_MAP_OPERATOR_INC
+#define TEFRI_MAP_OPERATOR_INC
+
+
+
+#ifndef TEFRI_MAP_OPERTAOR_H
+#define TEFRI_MAP_OPERTAOR_H
+
+
+namespace tefri
+{
+    template <typename Callable>
+    class Map : public Mapping<Callable>
+    {
+    public:
+        using Mapping<Callable>::Mapping;
+
+        template <typename Next, typename... Args>
+        void operator()(Next &&, const Args &...);
+    };
+
+    template <typename Callable>
+    class MapSeq : public Mapping<Callable>
+    {
+    public:
+        using Mapping<Callable>::Mapping;
+
+        template <typename Next, typename... Args>
+        void operator()(Next &&, const Args &...);
+    };
+
+    template <typename Callable>
+    auto map(const Callable &);
+
+    template <typename Callable>
+    auto map(Callable &);
+
+    template <typename Callable>
+    auto map(Callable &&);
+
+    template <typename Callable>
+    auto map_seq(const Callable &);
+
+    template <typename Callable>
+    auto map_seq(Callable &);
+
+    template <typename Callable>
+    auto map_seq(Callable &&);
+}
+
+#endif // TEFRI_MAP_OPERTAOR_H
+
+namespace tefri
+{
+    template <typename Callable>
+    template <typename Next, typename... Args>
+    void Map<Callable>::operator()(Next &&next, const Args &... args)
+    {
+        next(std::invoke(this->callable, args.get_ref()...));
+    }
+
+    template <typename Callable>
+    template <typename Next, typename... Args>
+    void MapSeq<Callable>::operator()(Next &&next, const Args &... args)
+    {
+        next(std::invoke(this->callable, args.get_ref())...);
+    }
+
+    template <typename Callable>
+    auto map(const Callable &callable)
+    {
+        return Map<Callable>(callable);
+    }
+
+    template <typename Callable>
+    auto map(Callable &callable)
+    {
+        return Map<Callable>(callable);
+    }
+
+    template <typename Callable>
+    auto map(Callable &&callable)
+    {
+        return Map<Callable>(std::forward<Callable>(callable));
+    }
+
+    template <typename Callable>
+    auto map_seq(const Callable &callable)
+    {
+        return MapSeq<Callable>(callable);
+    }
+
+    template <typename Callable>
+    auto map_seq(Callable &callable)
+    {
+        return MapSeq<Callable>(callable);
+    }
+
+    template <typename Callable>
+    auto map_seq(Callable &&callable)
+    {
+        return MapSeq<Callable>(std::forward<Callable>(callable));
+    }
+}
+
+#endif // TEFRI_MAP_OPERATOR_INC
+
 #endif // TEFRI_OPERATOR_H
 
 #endif // TEFRI_H
