@@ -3274,11 +3274,6 @@ namespace tefri
         template <typename... Args>
         void operator()(const Args &... args);
 
-        template <typename... Args>
-        void operator()(const ObjectHolder<Args> &... args);
-
-        void operator()();
-
         template <std::size_t N>
         auto next() -> NextMonad<N>;
 
@@ -3315,8 +3310,18 @@ namespace tefri
         struct Invoker
         {
         public:
-            static void invoke(Monad &monad, const HoldType<Args> &... args)
+            static void invoke(Monad &monad, const Args &... args)
             {
+                auto hold = [](const auto &arg)
+                { 
+                    using Arg = std::remove_cv_t<std::remove_reference_t<decltype(arg)>>;
+
+                    if constexpr (metaxxa::is_instatiation_of<Arg, ObjectHolder>())
+                        return arg;
+                    else
+                        return HoldType<Arg> {arg}; 
+                };
+
                 using FunctionsType = typename Monad::FunctionsTuple;
 
                 if constexpr 
@@ -3325,21 +3330,9 @@ namespace tefri
                     <
                         std::tuple_element_t<0, FunctionsType>,
                         decltype(monad.template next<1>()),
-                        HoldType<Args>...
+                        decltype(hold(args))...
                     >
-                ) monad.functions->template get<0>()(monad.template next<1>(), args...);
-            }
-
-            static void invoke(Monad &monad, const Args &... args)
-            {
-                auto hold = [](const auto &arg)
-                { 
-                    using Arg = std::remove_cv_t<std::remove_reference_t<decltype(arg)>>;
-
-                    return HoldType<Arg> {arg}; 
-                };
-
-                invoke(monad, hold(args)...);
+                ) monad.functions->template get<0>()(monad.template next<1>(), hold(args)...);
             }
         };
 
@@ -3348,17 +3341,6 @@ namespace tefri
         {
         public:
             static void invoke(Monad<InputTupleVariants> &, const Args &...)
-            {}
-
-            static void invoke(Monad<InputTupleVariants> &monad, const HoldType<Args> &... args)
-            {}
-        };
-
-        template <typename InputTupleVariants>
-        struct Invoker<Monad<InputTupleVariants>>
-        {
-        public:
-            static void invoke(Monad<InputTupleVariants> &)
             {}
         };
     }
@@ -3413,21 +3395,6 @@ namespace tefri
     {
         detail::Invoker<Monad<Types, Functions...>, Args...>
             ::invoke(*this, args...);
-    }
-
-    template <typename Types, typename... Functions>
-    template <typename... Args>
-    void Monad<Types, Functions...>::operator()(const ObjectHolder<Args> &... args)
-    {
-        detail::Invoker<Monad<Types, Functions...>, Args...>
-            ::invoke(*this, args...);
-    }
-
-    template <typename Types, typename... Functions>
-    void Monad<Types, Functions...>::operator()()
-    {
-        detail::Invoker<Monad<Types, Functions...>>
-            ::invoke(*this);
     }
 
     template <typename Types, typename... Functions>

@@ -69,11 +69,6 @@ namespace tefri
         template <typename... Args>
         void operator()(const Args &... args);
 
-        template <typename... Args>
-        void operator()(const ObjectHolder<Args> &... args);
-
-        void operator()();
-
         template <std::size_t N>
         auto next() -> NextMonad<N>;
 
