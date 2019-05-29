@@ -1877,8 +1877,6 @@ namespace tefri
 
 namespace tefri
 {
-    using namespace metaxxa;
-
     namespace detail
     {
         template <typename T>
@@ -2408,8 +2406,6 @@ namespace std
 
 namespace tefri
 {
-    using namespace metaxxa;
-
     namespace detail
     {
         template <typename Tuple, typename Callable, std::size_t... INDICES>
@@ -3306,10 +3302,10 @@ namespace tefri
         {
         public:
             template <typename T>
-                using HoldType = typename If<is_array_of<T, char>()>
-                        ::template Then<std::string>
-                        ::template Else<T>
-                        ::Type;
+            using HoldType = typename metaxxa::If<metaxxa::is_array_of<T, char>()>
+                    ::template Then<std::string>
+                    ::template Else<T>
+                    ::Type;
 
             static void invoke(Monad &monad, const Args &... args)
             {

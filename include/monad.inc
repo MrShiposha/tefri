@@ -14,7 +14,7 @@ namespace tefri
         {
         public:
             template <typename T>
-            using HoldType = typename If<is_array_of<T, char>()>
+            using HoldType = typename metaxxa::If<metaxxa::is_array_of<T, char>()>
                     ::template Then<std::string>
                     ::template Else<T>
                     ::Type;

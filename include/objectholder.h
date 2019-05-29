@@ -11,8 +11,6 @@
 
 namespace tefri
 {
-    using namespace metaxxa;
-
     namespace detail
     {
         template <typename T>

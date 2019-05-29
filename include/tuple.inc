@@ -5,8 +5,6 @@
 
 namespace tefri
 {
-    using namespace metaxxa;
-
     namespace detail
     {
         template <typename Tuple, typename Callable, std::size_t... INDICES>
