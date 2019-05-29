@@ -1882,7 +1882,7 @@ namespace tefri
         template <typename T>
         constexpr bool is_reference_wrapper()
         {
-            return is_instatiation_of<std::decay_t<T>, std::reference_wrapper>();
+            return metaxxa::is_instatiation_of<std::decay_t<T>, std::reference_wrapper>();
         }
 
         template <typename T, bool IS_REFERENCE_WRAPPER = is_reference_wrapper<T>()>
