@@ -12,12 +12,13 @@ TEST_CASE("[tefri::Map]")
         };
 
     m(10, 20, 70);
+    m("", "", nullptr);
 }
 
 TEST_CASE("[tefri::MapSeq]")
 {
     auto m = monad() 
-        >> map_seq([](auto v) { return v * 10; })
+        >> map_seq([](int v) { return v * 10; })
         >> [](auto &&_, auto a, auto b, auto c, auto d)
         {
             REQUIRE(a.get_ref() == 100);
@@ -27,4 +28,5 @@ TEST_CASE("[tefri::MapSeq]")
         };
 
     m(10, 20, 70, 4);
+    m(0, nullptr);
 }

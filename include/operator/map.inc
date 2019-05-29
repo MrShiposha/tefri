@@ -11,14 +11,16 @@ namespace tefri
     template <typename Next, typename... Args>
     void Map<Callable>::operator()(Next &&next, const Args &... args)
     {
-        next(std::invoke(this->callable, args.get_ref()...));
+        if constexpr(std::is_invocable_v<Callable, decltype(args.get_copy())...>)
+            next(std::invoke(this->callable, args.get_ref()...));
     }
 
     template <typename Callable>
     template <typename Next, typename... Args>
     void MapSeq<Callable>::operator()(Next &&next, const Args &... args)
     {
-        next(std::invoke(this->callable, args.get_ref())...);
+        if constexpr((true && ... && std::is_invocable_v<Callable, decltype(args.get_copy())>))
+            next(std::invoke(this->callable, args.get_ref())...);
     }
 
     template <typename Callable>
