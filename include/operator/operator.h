@@ -3,5 +3,6 @@
 
 #include "mapping.inc"
 #include "map.inc"
+#include "filter.inc"
 
 #endif // TEFRI_OPERATOR_H

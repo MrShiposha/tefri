@@ -1,6 +1,8 @@
 #ifndef TEFRI_MAPPING_OPERATOR_H
 #define TEFRI_MAPPING_OPERATOR_H
 
+#include <functional>
+
 namespace tefri
 {
     struct MappingOperatorTag {};

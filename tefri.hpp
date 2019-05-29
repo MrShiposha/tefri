@@ -3400,6 +3400,7 @@ namespace tefri
 #ifndef TEFRI_MAPPING_OPERATOR_H
 #define TEFRI_MAPPING_OPERATOR_H
 
+
 namespace tefri
 {
     struct MappingOperatorTag {};
@@ -3473,7 +3474,6 @@ namespace tefri
 
 #ifndef TEFRI_MAP_OPERATOR_INC
 #define TEFRI_MAP_OPERATOR_INC
-
 
 
 #ifndef TEFRI_MAP_OPERTAOR_H
@@ -3579,6 +3579,120 @@ namespace tefri
 }
 
 #endif // TEFRI_MAP_OPERATOR_INC
+
+#ifndef TEFRI_FILTER_OPERATOR_INC
+#define TEFRI_FILTER_OPERATOR_INC
+
+
+#ifndef TEFRI_FILTER_OPERATOR_H
+#define TEFRI_FILTER_OPERATOR_H
+
+
+namespace tefri
+{
+    template <typename Callable>
+    class Filter : public Mapping<Callable>
+    {
+    public:
+        using Mapping<Callable>::Mapping;
+
+        template <typename Next, typename... Args>
+        void operator()(Next &&, const Args &...);
+    };
+
+    template <typename Callable>
+    class FilterSeq : public Mapping<Callable>
+    {
+    public:
+        using Mapping<Callable>::Mapping;
+
+        template <typename Next, typename... Args>
+        void operator()(Next &&, const Args &...);
+    };
+
+    template <typename Callable>
+    auto filter(const Callable &);
+
+    template <typename Callable>
+    auto filter(Callable &);
+
+    template <typename Callable>
+    auto filter(Callable &&);
+
+    template <typename Callable>
+    auto filter_seq(const Callable &);
+
+    template <typename Callable>
+    auto filter_seq(Callable &);
+
+    template <typename Callable>
+    auto filter_seq(Callable &&);
+}
+
+#endif // TEFRI_FILTER_OPERATOR_H
+
+namespace tefri
+{
+    template <typename Callable>
+    template <typename Next, typename... Args>
+    void Filter<Callable>::operator()(Next &&next, const Args &... args)
+    {
+        if constexpr(std::is_invocable_v<Callable, decltype(args.get_copy())...>)
+        {
+            if(std::invoke(this->callable, args.get_ref()...))
+                next(args.get_ref()...);
+        }
+    }
+
+    template <typename Callable>
+    template <typename Next, typename... Args>
+    void FilterSeq<Callable>::operator()(Next &&next, const Args &... args)
+    {
+        if constexpr((true && ... && std::is_invocable_v<Callable, decltype(args.get_copy())>))
+        {
+            if((true && ... && std::invoke(this->callable, args.get_ref())))
+                next(args.get_ref()...);
+        }
+    }
+
+    template <typename Callable>
+    auto filter(const Callable &callable)
+    {
+        return Filter<Callable>(callable);
+    }
+
+    template <typename Callable>
+    auto filter(Callable &callable)
+    {
+        return Filter<Callable>(callable);
+    }
+
+    template <typename Callable>
+    auto filter(Callable &&callable)
+    {
+        return Filter<Callable>(std::forward<Callable>(callable));
+    }
+
+    template <typename Callable>
+    auto filter_seq(const Callable &callable)
+    {
+        return FilterSeq<Callable>(callable);
+    }
+
+    template <typename Callable>
+    auto filter_seq(Callable &callable)
+    {
+        return FilterSeq<Callable>(callable);
+    }
+
+    template <typename Callable>
+    auto filter_seq(Callable &&callable)
+    {
+        return FilterSeq<Callable>(std::forward<Callable>(callable));
+    }
+}
+
+#endif // TEFRI_FILTER_OPERATOR_INC
 
 #endif // TEFRI_OPERATOR_H
 

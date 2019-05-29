@@ -1,8 +1,6 @@
 #ifndef TEFRI_MAP_OPERATOR_INC
 #define TEFRI_MAP_OPERATOR_INC
 
-#include <functional>
-
 #include "map.h"
 
 namespace tefri
