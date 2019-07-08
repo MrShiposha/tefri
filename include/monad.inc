@@ -44,7 +44,7 @@ namespace tefri
                         decltype(monad.template next<1>()),
                         decltype(hold(args))...
                     >
-                ) monad.functions->template get<0>()(monad.template next<1>(), hold(args)...);
+                ) std::invoke(monad.functions->template get<0>(), monad.template next<1>(), hold(args)...);
             }
         };
 
