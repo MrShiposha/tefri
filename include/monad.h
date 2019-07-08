@@ -88,7 +88,7 @@ namespace tefri
             -> Monad<Variants, Functions..., Function>;
 
         template <typename... Args>
-        void operator()(const Args &... args);
+        auto operator()(const Args &... args);
 
         template <std::size_t N>
         auto next() -> NextMonad<N>;

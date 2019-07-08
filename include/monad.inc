@@ -104,9 +104,9 @@ namespace tefri
 
     template <typename Types, typename... Functions>
     template <typename... Args>
-    void Monad<Types, Functions...>::operator()(const Args &... args)
+    auto Monad<Types, Functions...>::operator()(const Args &... args)
     {
-        detail::Invoker<Monad<Types, Functions...>, Args...>
+        return detail::Invoker<Monad<Types, Functions...>, Args...>
             ::invoke(*this, args...);
     }
 
