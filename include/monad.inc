@@ -22,7 +22,7 @@ namespace tefri
         struct Invoker
         {
         public:
-            static void invoke(Monad &monad, const Args &... args)
+            static auto invoke(Monad &monad, const Args &... args)
             {
                 auto hold = [](const auto &arg)
                 { 
@@ -44,7 +44,8 @@ namespace tefri
                         decltype(monad.template next<1>()),
                         decltype(hold(args))...
                     >
-                ) std::invoke(monad.functions->template get<0>(), monad.template next<1>(), hold(args)...);
+                ) return std::invoke(monad.functions->template get<0>(), monad.template next<1>(), hold(args)...);
+                else return detail::Unspecified {};
             }
         };
 
@@ -117,12 +118,14 @@ namespace tefri
         return NextMonad<N>(functions->template take_range_shared<N, decltype(functions)::element_type::size()>());
     }
 
-    template <typename InputTupleVariants>
-    auto monad() -> Monad<InputTupleVariants>
+    template <typename... Variants>
+    auto monad() -> detail::MonadFromRawVariants<Variants...>
     {
-        return Monad<InputTupleVariants>
+        using ResultMonad = detail::MonadFromRawVariants<Variants...>;
+
+        return ResultMonad
         (
-            std::make_shared<typename Monad<InputTupleVariants>::FunctionsTuple>()
+            std::make_shared<typename ResultMonad::FunctionsTuple>()
         );
     }
 }

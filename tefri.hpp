@@ -3578,38 +3578,88 @@ namespace tefri
 
 #endif // TEFRI_MONADBASE_H
 
+#ifndef TEFRI_ARGS_H
+#define TEFRI_ARGS_H
+
+
 namespace tefri
 {
-    template <typename InputTupleVariants, typename... Functions>
+    template <typename... Ts>
+    struct Args
+    {
+        using type = metaxxa::TypeList<Ts...>;
+    };
+}
+
+namespace std
+{
+    template <std::size_t INDEX, typename... Ts>
+    class tuple_element<INDEX, tefri::Args<Ts...>>
+    {
+    public:
+        using type = std::tuple_element_t<INDEX, typename tefri::Args<Ts...>::type>;
+    };
+
+    template <typename... Ts>
+    class tuple_size<tefri::Args<Ts...>> 
+        : public std::integral_constant<std::size_t, std::tuple_size_v<typename tefri::Args<Ts...>::type>>
+    {};
+}
+
+#endif // TEFRI_ARGS_H
+
+namespace tefri
+{
+    template <typename Variants, typename... Functions>
     class Monad;
 
     namespace detail
     {
-        template <typename InputTupleVariants>
+        template <typename Variants>
         struct DraftMonad
         {
             template <typename... Functions>
-            using Monad = ::tefri::Monad<InputTupleVariants, Functions...>;
+            using Monad = ::tefri::Monad<Variants, Functions...>;
         };
 
         template <typename Monad, typename... Args>
         struct Invoker;
 
         struct Unspecified {};
+
+        template <typename T>
+        struct MapArgs 
+        {
+            using type = typename metaxxa::If<metaxxa::is_instatiation_of<T, Args>()>
+                ::template Then<T>
+                ::template Else<Args<T>>
+                ::Type;
+        };
+
+        template <typename... RawVariants>
+        using MonadFromRawVariants = Monad
+        <
+            metaxxa::Map
+            <
+                Args,
+                Args<RawVariants...>,
+                detail::MapArgs
+            >
+        >;
     }
 
-    template <typename InputTupleVariants, typename... Functions>
-    class Monad final : public MonadBase<Monad<InputTupleVariants, Functions...>, InputTupleVariants>
+    template <typename Variants, typename... Functions>
+    class Monad final : public MonadBase<Monad<Variants, Functions...>, Variants>
     {
         using FunctionsTuple    = Tuple<Functions...>;
         using FunctionsTuplePtr = std::shared_ptr<FunctionsTuple>;
     public:
-        using Base = MonadBase<Monad<InputTupleVariants, Functions...>, InputTupleVariants>;
+        using Base = MonadBase<Monad<Variants, Functions...>, Variants>;
 
         template <std::size_t N>
         using NextMonad = metaxxa::TakeRange
         <
-            detail::DraftMonad<InputTupleVariants>::template Monad,
+            detail::DraftMonad<Variants>::template Monad,
             metaxxa::TypeTuple<Functions...>,
             N, sizeof...(Functions)
         >;
@@ -3632,11 +3682,11 @@ namespace tefri
 
         template <typename Function>
         auto operator>>(Function &&) && 
-            -> Monad<InputTupleVariants, Functions..., Function>;
+            -> Monad<Variants, Functions..., Function>;
 
         template <typename Function>
         auto operator>>(Function &) && 
-            -> Monad<InputTupleVariants, Functions..., Function>;
+            -> Monad<Variants, Functions..., Function>;
 
         template <typename... Args>
         void operator()(const Args &... args);
@@ -3645,8 +3695,8 @@ namespace tefri
         auto next() -> NextMonad<N>;
 
     private:
-        template <typename Variants>
-        friend auto monad() -> Monad<Variants>;
+        template <typename... AnotherVariants>
+        friend auto monad() -> detail::MonadFromRawVariants<AnotherVariants...>;
 
         template <typename Monad, typename... Args>
         friend struct detail::Invoker;
@@ -3654,8 +3704,8 @@ namespace tefri
         FunctionsTuplePtr functions;
     };
 
-    template <typename InputTupleVariants = metaxxa::TypeTuple<>>
-    auto monad() -> Monad<InputTupleVariants>;
+    template <typename... Variants>
+    auto monad() -> detail::MonadFromRawVariants<Variants...>;
 }
 
 #endif // TEFRI_MONAD_H
@@ -3677,7 +3727,7 @@ namespace tefri
         struct Invoker
         {
         public:
-            static void invoke(Monad &monad, const Args &... args)
+            static auto invoke(Monad &monad, const Args &... args)
             {
                 auto hold = [](const auto &arg)
                 { 
@@ -3699,7 +3749,8 @@ namespace tefri
                         decltype(monad.template next<1>()),
                         decltype(hold(args))...
                     >
-                ) std::invoke(monad.functions->template get<0>(), monad.template next<1>(), hold(args)...);
+                ) return std::invoke(monad.functions->template get<0>(), monad.template next<1>(), hold(args)...);
+                else return detail::Unspecified {};
             }
         };
 
@@ -3772,12 +3823,14 @@ namespace tefri
         return NextMonad<N>(functions->template take_range_shared<N, decltype(functions)::element_type::size()>());
     }
 
-    template <typename InputTupleVariants>
-    auto monad() -> Monad<InputTupleVariants>
+    template <typename... Variants>
+    auto monad() -> detail::MonadFromRawVariants<Variants...>
     {
-        return Monad<InputTupleVariants>
+        using ResultMonad = detail::MonadFromRawVariants<Variants...>;
+
+        return ResultMonad
         (
-            std::make_shared<typename Monad<InputTupleVariants>::FunctionsTuple>()
+            std::make_shared<typename ResultMonad::FunctionsTuple>()
         );
     }
 }

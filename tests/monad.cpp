@@ -43,3 +43,9 @@ TEST_CASE("[tefri::Monad]")
         REQUIRE(f2_called);
     }
 }
+
+TEST_CASE("Test MonadFromRawVariants, [metaxxa::Monad]")
+{
+    using M = tefri::detail::MonadFromRawVariants<Args<int, char>, char, double>;
+    static_assert(is_same_v<M, Monad<Args<Args<int, char>, Args<char>, Args<double>>>>);
+}
