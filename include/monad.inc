@@ -7,57 +7,6 @@
 
 namespace tefri
 {
-    namespace detail
-    {
-        template <typename T>
-        using HoldType = ObjectHolder
-        <
-            typename metaxxa::If<metaxxa::is_array_of<T, char>()>
-                ::template Then<std::string>
-                ::template Else<T>
-                ::Type
-        >;
-
-        template <typename Monad, typename... Args>
-        struct Invoker
-        {
-        public:
-            static auto invoke(Monad &monad, const Args &... args)
-            {
-                auto hold = [](const auto &arg)
-                { 
-                    using Arg = std::remove_cv_t<std::remove_reference_t<decltype(arg)>>;
-
-                    if constexpr (metaxxa::is_instatiation_of<Arg, ObjectHolder>())
-                        return arg;
-                    else
-                        return HoldType<Arg> {arg}; 
-                };
-
-                using FunctionsType = typename Monad::FunctionsTuple;
-
-                if constexpr 
-                (
-                    std::is_invocable_v
-                    <
-                        std::tuple_element_t<0, FunctionsType>,
-                        decltype(monad.template next<1>()),
-                        decltype(hold(args))...
-                    >
-                ) return std::invoke(monad.functions->template get<0>(), monad.template next<1>(), hold(args)...);
-                else return detail::Unspecified {};
-            }
-        };
-
-        template <typename InputTupleVariants, typename... Args>
-        struct Invoker<Monad<InputTupleVariants>, Args...>
-        {
-        public:
-            static void invoke(Monad<InputTupleVariants> &, const Args &...)
-            {}
-        };
-    }
-
     template <typename Types, typename... Functions>
     Monad<Types, Functions...>::Monad() = default;
 
@@ -104,7 +53,7 @@ namespace tefri
 
     template <typename Types, typename... Functions>
     template <typename... Args>
-    auto Monad<Types, Functions...>::operator()(const Args &... args)
+    auto Monad<Types, Functions...>::operator()(const Args &... args) const
     {
         return detail::Invoker<Monad<Types, Functions...>, Args...>
             ::invoke(*this, args...);
@@ -112,10 +61,10 @@ namespace tefri
 
     template <typename Types, typename... Functions>
     template <std::size_t N>
-    auto Monad<Types, Functions...>::next() 
-        -> NextMonad<N>
+    auto Monad<Types, Functions...>::raw_next() const
+        -> RawNextMonad<N>
     {
-        return NextMonad<N>(functions->template take_range_shared<N, decltype(functions)::element_type::size()>());
+        return RawNextMonad<N>(functions->template take_range_shared<N, decltype(functions)::element_type::size()>());
     }
 
     template <typename... Variants>

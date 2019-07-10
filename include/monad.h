@@ -5,26 +5,15 @@
 
 #include "tuple.h"
 #include "monadbase.h"
-#include "args.h"
+
+#include "detail/monad.h"
 
 namespace tefri
 {
-    template <typename Variants, typename... Functions>
-    class Monad;
-
     namespace detail
     {
-        template <typename Variants>
-        struct DraftMonad
-        {
-            template <typename... Functions>
-            using Monad = ::tefri::Monad<Variants, Functions...>;
-        };
-
         template <typename Monad, typename... Args>
         struct Invoker;
-
-        struct Unspecified {};
 
         template <typename T>
         struct MapArgs 
@@ -53,15 +42,14 @@ namespace tefri
         using FunctionsTuple    = Tuple<Functions...>;
         using FunctionsTuplePtr = std::shared_ptr<FunctionsTuple>;
     public:
-        using Base = MonadBase<Monad<Variants, Functions...>, Variants>;
+        using Base          = MonadBase<Monad<Variants, Functions...>, Variants>;
+        using InputVariants = Variants;
 
         template <std::size_t N>
-        using NextMonad = metaxxa::TakeRange
+        using NextMonadVariants = typename detail::MonadVariantMapper
         <
-            detail::DraftMonad<Variants>::template Monad,
-            metaxxa::TypeTuple<Functions...>,
-            N, sizeof...(Functions)
-        >;
+            detail::TypeGetterMonad<N, InputVariants, Functions...>
+        >::type;
 
         Monad();
 
@@ -88,12 +76,20 @@ namespace tefri
             -> Monad<Variants, Functions..., Function>;
 
         template <typename... Args>
-        auto operator()(const Args &... args);
-
-        template <std::size_t N>
-        auto next() -> NextMonad<N>;
+        auto operator()(const Args &... args) const;
 
     private:
+        template <std::size_t N>
+        using RawNextMonad = metaxxa::TakeRange
+        <
+            DraftMonad<Args<>>::template Monad,
+            metaxxa::TypeTuple<Functions...>,
+            N, sizeof...(Functions)
+        >;
+
+        template <std::size_t N>
+        auto raw_next() const -> RawNextMonad<N>;
+
         template <typename... AnotherVariants>
         friend auto monad() -> detail::MonadFromRawVariants<AnotherVariants...>;
 
