@@ -39,6 +39,9 @@ namespace tefri
     template <typename Variants, typename... Functions>
     class Monad final : public MonadBase<Monad<Variants, Functions...>, Variants>
     {
+        static_assert(!std::is_same_v<Variants, Args<void>>);
+        static_assert(!std::is_same_v<Variants, void>);
+
         using FunctionsTuple    = Tuple<Functions...>;
         using FunctionsTuplePtr = std::shared_ptr<FunctionsTuple>;
     public:
@@ -46,10 +49,15 @@ namespace tefri
         using InputVariants = Variants;
 
         template <std::size_t N>
-        using NextMonadVariants = typename detail::MonadVariantMapper
+        using NextMonadVariants = detail::NextMonadVariants<N, Variants, Functions...>;
+
+        template <std::size_t N>
+        using NextMonad = metaxxa::TakeRange
         <
-            detail::TypeGetterMonad<N, InputVariants, Functions...>
-        >::type;
+            DraftMonad<detail::NextMonadVariants<N, Variants, Functions...>>::template Monad,
+            metaxxa::TypeTuple<Functions...>,
+            N, sizeof...(Functions)
+        >;
 
         Monad();
 

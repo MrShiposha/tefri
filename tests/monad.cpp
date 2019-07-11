@@ -45,25 +45,24 @@ TEST_CASE("[tefri::Monad]")
     }
 }
 
-TEST_CASE("Test MonadFromRawVariants, [metaxxa::Monad]")
+TEST_CASE("Test MonadFromRawVariants, [tefri::Monad]")
 {
     using M = tefri::detail::MonadFromRawVariants<Args<int, char>, char, double>;
     static_assert(is_same_v<M, Monad<Args<Args<int, char>, Args<char>, Args<double>>>>);
 }
 
-
-TEST_CASE("Test NextMonadVariants", "[metaxxa::Monad]")
+auto f1 = [](auto &&next, const auto &a)
 {
-    auto f1 = [](auto &&next, const auto &a)
-    {
-        return next(std::to_string(a.get_ref()));
-    };
+    return next(std::to_string(a.get_ref()));
+};
 
-    auto f2 = [](auto &&next, const auto &str_hld)
-    {
-        return next(str_hld.get_ref().c_str());
-    };
+auto f2 = [](auto &&next, const auto &str_hld)
+{
+    return next(str_hld.get_ref().c_str());
+};
 
+TEST_CASE("Test NextMonadVariants", "[tefri::Monad]")
+{
     auto m = monad<Args<int>>() >> f1 >> f2;
 
     using M = decltype(m);
@@ -74,4 +73,23 @@ TEST_CASE("Test NextMonadVariants", "[metaxxa::Monad]")
     static_assert(is_same_v<Args0, Args<Args<int>>>);
     static_assert(is_same_v<Args1, Args<Args<std::string>>>);
     static_assert(is_same_v<Args2, Args<Args<const char *>>>);
+}
+
+TEST_CASE("Test NextMonad", "[tefri::Monad]")
+{
+    auto m = monad<Args<int>>() >> f1 >> f2;
+
+    using F_1 = decltype(f1);
+    using F_2 = decltype(f2);
+
+    using M = decltype(m);
+
+    using M_0 = typename M::template NextMonad<0>;
+    using M_1 = typename M::template NextMonad<1>;
+    using M_2 = typename M::template NextMonad<2>;
+
+    static_assert(is_same_v<M_0, M>);
+    static_assert(is_same_v<M_0, Monad<Args<Args<int>>, F_1, F_2>>);
+    static_assert(is_same_v<M_1, Monad<Args<Args<std::string>>, F_2>>);
+    static_assert(is_same_v<M_2, Monad<Args<Args<const char *>>>>);
 }

@@ -112,6 +112,12 @@ namespace tefri
                 NotVoid
             >;
         };
+
+        template <std::size_t N, typename Variants, typename... Functions>
+        using NextMonadVariants = typename MonadVariantMapper
+        <
+            TypeGetterMonad<N, Variants, Functions...>
+        >::type;
     }
 }
 
