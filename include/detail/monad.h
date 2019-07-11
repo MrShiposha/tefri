@@ -114,10 +114,14 @@ namespace tefri
         };
 
         template <std::size_t N, typename Variants, typename... Functions>
-        using NextMonadVariants = typename MonadVariantMapper
+        using NextMonadVariants = metaxxa::Unique
         <
-            TypeGetterMonad<N, Variants, Functions...>
-        >::type;
+            Args,
+            typename MonadVariantMapper
+            <
+                TypeGetterMonad<N, Variants, Functions...>
+            >::type
+        >;
     }
 }
 
