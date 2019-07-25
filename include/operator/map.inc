@@ -17,7 +17,7 @@ namespace tefri
     template <typename Next, typename... Args>
     auto MapSeq<Callable>::operator()(Next &&next, const Args &... args)
     {
-        if constexpr((true && ... && std::is_invocable_v<Callable, decltype(detail::unwrap(args))>))
+        if constexpr((std::is_invocable_v<Callable, decltype(detail::unwrap(args))> && ...))
             return next(std::invoke(this->callable, detail::unwrap_ref(args))...);
     }
 
