@@ -3932,6 +3932,76 @@ namespace tefri
 #define TEFRI_MAPPING_OPERATOR_H
 
 
+
+#ifndef TEFRI_OPERATOR_DETAIL_UNWRAP_INC
+#define TEFRI_OPERATOR_DETAIL_UNWRAP_INC
+
+
+#ifndef TEFRI_OPERATOR_DETAIL_UNWRAP_H
+#define TEFRI_OPERATOR_DETAIL_UNWRAP_H
+
+
+namespace tefri::detail
+{
+    template <typename T>
+    auto unwrap(const T &);
+
+    template <typename T>
+    auto unwrap_ref(const T &);
+}
+
+#endif // TEFRI_OPERATOR_DETAIL_UNWRAP_H
+
+#define DECLARE_UNWRAPER_CPY(specialization) struct Unwrapper<specialization> : DefaultUnwrapRef<Unwrapper<specialization>>
+#define DECLARE_UNWRAPER_REF(specialization) struct Unwrapper<specialization>
+
+
+namespace tefri::detail
+{
+    namespace
+    {
+        // TODO: specializations for Aggregation
+        template <typename T>
+        struct Unwrapper;
+
+        template <typename Unwrapper>
+        struct DefaultUnwrapRef
+        {
+            template <typename T>
+            static auto unwrap_ref(const T &obj)
+            {
+                return Unwrapper::unwrap(obj);
+            }
+        };
+
+        template <typename T>
+        DECLARE_UNWRAPER_CPY(ObjectHolder<T>)
+        {
+            static T unwrap(const ObjectHolder<T> &obj)
+            {
+                return obj.get_copy();
+            }
+        };
+    }
+
+    template <typename T>
+    auto unwrap(const T &obj)
+    {
+        return Unwrapper<T>::unwrap(obj);
+    }
+
+    template <typename T>
+    auto unwrap_ref(const T &obj)
+    {
+        return Unwrapper<T>::unwrap_ref(obj);
+    }
+}
+
+#undef DECLARE_UNWRAPER_REF
+#undef DECLARE_UNWRAPER_CPY
+
+#endif // TEFRI_OPERATOR_DETAIL_UNWRAP_INC
+
 namespace tefri
 {
     struct MappingOperatorTag {};
@@ -4060,16 +4130,16 @@ namespace tefri
     template <typename Next, typename... Args>
     auto Map<Callable>::operator()(Next &&next, const Args &... args)
     {
-        if constexpr(std::is_invocable_v<Callable, decltype(args.get_copy())...>)
-            return next(std::invoke(this->callable, args.get_ref()...));
+        if constexpr(std::is_invocable_v<Callable, decltype(detail::unwrap(args))...>)
+            return next(std::invoke(this->callable, detail::unwrap_ref(args)...));
     }
 
     template <typename Callable>
     template <typename Next, typename... Args>
     auto MapSeq<Callable>::operator()(Next &&next, const Args &... args)
     {
-        if constexpr((true && ... && std::is_invocable_v<Callable, decltype(args.get_copy())>))
-            return next(std::invoke(this->callable, args.get_ref())...);
+        if constexpr((true && ... && std::is_invocable_v<Callable, decltype(detail::unwrap(args))>))
+            return next(std::invoke(this->callable, detail::unwrap_ref(args))...);
     }
 
     template <typename Callable>
@@ -4168,9 +4238,9 @@ namespace tefri
     template <typename Next, typename... Args>
     auto Filter<Callable>::operator()(Next &&next, const Args &... args)
     {
-        if constexpr(std::is_invocable_v<Callable, decltype(args.get_copy())...>)
+        if constexpr(std::is_invocable_v<Callable, decltype(detail::unwrap(args))...>)
         {
-            if(std::invoke(this->callable, args.get_ref()...))
+            if(std::invoke(this->callable, detail::unwrap_ref(args)...))
                 return next(args...);
         }
     }
@@ -4179,9 +4249,9 @@ namespace tefri
     template <typename Next, typename... Args>
     auto FilterSeq<Callable>::operator()(Next &&next, const Args &... args)
     {
-        if constexpr((true && ... && std::is_invocable_v<Callable, decltype(args.get_copy())>))
+        if constexpr((true && ... && std::is_invocable_v<Callable, decltype(detail::unwrap(args))>))
         {
-            if((true && ... && std::invoke(this->callable, args.get_ref())))
+            if((true && ... && std::invoke(this->callable, detail::unwrap_ref(args))))
                 return next(args...);
         }
     }

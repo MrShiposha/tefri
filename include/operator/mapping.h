@@ -3,6 +3,8 @@
 
 #include <functional>
 
+#include "detail/unwrap.inc"
+
 namespace tefri
 {
     struct MappingOperatorTag {};

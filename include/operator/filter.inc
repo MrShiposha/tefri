@@ -9,9 +9,9 @@ namespace tefri
     template <typename Next, typename... Args>
     auto Filter<Callable>::operator()(Next &&next, const Args &... args)
     {
-        if constexpr(std::is_invocable_v<Callable, decltype(args.get_copy())...>)
+        if constexpr(std::is_invocable_v<Callable, decltype(detail::unwrap(args))...>)
         {
-            if(std::invoke(this->callable, args.get_ref()...))
+            if(std::invoke(this->callable, detail::unwrap_ref(args)...))
                 return next(args...);
         }
     }
@@ -20,9 +20,9 @@ namespace tefri
     template <typename Next, typename... Args>
     auto FilterSeq<Callable>::operator()(Next &&next, const Args &... args)
     {
-        if constexpr((true && ... && std::is_invocable_v<Callable, decltype(args.get_copy())>))
+        if constexpr((true && ... && std::is_invocable_v<Callable, decltype(detail::unwrap(args))>))
         {
-            if((true && ... && std::invoke(this->callable, args.get_ref())))
+            if((true && ... && std::invoke(this->callable, detail::unwrap_ref(args))))
                 return next(args...);
         }
     }
