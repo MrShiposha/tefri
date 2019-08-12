@@ -3656,7 +3656,7 @@ namespace tefri
         >;
 
         template <typename Monad, typename... Args>
-        struct Invoker
+        struct MonadInvoker
         {
         public:
             static auto invoke(const Monad &monad, const Args &... args)
@@ -3687,7 +3687,7 @@ namespace tefri
         };
 
         template <typename InputTupleVariants, typename... Args>
-        struct Invoker<Monad<InputTupleVariants>, Args...>
+        struct MonadInvoker<Monad<InputTupleVariants>, Args...>
         {
         public:
             static void invoke(const Monad<InputTupleVariants> &, const Args &...)
@@ -3705,7 +3705,7 @@ namespace tefri
                 template <typename... Args>
                 struct Mapper
                 {
-                    using type = decltype(Invoker<TypeGetterMonad, Args...>::invoke(std::declval<TypeGetterMonad>(), std::declval<Args>()...));
+                    using type = decltype(MonadInvoker<TypeGetterMonad, Args...>::invoke(std::declval<TypeGetterMonad>(), std::declval<Args>()...));
                 };
 
                 using type = typename metaxxa::MoveParameters<Mapper, Variant>::type;
@@ -3742,7 +3742,7 @@ namespace tefri
     namespace detail
     {
         template <typename Monad, typename... Args>
-        struct Invoker;
+        struct MonadInvoker;
 
         template <typename T>
         struct MapArgs 
@@ -3831,7 +3831,7 @@ namespace tefri
         friend auto monad() -> detail::MonadFromRawVariants<AnotherVariants...>;
 
         template <typename Monad, typename... Args>
-        friend struct detail::Invoker;
+        friend struct detail::MonadInvoker;
 
         FunctionsTuplePtr functions;
     };
@@ -3892,7 +3892,7 @@ namespace tefri
     template <typename... Args>
     auto Monad<Types, Functions...>::operator()(const Args &... args) const
     {
-        return detail::Invoker<Monad<Types, Functions...>, Args...>
+        return detail::MonadInvoker<Monad<Types, Functions...>, Args...>
             ::invoke(*this, args...);
     }
 

@@ -13,7 +13,7 @@ namespace tefri
     namespace detail
     {
         template <typename Monad, typename... Args>
-        struct Invoker;
+        struct MonadInvoker;
 
         template <typename T>
         struct MapArgs 
@@ -102,7 +102,7 @@ namespace tefri
         friend auto monad() -> detail::MonadFromRawVariants<AnotherVariants...>;
 
         template <typename Monad, typename... Args>
-        friend struct detail::Invoker;
+        friend struct detail::MonadInvoker;
 
         FunctionsTuplePtr functions;
     };
