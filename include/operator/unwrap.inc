@@ -7,11 +7,10 @@
 #define DECLARE_UNWRAPER_REF(specialization) struct Unwrapper<specialization>
 
 
-namespace tefri::detail
+namespace tefri
 {
     namespace
     {
-        // TODO: specializations for Aggregation
         template <typename T>
         struct Unwrapper;
 

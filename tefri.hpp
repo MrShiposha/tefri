@@ -3941,7 +3941,7 @@ namespace tefri
 #define TEFRI_OPERATOR_DETAIL_UNWRAP_H
 
 
-namespace tefri::detail
+namespace tefri
 {
     template <typename T>
     auto unwrap(const T &);
@@ -3956,11 +3956,10 @@ namespace tefri::detail
 #define DECLARE_UNWRAPER_REF(specialization) struct Unwrapper<specialization>
 
 
-namespace tefri::detail
+namespace tefri
 {
     namespace
     {
-        // TODO: specializations for Aggregation
         template <typename T>
         struct Unwrapper;
 
@@ -4130,16 +4129,16 @@ namespace tefri
     template <typename Next, typename... Seq>
     auto Map<Callable>::operator()(Next &&next, const Seq &... args)
     {
-        if constexpr(std::is_invocable_v<Callable, decltype(detail::unwrap(args))...>)
-            return next(std::invoke(this->callable, detail::unwrap_ref(args)...));
+        if constexpr(std::is_invocable_v<Callable, decltype(unwrap(args))...>)
+            return next(std::invoke(this->callable, unwrap_ref(args)...));
     }
 
     template <typename Callable>
     template <typename Next, typename... Seq>
     auto MapSeq<Callable>::operator()(Next &&next, const Seq &... args)
     {
-        if constexpr((std::is_invocable_v<Callable, decltype(detail::unwrap(args))> && ...))
-            return next(std::invoke(this->callable, detail::unwrap_ref(args))...);
+        if constexpr((std::is_invocable_v<Callable, decltype(unwrap(args))> && ...))
+            return next(std::invoke(this->callable, unwrap_ref(args))...);
     }
 
     template <typename Callable>
@@ -4238,9 +4237,9 @@ namespace tefri
     template <typename Next, typename... Seq>
     auto Filter<Callable>::operator()(Next &&next, const Seq &... args)
     {
-        if constexpr(std::is_invocable_v<Callable, decltype(detail::unwrap(args))...>)
+        if constexpr(std::is_invocable_v<Callable, decltype(unwrap(args))...>)
         {
-            if(std::invoke(this->callable, detail::unwrap_ref(args)...))
+            if(std::invoke(this->callable, unwrap_ref(args)...))
                 return next(args...);
         }
     }
@@ -4249,9 +4248,9 @@ namespace tefri
     template <typename Next, typename... Seq>
     auto FilterSeq<Callable>::operator()(Next &&next, const Seq &... args)
     {
-        if constexpr((std::is_invocable_v<Callable, decltype(detail::unwrap(args))> && ...))
+        if constexpr((std::is_invocable_v<Callable, decltype(unwrap(args))> && ...))
         {
-            if((std::invoke(this->callable, detail::unwrap_ref(args)) && ...))
+            if((std::invoke(this->callable, unwrap_ref(args)) && ...))
                 return next(args...);
         }
     }

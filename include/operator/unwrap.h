@@ -1,9 +1,9 @@
 #ifndef TEFRI_OPERATOR_DETAIL_UNWRAP_H
 #define TEFRI_OPERATOR_DETAIL_UNWRAP_H
 
-#include "../../objectholder.h"
+#include "../objectholder.h"
 
-namespace tefri::detail
+namespace tefri
 {
     template <typename T>
     auto unwrap(const T &);

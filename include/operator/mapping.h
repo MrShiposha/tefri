@@ -3,7 +3,7 @@
 
 #include <functional>
 
-#include "detail/unwrap.inc"
+#include "unwrap.inc"
 
 namespace tefri
 {
