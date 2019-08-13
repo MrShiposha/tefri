@@ -16,14 +16,14 @@ namespace tefri
     class MonadBase<Monad, Tuple<>>
     {
     public:
-        template <typename... Args>
-        void operator()(Args&&... args)
+        template <typename... Seq>
+        void operator()(Seq&&... args)
         {
-            *(static_cast<Monad*>(this))(std::forward<Args>(args)...);
+            *(static_cast<Monad*>(this))(std::forward<Seq>(args)...);
         }
 
-        template <typename... Args>
-        void operator()(const Args &... args)
+        template <typename... Seq>
+        void operator()(const Seq &... args)
         {
             *(static_cast<Monad*>(this))(args...);
         }

@@ -52,10 +52,10 @@ namespace tefri
     }
 
     template <typename Types, typename... Functions>
-    template <typename... Args>
-    auto Monad<Types, Functions...>::operator()(const Args &... args) const
+    template <typename... Seq>
+    auto Monad<Types, Functions...>::operator()(const Seq &... args) const
     {
-        return detail::MonadInvoker<Monad<Types, Functions...>, Args...>
+        return detail::MonadInvoker<Monad<Types, Functions...>, Seq...>
             ::invoke(*this, args...);
     }
 

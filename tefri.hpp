@@ -2629,11 +2629,11 @@ namespace tefri
         template <typename NewObject>
         GeneralTuple<PtrContainer, Types..., NewObject> push_back(const NewObject &);
 
-        template <typename NewObject, typename... Args>
-        GeneralTuple<PtrContainer, Types..., NewObject> emplace_back(Args&&...);
+        template <typename NewObject, typename... Seq>
+        GeneralTuple<PtrContainer, Types..., NewObject> emplace_back(Seq&&...);
 
-        template <typename NewObject, typename... Args>
-        GeneralTuple<PtrContainer, Types..., NewObject> emplace_back(const Args &...);
+        template <typename NewObject, typename... Seq>
+        GeneralTuple<PtrContainer, Types..., NewObject> emplace_back(const Seq &...);
 
         Objects raw_objects();
 
@@ -2707,11 +2707,11 @@ namespace tefri
         template <typename NewObject>
         GeneralTuple<PtrContainer, NewObject> push_back(const NewObject &);
 
-        template <typename NewObject, typename... Args>
-        GeneralTuple<PtrContainer, NewObject> emplace_back(Args&&...);
+        template <typename NewObject, typename... Seq>
+        GeneralTuple<PtrContainer, NewObject> emplace_back(Seq&&...);
 
-        template <typename NewObject, typename... Args>
-        GeneralTuple<PtrContainer, NewObject> emplace_back(const Args &...);
+        template <typename NewObject, typename... Seq>
+        GeneralTuple<PtrContainer, NewObject> emplace_back(const Seq &...);
 
         Objects raw_objects();
 
@@ -2750,23 +2750,23 @@ namespace tefri
 
 namespace std
 {
-    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    class tuple_element<INDEX, tefri::GeneralTuple<PtrContainer, Args...>>
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Seq>
+    class tuple_element<INDEX, tefri::GeneralTuple<PtrContainer, Seq...>>
     {
     public:
-        using type = std::tuple_element_t<INDEX, metaxxa::TypeTuple<Args...>>;
+        using type = std::tuple_element_t<INDEX, metaxxa::TypeTuple<Seq...>>;
     };
 
-    template <template <typename, typename...> typename PtrContainer, typename... Args>
-    class tuple_size<tefri::GeneralTuple<PtrContainer, Args...>> 
-        : public std::integral_constant<std::size_t, sizeof...(Args)>
+    template <template <typename, typename...> typename PtrContainer, typename... Seq>
+    class tuple_size<tefri::GeneralTuple<PtrContainer, Seq...>> 
+        : public std::integral_constant<std::size_t, sizeof...(Seq)>
     {};
 
-    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    auto &get(tefri::GeneralTuple<PtrContainer, Args...> &);
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Seq>
+    auto &get(tefri::GeneralTuple<PtrContainer, Seq...> &);
 
-    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    const auto &get(const tefri::GeneralTuple<PtrContainer, Args...> &);
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Seq>
+    const auto &get(const tefri::GeneralTuple<PtrContainer, Seq...> &);
 }
 
 #endif // TEFRI_TUPLE_H
@@ -2785,16 +2785,16 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...>::GeneralTuple()
+    GeneralTuple<PtrContainer, Seq...>::GeneralTuple()
     : objects
     (
         std::make_shared<Container>
         (
             std::initializer_list<std::shared_ptr<void>> 
             {
-                std::static_pointer_cast<void>(std::make_shared<Args>())...
+                std::static_pointer_cast<void>(std::make_shared<Seq>())...
             }
         )
     ),
@@ -2804,16 +2804,16 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...>::GeneralTuple(Args&&... args)
+    GeneralTuple<PtrContainer, Seq...>::GeneralTuple(Seq&&... args)
     : objects
     (
         std::make_shared<Container>
         (
             std::initializer_list<std::shared_ptr<void>> 
             {
-                std::static_pointer_cast<void>(std::make_shared<Args>(std::forward<Args>(args)))...
+                std::static_pointer_cast<void>(std::make_shared<Seq>(std::forward<Seq>(args)))...
             }
         )
     ),
@@ -2823,16 +2823,16 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...>::GeneralTuple(const Args &... args)
+    GeneralTuple<PtrContainer, Seq...>::GeneralTuple(const Seq &... args)
     : objects
     (
         std::make_shared<Container>
         (
             std::initializer_list<std::shared_ptr<void>> 
             {
-                std::static_pointer_cast<void>(std::make_shared<Args>(args))...
+                std::static_pointer_cast<void>(std::make_shared<Seq>(args))...
             }
         )
     ),
@@ -2842,18 +2842,18 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...>::GeneralTuple(Args*... args)
-    : GeneralTuple(std::shared_ptr<Args>(args)...)
+    GeneralTuple<PtrContainer, Seq...>::GeneralTuple(Seq*... args)
+    : GeneralTuple(std::shared_ptr<Seq>(args)...)
     {}
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...>::GeneralTuple(std::shared_ptr<Args>... args)
+    GeneralTuple<PtrContainer, Seq...>::GeneralTuple(std::shared_ptr<Seq>... args)
     : objects
     (
         std::make_shared<Container>
@@ -2870,47 +2870,47 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...>::GeneralTuple(const GeneralTuple &o)
+    GeneralTuple<PtrContainer, Seq...>::GeneralTuple(const GeneralTuple &o)
     : objects(std::make_shared<Container>(*o.objects)), offset(o.offset)
     {}
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...>::GeneralTuple(GeneralTuple &&o)
+    GeneralTuple<PtrContainer, Seq...>::GeneralTuple(GeneralTuple &&o)
     : objects(std::move(o.objects)), offset(o.offset)
     {}
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...>::~GeneralTuple()
+    GeneralTuple<PtrContainer, Seq...>::~GeneralTuple()
     {}
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...>::GeneralTuple(Objects objects, std::size_t offset)
+    GeneralTuple<PtrContainer, Seq...>::GeneralTuple(Objects objects, std::size_t offset)
     : objects(objects), offset(offset)
     {}
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...> &GeneralTuple<PtrContainer, Args...>::operator=(const GeneralTuple &rhs)
+    GeneralTuple<PtrContainer, Seq...> &GeneralTuple<PtrContainer, Seq...>::operator=(const GeneralTuple &rhs)
     {
         if(this != &rhs)
-            *this = std::move(GeneralTuple<PtrContainer, Args...>(rhs));
+            *this = std::move(GeneralTuple<PtrContainer, Seq...>(rhs));
 
         return *this;
     }
@@ -2918,9 +2918,9 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...> &GeneralTuple<PtrContainer, Args...>::operator=(GeneralTuple &&rhs)
+    GeneralTuple<PtrContainer, Seq...> &GeneralTuple<PtrContainer, Seq...>::operator=(GeneralTuple &&rhs)
     {
         objects = std::move(rhs.objects);
         return *this;
@@ -2929,10 +2929,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t INDEX>
-    auto GeneralTuple<PtrContainer, Args...>::get()
+    auto GeneralTuple<PtrContainer, Seq...>::get()
         -> typename TypeTuple::template Get<INDEX> &
     {
         return *get_ptr<INDEX>();
@@ -2941,10 +2941,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t INDEX>
-    auto GeneralTuple<PtrContainer, Args...>::get() const
+    auto GeneralTuple<PtrContainer, Seq...>::get() const
         -> std::add_const_t<typename TypeTuple::template Get<INDEX>> &
     {
         return const_cast<GeneralTuple*>(this)->template get<INDEX>();
@@ -2953,10 +2953,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t INDEX>
-    auto GeneralTuple<PtrContainer, Args...>::get_ptr()
+    auto GeneralTuple<PtrContainer, Seq...>::get_ptr()
         -> std::shared_ptr<typename TypeTuple::template Get<INDEX>>
     {
         return std::static_pointer_cast<typename TypeTuple::template Get<INDEX>>(get_ptr(INDEX));        
@@ -2965,10 +2965,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t INDEX>
-    auto GeneralTuple<PtrContainer, Args...>::get_ptr() const
+    auto GeneralTuple<PtrContainer, Seq...>::get_ptr() const
         -> std::shared_ptr<std::add_const_t<typename TypeTuple::template Get<INDEX>>>
     {
         return const_cast<GeneralTuple>(this)->template get_ptr<INDEX>();
@@ -2977,9 +2977,9 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    std::shared_ptr<void> GeneralTuple<PtrContainer, Args...>::get_ptr(std::size_t index)
+    std::shared_ptr<void> GeneralTuple<PtrContainer, Seq...>::get_ptr(std::size_t index)
     {
         assert(index < objects->size());
 
@@ -2989,9 +2989,9 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    std::shared_ptr<const void> GeneralTuple<PtrContainer, Args...>::get_ptr(std::size_t index) const
+    std::shared_ptr<const void> GeneralTuple<PtrContainer, Seq...>::get_ptr(std::size_t index) const
     {
         return const_cast<GeneralTuple>(this)->get_ptr(index);
     }
@@ -2999,10 +2999,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t FROM, std::size_t TO>
-    auto GeneralTuple<PtrContainer, Args...>::take_range() const 
+    auto GeneralTuple<PtrContainer, Seq...>::take_range() const 
         -> metaxxa::TakeRange
         <
             DraftTuple<PtrContainer>::template Tuple,
@@ -3025,10 +3025,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t FROM, std::size_t TO>
-    auto GeneralTuple<PtrContainer, Args...>::take_range_shared() const 
+    auto GeneralTuple<PtrContainer, Seq...>::take_range_shared() const 
         -> metaxxa::TakeRange
         <
             DraftTuple<PtrContainer>::template Tuple,
@@ -3049,10 +3049,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t N>
-    auto GeneralTuple<PtrContainer, Args...>::take_first() const 
+    auto GeneralTuple<PtrContainer, Seq...>::take_first() const 
         -> metaxxa::TakeFirst
         <
             DraftTuple<PtrContainer>::template Tuple,
@@ -3066,10 +3066,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t N>
-    auto GeneralTuple<PtrContainer, Args...>::take_first_shared() const 
+    auto GeneralTuple<PtrContainer, Seq...>::take_first_shared() const 
         -> metaxxa::TakeFirst
         <
             DraftTuple<PtrContainer>::template Tuple,
@@ -3083,10 +3083,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t N>
-    auto GeneralTuple<PtrContainer, Args...>::take_last() const 
+    auto GeneralTuple<PtrContainer, Seq...>::take_last() const 
         -> metaxxa::TakeLast
         <
             DraftTuple<PtrContainer>::template Tuple,
@@ -3100,10 +3100,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t N>
-    auto GeneralTuple<PtrContainer, Args...>::take_last_shared() const 
+    auto GeneralTuple<PtrContainer, Seq...>::take_last_shared() const 
         -> metaxxa::TakeLast
         <
             DraftTuple<PtrContainer>::template Tuple,
@@ -3117,10 +3117,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t N>
-    auto GeneralTuple<PtrContainer, Args...>::skip_first() const 
+    auto GeneralTuple<PtrContainer, Seq...>::skip_first() const 
         -> metaxxa::SkipFirst
         <
             DraftTuple<PtrContainer>::template Tuple,
@@ -3134,10 +3134,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t N>
-    auto GeneralTuple<PtrContainer, Args...>::skip_first_shared() const 
+    auto GeneralTuple<PtrContainer, Seq...>::skip_first_shared() const 
         -> metaxxa::SkipFirst
         <
             DraftTuple<PtrContainer>::template Tuple,
@@ -3151,10 +3151,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t N>
-    auto GeneralTuple<PtrContainer, Args...>::skip_last() const 
+    auto GeneralTuple<PtrContainer, Seq...>::skip_last() const 
         -> metaxxa::SkipLast
         <
             DraftTuple<PtrContainer>::template Tuple,
@@ -3168,10 +3168,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <std::size_t N>
-    auto GeneralTuple<PtrContainer, Args...>::skip_last_shared() const 
+    auto GeneralTuple<PtrContainer, Seq...>::skip_last_shared() const 
         -> metaxxa::SkipLast
         <
             DraftTuple<PtrContainer>::template Tuple,
@@ -3185,57 +3185,57 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <typename T>
-    GeneralTuple<PtrContainer, Args..., T> GeneralTuple<PtrContainer, Args...>::push_back(T &&obj)
+    GeneralTuple<PtrContainer, Seq..., T> GeneralTuple<PtrContainer, Seq...>::push_back(T &&obj)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(std::forward<T>(obj))));
-        return reinterpret<Args..., T>();
+        return reinterpret<Seq..., T>();
     }
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <typename T>
-    GeneralTuple<PtrContainer, Args..., T> GeneralTuple<PtrContainer, Args...>::push_back(const T &obj)
+    GeneralTuple<PtrContainer, Seq..., T> GeneralTuple<PtrContainer, Seq...>::push_back(const T &obj)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(obj)));
-        return reinterpret<Args..., T>();
+        return reinterpret<Seq..., T>();
     }
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <typename T, typename... ArgsT>
-    GeneralTuple<PtrContainer, Args..., T> GeneralTuple<PtrContainer, Args...>::emplace_back(ArgsT&&... args)
+    GeneralTuple<PtrContainer, Seq..., T> GeneralTuple<PtrContainer, Seq...>::emplace_back(ArgsT&&... args)
     {
-        objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(std::forward<Args>(args)...)));
-        return reinterpret<Args..., T>();
+        objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(std::forward<Seq>(args)...)));
+        return reinterpret<Seq..., T>();
     }
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <typename T, typename... ArgsT>
-    GeneralTuple<PtrContainer, Args..., T> GeneralTuple<PtrContainer, Args...>::emplace_back(const ArgsT &... args)
+    GeneralTuple<PtrContainer, Seq..., T> GeneralTuple<PtrContainer, Seq...>::emplace_back(const ArgsT &... args)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<T>(args...)));
-        return reinterpret<Args..., T>();
+        return reinterpret<Seq..., T>();
     }
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    typename GeneralTuple<PtrContainer, Args...>::Objects GeneralTuple<PtrContainer, Args...>::raw_objects()
+    typename GeneralTuple<PtrContainer, Seq...>::Objects GeneralTuple<PtrContainer, Seq...>::raw_objects()
     {
         return objects;
     }
@@ -3243,9 +3243,9 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    const typename GeneralTuple<PtrContainer, Args...>::Objects GeneralTuple<PtrContainer, Args...>::raw_objects() const
+    const typename GeneralTuple<PtrContainer, Seq...>::Objects GeneralTuple<PtrContainer, Seq...>::raw_objects() const
     {
         return const_cast<GeneralTuple>(this)->objects();
     }
@@ -3253,9 +3253,9 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    GeneralTuple<PtrContainer, Args...> GeneralTuple<PtrContainer, Args...>::share()
+    GeneralTuple<PtrContainer, Seq...> GeneralTuple<PtrContainer, Seq...>::share()
     {
         return GeneralTuple(objects);
     }
@@ -3263,9 +3263,9 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
-    const GeneralTuple<PtrContainer, Args...> GeneralTuple<PtrContainer, Args...>::share() const
+    const GeneralTuple<PtrContainer, Seq...> GeneralTuple<PtrContainer, Seq...>::share() const
     {
         return GeneralTuple(objects);
     }
@@ -3273,10 +3273,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <typename... NewTypes>
-    GeneralTuple<PtrContainer, NewTypes...> GeneralTuple<PtrContainer, Args...>::reinterpret()
+    GeneralTuple<PtrContainer, NewTypes...> GeneralTuple<PtrContainer, Seq...>::reinterpret()
     {
         return GeneralTuple<PtrContainer, NewTypes...>(objects);
     }
@@ -3284,10 +3284,10 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <typename... NewTypes>
-    const GeneralTuple<PtrContainer, NewTypes...> GeneralTuple<PtrContainer, Args...>::reinterpret() const
+    const GeneralTuple<PtrContainer, NewTypes...> GeneralTuple<PtrContainer, Seq...>::reinterpret() const
     {
         return const_cast<GeneralTuple>(this)->template reinterpret<NewTypes...>();
     }
@@ -3295,45 +3295,45 @@ namespace tefri
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <typename Callable>
-    auto GeneralTuple<PtrContainer, Args...>::apply(const Callable &callable) const
+    auto GeneralTuple<PtrContainer, Seq...>::apply(const Callable &callable) const
     {
-        return detail::apply<const GeneralTuple<PtrContainer, Args...> &, const Callable &>(*this, callable, std::make_index_sequence<size()>());
+        return detail::apply<const GeneralTuple<PtrContainer, Seq...> &, const Callable &>(*this, callable, std::make_index_sequence<size()>());
     }
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <typename Callable>
-    auto GeneralTuple<PtrContainer, Args...>::apply(Callable &callable) const
+    auto GeneralTuple<PtrContainer, Seq...>::apply(Callable &callable) const
     {
-        return detail::apply<const GeneralTuple<PtrContainer, Args...> &, Callable &>(*this, callable, std::make_index_sequence<size()>());
+        return detail::apply<const GeneralTuple<PtrContainer, Seq...> &, Callable &>(*this, callable, std::make_index_sequence<size()>());
     }
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <typename Callable>
-    auto GeneralTuple<PtrContainer, Args...>::apply(const Callable &callable)
+    auto GeneralTuple<PtrContainer, Seq...>::apply(const Callable &callable)
     {
-        return detail::apply<GeneralTuple<PtrContainer, Args...> &, const Callable &>(*this, callable, std::make_index_sequence<size()>());
+        return detail::apply<GeneralTuple<PtrContainer, Seq...> &, const Callable &>(*this, callable, std::make_index_sequence<size()>());
     }
 
     template 
     <
         template <typename, typename...> typename PtrContainer,
-        typename... Args
+        typename... Seq
     >
     template <typename Callable>
-    auto GeneralTuple<PtrContainer, Args...>::apply(Callable &callable)
+    auto GeneralTuple<PtrContainer, Seq...>::apply(Callable &callable)
     {
-        return detail::apply<GeneralTuple<PtrContainer, Args...> &, Callable &>(*this, callable, std::make_index_sequence<size()>());
+        return detail::apply<GeneralTuple<PtrContainer, Seq...> &, Callable &>(*this, callable, std::make_index_sequence<size()>());
     }
 
     // empty spec //
@@ -3422,10 +3422,10 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    template <typename NewObject, typename... Args>
-    GeneralTuple<PtrContainer, NewObject> GeneralTuple<PtrContainer>::emplace_back(Args&&... args)
+    template <typename NewObject, typename... Seq>
+    GeneralTuple<PtrContainer, NewObject> GeneralTuple<PtrContainer>::emplace_back(Seq&&... args)
     {
-        objects->push_back(std::static_pointer_cast<void>(std::make_shared<NewObject>(std::forward<Args>(args)...)));
+        objects->push_back(std::static_pointer_cast<void>(std::make_shared<NewObject>(std::forward<Seq>(args)...)));
         return reinterpret<NewObject>();
     }
 
@@ -3433,8 +3433,8 @@ namespace tefri
     <
         template <typename, typename...> typename PtrContainer
     >
-    template <typename NewObject, typename... Args>
-    GeneralTuple<PtrContainer, NewObject> GeneralTuple<PtrContainer>::emplace_back(const Args &... args)
+    template <typename NewObject, typename... Seq>
+    GeneralTuple<PtrContainer, NewObject> GeneralTuple<PtrContainer>::emplace_back(const Seq &... args)
     {
         objects->push_back(std::static_pointer_cast<void>(std::make_shared<NewObject>(args...)));
         return reinterpret<NewObject>();
@@ -3521,14 +3521,14 @@ namespace tefri
 
 namespace std
 {
-    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    auto &get(tefri::GeneralTuple<PtrContainer, Args...> &tuple)
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Seq>
+    auto &get(tefri::GeneralTuple<PtrContainer, Seq...> &tuple)
     {
         return tuple.template get<INDEX>();
     }
 
-    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    const auto &get(const tefri::GeneralTuple<PtrContainer, Args...> &tuple)
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Seq>
+    const auto &get(const tefri::GeneralTuple<PtrContainer, Seq...> &tuple)
     {
         return tuple.template get<INDEX>();
     }
@@ -3562,14 +3562,14 @@ namespace tefri
     class MonadBase<Monad, Tuple<>>
     {
     public:
-        template <typename... Args>
-        void operator()(Args&&... args)
+        template <typename... Seq>
+        void operator()(Seq&&... args)
         {
-            *(static_cast<Monad*>(this))(std::forward<Args>(args)...);
+            *(static_cast<Monad*>(this))(std::forward<Seq>(args)...);
         }
 
-        template <typename... Args>
-        void operator()(const Args &... args)
+        template <typename... Seq>
+        void operator()(const Seq &... args)
         {
             *(static_cast<Monad*>(this))(args...);
         }
@@ -3583,14 +3583,14 @@ namespace tefri
 #define TEFRI_DETAIL_INVOKER_H
 
 
-#ifndef TEFRI_ARGS_H
-#define TEFRI_ARGS_H
+#ifndef TEFRI_SEQ_H
+#define TEFRI_SEQ_H
 
 
 namespace tefri
 {
     template <typename... Ts>
-    struct Args
+    struct Seq
     {
         using type = metaxxa::TypeList<Ts...>;
     };
@@ -3599,19 +3599,19 @@ namespace tefri
 namespace std
 {
     template <std::size_t INDEX, typename... Ts>
-    class tuple_element<INDEX, tefri::Args<Ts...>>
+    class tuple_element<INDEX, tefri::Seq<Ts...>>
     {
     public:
-        using type = std::tuple_element_t<INDEX, typename tefri::Args<Ts...>::type>;
+        using type = std::tuple_element_t<INDEX, typename tefri::Seq<Ts...>::type>;
     };
 
     template <typename... Ts>
-    class tuple_size<tefri::Args<Ts...>> 
-        : public std::integral_constant<std::size_t, std::tuple_size_v<typename tefri::Args<Ts...>::type>>
+    class tuple_size<tefri::Seq<Ts...>> 
+        : public std::integral_constant<std::size_t, std::tuple_size_v<typename tefri::Seq<Ts...>::type>>
     {};
 }
 
-#endif // TEFRI_ARGS_H
+#endif // TEFRI_SEQ_H
 
 namespace tefri
 {   
@@ -3640,7 +3640,7 @@ namespace tefri
         using UnwrapHolder = typename Holder::Object;
 
         inline auto type_getter = [](auto &&next_monad, const auto &... arg_holders)
-            -> Args<UnwrapHolder<std::remove_cv_t<std::remove_reference_t<decltype(arg_holders)>>>...>
+            -> Seq<UnwrapHolder<std::remove_cv_t<std::remove_reference_t<decltype(arg_holders)>>>...>
         { throw; };
 
         template <std::size_t N, typename Variants, typename... Functions>
@@ -3655,11 +3655,11 @@ namespace tefri
             >
         >;
 
-        template <typename Monad, typename... Args>
+        template <typename Monad, typename... Seq>
         struct MonadInvoker
         {
         public:
-            static auto invoke(const Monad &monad, const Args &... args)
+            static auto invoke(const Monad &monad, const Seq &... args)
             {
                 auto hold = [](const auto &arg)
                 { 
@@ -3686,11 +3686,11 @@ namespace tefri
             }
         };
 
-        template <typename InputTupleVariants, typename... Args>
-        struct MonadInvoker<Monad<InputTupleVariants>, Args...>
+        template <typename InputTupleVariants, typename... Seq>
+        struct MonadInvoker<Monad<InputTupleVariants>, Seq...>
         {
         public:
-            static void invoke(const Monad<InputTupleVariants> &, const Args &...)
+            static void invoke(const Monad<InputTupleVariants> &, const Seq &...)
             {}
         };
 
@@ -3702,10 +3702,10 @@ namespace tefri
             template <typename Variant>
             struct VariantMapper
             {
-                template <typename... Args>
+                template <typename... Seq>
                 struct Mapper
                 {
-                    using type = decltype(MonadInvoker<TypeGetterMonad, Args...>::invoke(std::declval<TypeGetterMonad>(), std::declval<Args>()...));
+                    using type = decltype(MonadInvoker<TypeGetterMonad, Seq...>::invoke(std::declval<TypeGetterMonad>(), std::declval<Seq>()...));
                 };
 
                 using type = typename metaxxa::MoveParameters<Mapper, Variant>::type;
@@ -3717,8 +3717,8 @@ namespace tefri
 
             using type = metaxxa::Filter
             < 
-                Args,
-                metaxxa::Map<Args, Variants, VariantMapper>,
+                Seq,
+                metaxxa::Map<Seq, Variants, VariantMapper>,
                 NotVoid
             >;
         };
@@ -3726,7 +3726,7 @@ namespace tefri
         template <std::size_t N, typename Variants, typename... Functions>
         using NextMonadVariants = metaxxa::Unique
         <
-            Args,
+            Seq,
             typename MonadVariantMapper
             <
                 TypeGetterMonad<N, Variants, Functions...>
@@ -3741,15 +3741,15 @@ namespace tefri
 {
     namespace detail
     {
-        template <typename Monad, typename... Args>
+        template <typename Monad, typename... Seq>
         struct MonadInvoker;
 
         template <typename T>
         struct MapArgs 
         {
-            using type = typename metaxxa::If<metaxxa::is_instatiation_of<T, Args>()>
+            using type = typename metaxxa::If<metaxxa::is_instatiation_of<T, Seq>()>
                 ::template Then<T>
-                ::template Else<Args<T>>
+                ::template Else<Seq<T>>
                 ::Type;
         };
 
@@ -3758,8 +3758,8 @@ namespace tefri
         <
             metaxxa::Map
             <
-                Args,
-                Args<RawVariants...>,
+                Seq,
+                Seq<RawVariants...>,
                 detail::MapArgs
             >
         >;
@@ -3768,7 +3768,7 @@ namespace tefri
     template <typename Variants, typename... Functions>
     class Monad final : public MonadBase<Monad<Variants, Functions...>, Variants>
     {
-        static_assert(!std::is_same_v<Variants, Args<void>>);
+        static_assert(!std::is_same_v<Variants, Seq<void>>);
         static_assert(!std::is_same_v<Variants, void>);
 
         using FunctionsTuple    = Tuple<Functions...>;
@@ -3812,14 +3812,14 @@ namespace tefri
         auto operator>>(Function &) && 
             -> Monad<Variants, Functions..., Function>;
 
-        template <typename... Args>
-        auto operator()(const Args &... args) const;
+        template <typename... Seq>
+        auto operator()(const Seq &... args) const;
 
     private:
         template <std::size_t N>
         using RawNextMonad = metaxxa::TakeRange
         <
-            DraftMonad<Args<>>::template Monad,
+            DraftMonad<Seq<>>::template Monad,
             metaxxa::TypeTuple<Functions...>,
             N, sizeof...(Functions)
         >;
@@ -3830,7 +3830,7 @@ namespace tefri
         template <typename... AnotherVariants>
         friend auto monad() -> detail::MonadFromRawVariants<AnotherVariants...>;
 
-        template <typename Monad, typename... Args>
+        template <typename Monad, typename... Seq>
         friend struct detail::MonadInvoker;
 
         FunctionsTuplePtr functions;
@@ -3889,10 +3889,10 @@ namespace tefri
     }
 
     template <typename Types, typename... Functions>
-    template <typename... Args>
-    auto Monad<Types, Functions...>::operator()(const Args &... args) const
+    template <typename... Seq>
+    auto Monad<Types, Functions...>::operator()(const Seq &... args) const
     {
-        return detail::MonadInvoker<Monad<Types, Functions...>, Args...>
+        return detail::MonadInvoker<Monad<Types, Functions...>, Seq...>
             ::invoke(*this, args...);
     }
 
@@ -4089,8 +4089,8 @@ namespace tefri
     public:
         using Mapping<Callable>::Mapping;
 
-        template <typename Next, typename... Args>
-        auto operator()(Next &&, const Args &...);
+        template <typename Next, typename... Seq>
+        auto operator()(Next &&, const Seq &...);
     };
 
     template <typename Callable>
@@ -4099,8 +4099,8 @@ namespace tefri
     public:
         using Mapping<Callable>::Mapping;
 
-        template <typename Next, typename... Args>
-        auto operator()(Next &&, const Args &...);
+        template <typename Next, typename... Seq>
+        auto operator()(Next &&, const Seq &...);
     };
 
     template <typename Callable>
@@ -4127,16 +4127,16 @@ namespace tefri
 namespace tefri
 {
     template <typename Callable>
-    template <typename Next, typename... Args>
-    auto Map<Callable>::operator()(Next &&next, const Args &... args)
+    template <typename Next, typename... Seq>
+    auto Map<Callable>::operator()(Next &&next, const Seq &... args)
     {
         if constexpr(std::is_invocable_v<Callable, decltype(detail::unwrap(args))...>)
             return next(std::invoke(this->callable, detail::unwrap_ref(args)...));
     }
 
     template <typename Callable>
-    template <typename Next, typename... Args>
-    auto MapSeq<Callable>::operator()(Next &&next, const Args &... args)
+    template <typename Next, typename... Seq>
+    auto MapSeq<Callable>::operator()(Next &&next, const Seq &... args)
     {
         if constexpr((std::is_invocable_v<Callable, decltype(detail::unwrap(args))> && ...))
             return next(std::invoke(this->callable, detail::unwrap_ref(args))...);
@@ -4197,8 +4197,8 @@ namespace tefri
     public:
         using Mapping<Callable>::Mapping;
 
-        template <typename Next, typename... Args>
-        auto operator()(Next &&, const Args &...);
+        template <typename Next, typename... Seq>
+        auto operator()(Next &&, const Seq &...);
     };
 
     template <typename Callable>
@@ -4207,8 +4207,8 @@ namespace tefri
     public:
         using Mapping<Callable>::Mapping;
 
-        template <typename Next, typename... Args>
-        auto operator()(Next &&, const Args &...);
+        template <typename Next, typename... Seq>
+        auto operator()(Next &&, const Seq &...);
     };
 
     template <typename Callable>
@@ -4235,8 +4235,8 @@ namespace tefri
 namespace tefri
 {
     template <typename Callable>
-    template <typename Next, typename... Args>
-    auto Filter<Callable>::operator()(Next &&next, const Args &... args)
+    template <typename Next, typename... Seq>
+    auto Filter<Callable>::operator()(Next &&next, const Seq &... args)
     {
         if constexpr(std::is_invocable_v<Callable, decltype(detail::unwrap(args))...>)
         {
@@ -4246,8 +4246,8 @@ namespace tefri
     }
 
     template <typename Callable>
-    template <typename Next, typename... Args>
-    auto FilterSeq<Callable>::operator()(Next &&next, const Args &... args)
+    template <typename Next, typename... Seq>
+    auto FilterSeq<Callable>::operator()(Next &&next, const Seq &... args)
     {
         if constexpr((std::is_invocable_v<Callable, decltype(detail::unwrap(args))> && ...))
         {

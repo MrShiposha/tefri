@@ -11,8 +11,8 @@ namespace tefri
     public:
         using Mapping<Callable>::Mapping;
 
-        template <typename Next, typename... Args>
-        auto operator()(Next &&, const Args &...);
+        template <typename Next, typename... Seq>
+        auto operator()(Next &&, const Seq &...);
     };
 
     template <typename Callable>
@@ -21,8 +21,8 @@ namespace tefri
     public:
         using Mapping<Callable>::Mapping;
 
-        template <typename Next, typename... Args>
-        auto operator()(Next &&, const Args &...);
+        template <typename Next, typename... Seq>
+        auto operator()(Next &&, const Seq &...);
     };
 
     template <typename Callable>

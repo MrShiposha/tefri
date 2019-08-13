@@ -185,11 +185,11 @@ namespace tefri
         template <typename NewObject>
         GeneralTuple<PtrContainer, Types..., NewObject> push_back(const NewObject &);
 
-        template <typename NewObject, typename... Args>
-        GeneralTuple<PtrContainer, Types..., NewObject> emplace_back(Args&&...);
+        template <typename NewObject, typename... Seq>
+        GeneralTuple<PtrContainer, Types..., NewObject> emplace_back(Seq&&...);
 
-        template <typename NewObject, typename... Args>
-        GeneralTuple<PtrContainer, Types..., NewObject> emplace_back(const Args &...);
+        template <typename NewObject, typename... Seq>
+        GeneralTuple<PtrContainer, Types..., NewObject> emplace_back(const Seq &...);
 
         Objects raw_objects();
 
@@ -263,11 +263,11 @@ namespace tefri
         template <typename NewObject>
         GeneralTuple<PtrContainer, NewObject> push_back(const NewObject &);
 
-        template <typename NewObject, typename... Args>
-        GeneralTuple<PtrContainer, NewObject> emplace_back(Args&&...);
+        template <typename NewObject, typename... Seq>
+        GeneralTuple<PtrContainer, NewObject> emplace_back(Seq&&...);
 
-        template <typename NewObject, typename... Args>
-        GeneralTuple<PtrContainer, NewObject> emplace_back(const Args &...);
+        template <typename NewObject, typename... Seq>
+        GeneralTuple<PtrContainer, NewObject> emplace_back(const Seq &...);
 
         Objects raw_objects();
 
@@ -306,23 +306,23 @@ namespace tefri
 
 namespace std
 {
-    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    class tuple_element<INDEX, tefri::GeneralTuple<PtrContainer, Args...>>
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Seq>
+    class tuple_element<INDEX, tefri::GeneralTuple<PtrContainer, Seq...>>
     {
     public:
-        using type = std::tuple_element_t<INDEX, metaxxa::TypeTuple<Args...>>;
+        using type = std::tuple_element_t<INDEX, metaxxa::TypeTuple<Seq...>>;
     };
 
-    template <template <typename, typename...> typename PtrContainer, typename... Args>
-    class tuple_size<tefri::GeneralTuple<PtrContainer, Args...>> 
-        : public std::integral_constant<std::size_t, sizeof...(Args)>
+    template <template <typename, typename...> typename PtrContainer, typename... Seq>
+    class tuple_size<tefri::GeneralTuple<PtrContainer, Seq...>> 
+        : public std::integral_constant<std::size_t, sizeof...(Seq)>
     {};
 
-    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    auto &get(tefri::GeneralTuple<PtrContainer, Args...> &);
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Seq>
+    auto &get(tefri::GeneralTuple<PtrContainer, Seq...> &);
 
-    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Args>
-    const auto &get(const tefri::GeneralTuple<PtrContainer, Args...> &);
+    template <std::size_t INDEX, template <typename, typename...> typename PtrContainer, typename... Seq>
+    const auto &get(const tefri::GeneralTuple<PtrContainer, Seq...> &);
 }
 
 #endif // TEFRI_TUPLE_H

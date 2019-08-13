@@ -12,15 +12,15 @@ namespace tefri
 {
     namespace detail
     {
-        template <typename Monad, typename... Args>
+        template <typename Monad, typename... Seq>
         struct MonadInvoker;
 
         template <typename T>
         struct MapArgs 
         {
-            using type = typename metaxxa::If<metaxxa::is_instatiation_of<T, Args>()>
+            using type = typename metaxxa::If<metaxxa::is_instatiation_of<T, Seq>()>
                 ::template Then<T>
-                ::template Else<Args<T>>
+                ::template Else<Seq<T>>
                 ::Type;
         };
 
@@ -29,8 +29,8 @@ namespace tefri
         <
             metaxxa::Map
             <
-                Args,
-                Args<RawVariants...>,
+                Seq,
+                Seq<RawVariants...>,
                 detail::MapArgs
             >
         >;
@@ -39,7 +39,7 @@ namespace tefri
     template <typename Variants, typename... Functions>
     class Monad final : public MonadBase<Monad<Variants, Functions...>, Variants>
     {
-        static_assert(!std::is_same_v<Variants, Args<void>>);
+        static_assert(!std::is_same_v<Variants, Seq<void>>);
         static_assert(!std::is_same_v<Variants, void>);
 
         using FunctionsTuple    = Tuple<Functions...>;
@@ -83,14 +83,14 @@ namespace tefri
         auto operator>>(Function &) && 
             -> Monad<Variants, Functions..., Function>;
 
-        template <typename... Args>
-        auto operator()(const Args &... args) const;
+        template <typename... Seq>
+        auto operator()(const Seq &... args) const;
 
     private:
         template <std::size_t N>
         using RawNextMonad = metaxxa::TakeRange
         <
-            DraftMonad<Args<>>::template Monad,
+            DraftMonad<Seq<>>::template Monad,
             metaxxa::TypeTuple<Functions...>,
             N, sizeof...(Functions)
         >;
@@ -101,7 +101,7 @@ namespace tefri
         template <typename... AnotherVariants>
         friend auto monad() -> detail::MonadFromRawVariants<AnotherVariants...>;
 
-        template <typename Monad, typename... Args>
+        template <typename Monad, typename... Seq>
         friend struct detail::MonadInvoker;
 
         FunctionsTuplePtr functions;

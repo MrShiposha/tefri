@@ -30,7 +30,7 @@ namespace tefri
         using UnwrapHolder = typename Holder::Object;
 
         inline auto type_getter = [](auto &&next_monad, const auto &... arg_holders)
-            -> Args<UnwrapHolder<std::remove_cv_t<std::remove_reference_t<decltype(arg_holders)>>>...>
+            -> Seq<UnwrapHolder<std::remove_cv_t<std::remove_reference_t<decltype(arg_holders)>>>...>
         { throw; };
 
         template <std::size_t N, typename Variants, typename... Functions>
@@ -45,11 +45,11 @@ namespace tefri
             >
         >;
 
-        template <typename Monad, typename... Args>
+        template <typename Monad, typename... Seq>
         struct MonadInvoker
         {
         public:
-            static auto invoke(const Monad &monad, const Args &... args)
+            static auto invoke(const Monad &monad, const Seq &... args)
             {
                 auto hold = [](const auto &arg)
                 { 
@@ -76,11 +76,11 @@ namespace tefri
             }
         };
 
-        template <typename InputTupleVariants, typename... Args>
-        struct MonadInvoker<Monad<InputTupleVariants>, Args...>
+        template <typename InputTupleVariants, typename... Seq>
+        struct MonadInvoker<Monad<InputTupleVariants>, Seq...>
         {
         public:
-            static void invoke(const Monad<InputTupleVariants> &, const Args &...)
+            static void invoke(const Monad<InputTupleVariants> &, const Seq &...)
             {}
         };
 
@@ -92,10 +92,10 @@ namespace tefri
             template <typename Variant>
             struct VariantMapper
             {
-                template <typename... Args>
+                template <typename... Seq>
                 struct Mapper
                 {
-                    using type = decltype(MonadInvoker<TypeGetterMonad, Args...>::invoke(std::declval<TypeGetterMonad>(), std::declval<Args>()...));
+                    using type = decltype(MonadInvoker<TypeGetterMonad, Seq...>::invoke(std::declval<TypeGetterMonad>(), std::declval<Seq>()...));
                 };
 
                 using type = typename metaxxa::MoveParameters<Mapper, Variant>::type;
@@ -107,8 +107,8 @@ namespace tefri
 
             using type = metaxxa::Filter
             < 
-                Args,
-                metaxxa::Map<Args, Variants, VariantMapper>,
+                Seq,
+                metaxxa::Map<Seq, Variants, VariantMapper>,
                 NotVoid
             >;
         };
@@ -116,7 +116,7 @@ namespace tefri
         template <std::size_t N, typename Variants, typename... Functions>
         using NextMonadVariants = metaxxa::Unique
         <
-            Args,
+            Seq,
             typename MonadVariantMapper
             <
                 TypeGetterMonad<N, Variants, Functions...>
