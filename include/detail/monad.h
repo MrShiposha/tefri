@@ -1,7 +1,7 @@
 #ifndef TEFRI_DETAIL_INVOKER_H
 #define TEFRI_DETAIL_INVOKER_H
 
-#include "../args.h"
+#include "../seq.h"
 
 namespace tefri
 {   
