@@ -20,8 +20,11 @@ namespace tefri
                 )...
             );
         };
+    }
 
-        inline auto destruct_impl = [](auto &&next, auto&&... args)
+    inline auto destruct() 
+    { 
+        return [](auto &&next, auto&&... args)
         {
             static_assert
             (
@@ -29,18 +32,23 @@ namespace tefri
                 "Can't destruct sequence"
             );
 
-            using Arg = std::tuple_element_t<0, std::tuple<std::decay_t<decltype(detail::unwrap(args))>...>>;
-            
-            return destruct_impl_indices<Arg>
+            return [](auto &&next, auto &&arg)
+            {
+                using Arg = std::decay_t<decltype(detail::unwrap(arg))>;
+
+                return detail::destruct_impl_indices<Arg>
+                (
+                    std::forward<Arg>(arg.get_ref()),
+                    std::forward<std::decay_t<decltype(next)>>(next),
+                    std::make_index_sequence<std::tuple_size_v<Arg>>()
+                );
+            }
             (
-                std::forward<Arg>(args.get_ref()...),
                 std::forward<std::decay_t<decltype(next)>>(next),
-                std::make_index_sequence<std::tuple_size_v<Arg>>()
+                std::forward<std::decay_t<decltype(args)>>(args)...
             );
         };
     }
-
-    inline auto destruct() { return detail::destruct_impl; }
 }
 
 #endif // TEFRI_OPERATOR_DESTRUCT_INC

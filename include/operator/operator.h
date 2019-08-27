@@ -5,5 +5,6 @@
 #include "map.inc"
 #include "filter.inc"
 #include "destruct.inc"
+#include "construct.inc"
 
 #endif // TEFRI_OPERATOR_H

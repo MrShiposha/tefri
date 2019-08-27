@@ -1,13 +1,14 @@
 #include <utility>
 #include <string>
+#include <iostream>
 
-struct TestStruct
+struct TestDestruct
 {
     int a;
     double b;
     char c;
 
-    bool operator==(const TestStruct &rhs) const
+    bool operator==(const TestDestruct &rhs) const
     {
         return a == rhs.a 
             && b == rhs.b
@@ -18,31 +19,31 @@ struct TestStruct
 namespace std
 {
     template <>
-    class tuple_element<0, TestStruct>
+    class tuple_element<0, TestDestruct>
     {
     public: 
-        using type = decltype(TestStruct::a); 
+        using type = decltype(TestDestruct::a); 
     };
 
     template <>
-    class tuple_element<1, TestStruct>
+    class tuple_element<1, TestDestruct>
     {
     public: 
-        using type = decltype(TestStruct::b); 
+        using type = decltype(TestDestruct::b); 
     };
 
     template <>
-    class tuple_element<2, TestStruct>
+    class tuple_element<2, TestDestruct>
     {
     public: 
-        using type = decltype(TestStruct::c); 
+        using type = decltype(TestDestruct::c); 
     };
 
     template <>
-    class tuple_size<TestStruct> : public std::integral_constant<std::size_t, 3> {};
+    class tuple_size<TestDestruct> : public std::integral_constant<std::size_t, 3> {};
 
     template <std::size_t INDEX>
-    auto &get(TestStruct &&obj)
+    auto &get(TestDestruct &&obj)
     {
         if constexpr (INDEX == 0)
             return obj.a;
@@ -57,7 +58,7 @@ namespace std
 
 TEST_CASE("[tefri::destruct]")
 {
-    auto m = tefri::detail::monad<Seq<TestStruct>, Seq<std::pair<std::size_t, std::string>>>()
+    auto m = tefri::detail::monad<Seq<TestDestruct>, Seq<std::pair<std::size_t, std::string>>>()
         >> destruct()
         >> [](auto &&next, auto&&... args)
         {
@@ -70,12 +71,12 @@ TEST_CASE("[tefri::destruct]")
             else if constexpr (sizeof...(args) == 3)
                 REQUIRE
                 (
-                    TestStruct { args.get_ref()... } ==
-                    TestStruct { 42, 3.14, 'c' }
+                    TestDestruct { args.get_ref()... } ==
+                    TestDestruct { 42, 3.14, 'c' }
                 );
             return next();
         };
 
-    m(TestStruct { 42, 3.14, 'c' });
+    m(TestDestruct { 42, 3.14, 'c' });
     m(std::pair<std::size_t, std::string> { 11, "Message" });
 }

@@ -3510,8 +3510,11 @@ namespace tefri
                 )...
             );
         };
+    }
 
-        inline auto destruct_impl = [](auto &&next, auto&&... args)
+    inline auto destruct() 
+    { 
+        return [](auto &&next, auto&&... args)
         {
             static_assert
             (
@@ -3519,21 +3522,56 @@ namespace tefri
                 "Can't destruct sequence"
             );
 
-            using Arg = std::tuple_element_t<0, std::tuple<std::decay_t<decltype(detail::unwrap(args))>...>>;
-            
-            return destruct_impl_indices<Arg>
+            return [](auto &&next, auto &&arg)
+            {
+                using Arg = std::decay_t<decltype(detail::unwrap(arg))>;
+
+                return detail::destruct_impl_indices<Arg>
+                (
+                    std::forward<Arg>(arg.get_ref()),
+                    std::forward<std::decay_t<decltype(next)>>(next),
+                    std::make_index_sequence<std::tuple_size_v<Arg>>()
+                );
+            }
             (
-                std::forward<Arg>(args.get_ref()...),
                 std::forward<std::decay_t<decltype(next)>>(next),
-                std::make_index_sequence<std::tuple_size_v<Arg>>()
+                std::forward<std::decay_t<decltype(args)>>(args)...
             );
         };
     }
-
-    inline auto destruct() { return detail::destruct_impl; }
 }
 
 #endif // TEFRI_OPERATOR_DESTRUCT_INC
+
+#ifndef TEFRI_OPERATOR_CONSTRUCT_INC
+#define TEFRI_OPERATOR_CONSTRUCT_INC
+
+
+namespace tefri
+{
+    template <typename T>
+    inline auto construct()
+    {
+        return [](auto &&next, auto&&... args)
+        {
+            return T { std::forward<std::decay_t<decltype(detail::unwrap(args))>>(args.get_ref())... };
+        };
+    }
+
+    template <template <typename...> typename Template>
+    inline auto construct()
+    {
+        return [](auto &&next, auto&&... args)
+        {
+            return Template
+            <
+                std::decay_t<decltype(detail::unwrap(args))>...
+            > { std::forward<std::decay_t<decltype(detail::unwrap(args))>>(args.get_ref())... };
+        };
+    }
+}
+
+#endif // TEFRI_OPERATOR_CONSTRUCT_INC
 
 #endif // TEFRI_OPERATOR_H
 
