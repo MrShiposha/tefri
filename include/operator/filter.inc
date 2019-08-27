@@ -7,23 +7,23 @@ namespace tefri
 {
     template <typename Callable>
     template <typename Next, typename... Args>
-    auto Filter<Callable>::operator()(Next &&next, const Args &... args)
+    auto Filter<Callable>::operator()(Next &&next, Args&&... args)
     {
         if constexpr(std::is_invocable_v<Callable, decltype(detail::unwrap(args))...>)
         {
             if(std::invoke(this->callable, detail::unwrap_ref(args)...))
-                return next(args...);
+                return next(std::forward<Args>(args)...);
         }
     }
 
     template <typename Callable>
     template <typename Next, typename... Args>
-    auto FilterSeq<Callable>::operator()(Next &&next, const Args &... args)
+    auto FilterSeq<Callable>::operator()(Next &&next, Args&&... args)
     {
         if constexpr((std::is_invocable_v<Callable, decltype(detail::unwrap(args))> && ...))
         {
             if((std::invoke(this->callable, detail::unwrap_ref(args)) && ...))
-                return next(args...);
+                return next(std::forward<Args>(args)...);
         }
     }
 

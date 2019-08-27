@@ -2,7 +2,7 @@
 
 TEST_CASE("[tefri::Map]")
 {
-    auto m = monad() 
+    auto m = tefri::detail::monad<Seq<int, int, int>>() 
         >> map([](int a, int b, int c) { return a + b + c; })
         >> [](auto &&_, const auto &sum_hld)
         {
@@ -17,7 +17,7 @@ TEST_CASE("[tefri::Map]")
 
 TEST_CASE("[tefri::MapSeq]")
 {
-    auto m = monad() 
+    auto m = tefri::detail::monad<Seq<int, int, int, int>>() 
         >> map_seq([](int v) { return v * 10; })
         >> [](auto &&_, auto a, auto b, auto c, auto d)
         {

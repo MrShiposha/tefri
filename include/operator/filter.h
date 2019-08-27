@@ -12,7 +12,7 @@ namespace tefri
         using Mapping<Callable>::Mapping;
 
         template <typename Next, typename... Args>
-        auto operator()(Next &&, const Args &...);
+        auto operator()(Next &&, Args&&...);
     };
 
     template <typename Callable>
@@ -22,7 +22,7 @@ namespace tefri
         using Mapping<Callable>::Mapping;
 
         template <typename Next, typename... Args>
-        auto operator()(Next &&, const Args &...);
+        auto operator()(Next &&, Args&&...);
     };
 
     template <typename Callable>

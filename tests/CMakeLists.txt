@@ -8,8 +8,11 @@ include_directories(
 )
 
 file(GLOB TEST_SRC
-    "*.h"
-    "*.cpp"
+    main.cpp
+    monad.cpp
+    filter.cpp
+    map.cpp
+    testobjectholder.cpp
 )
 
 add_executable(tefri-tests ${TEST_SRC})

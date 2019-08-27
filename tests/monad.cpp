@@ -3,176 +3,176 @@
 #include <string>
 #include <iostream>
 
-TEST_CASE("[tefri::Monad]")
+using namespace tefri;
+using namespace tefri::detail;
+
+TEST_CASE("InputSeqTuple", "[tefri::detail::MonadImpl]")
+{
+    using Fns = std::tuple<>;
+
+    SECTION("Empty")
+    {
+        using M = MonadImpl<Fns, 0>;
+
+        static_assert(std::is_same_v<typename M::InputSeqTuple, std::tuple<>>);
+    }
+
+    SECTION("One")
+    {
+        using M1 = MonadImpl<Fns, 0, Seq<int>>;
+        static_assert(std::is_same_v<typename M1::InputSeqTuple, std::tuple<Seq<int>>>);
+
+        using M2 = MonadImpl<Fns, 0, Seq<int, double>>;
+        static_assert(std::is_same_v<typename M2::InputSeqTuple, std::tuple<Seq<int, double>>>);
+    }
+
+    SECTION("Two")
+    {
+        using M1 = MonadImpl<Fns, 0, Seq<int>, Seq<char>>;
+        static_assert(std::is_same_v<typename M1::InputSeqTuple, std::tuple<Seq<int>, Seq<char>>>);
+
+        using M2 = MonadImpl<Fns, 0, Seq<int, double>, Seq<char>>;
+        static_assert(std::is_same_v<typename M2::InputSeqTuple, std::tuple<Seq<int, double>, Seq<char>>>);
+    }
+}
+
+TEST_CASE("SeqTuple", "[tefri::detail::MonadImpl]")
 {
     SECTION("Empty")
     {
-        auto m = monad();
+        using Fns = std::tuple<>;
+        using M = MonadImpl<Fns, 0, Seq<int>, Seq<double, char>>;
 
-        m(42, 'z');
+        static_assert(std::is_same_v<typename M::template SeqTuple<0>, typename M::InputSeqTuple>);
     }
 
-    SECTION("With functions")
+    SECTION("One | Not unique")
     {
-        bool f1_called = false;
-        bool f2_called = false;
-
-        auto m = monad() >> [&](auto &&next, const auto &i_hld, const auto &c_hld) 
-        { 
-            auto &i = i_hld.get_ref();
-            auto &c = c_hld.get_ref();
-
-            REQUIRE(i == 42);
-            REQUIRE(c == 'z');
-
-            f1_called = true;
-            return next("return(" + std::to_string(i * 10) + ")");
-        }
-        >> [&](auto &&next, const auto &m_hld)
-        {
-            auto &m = m_hld.get_ref();
-
-            REQUIRE(m == "return(420)");
-
-            f2_called = true;
-            return next();
-        };
-
-        m(42, 'z');
-
-        REQUIRE(f1_called);
-        REQUIRE(f2_called);
-    }
-}
-
-TEST_CASE("Test MonadFromRawVariants, [tefri::Monad]")
-{
-    using M = tefri::detail::MonadFromRawVariants<Args<int, char>, char, double>;
-    static_assert(is_same_v<M, Monad<Args<Args<int, char>, Args<char>, Args<double>>>>);
-}
-
-auto f1 = [](auto &&next, const auto &a)
-{
-    return next(std::to_string(a.get_ref()));
-};
-
-auto f2 = [](auto &&next, const auto &str_hld)
-{
-    return next(str_hld.get_ref().c_str());
-};
-
-auto g1 = [](auto &&next, const auto &a_hld, const auto &b_hld)
-{
-    return next(a_hld.get_ref() * 0.01 + b_hld.get_ref());
-};
-
-auto g2 = [](auto &&next, const auto &a_hld)
-{
-    double a = a_hld.get_copy();
-    int int_part = static_cast<int>(a);
-    double frac_part = a - int_part;
-
-    return next(std::to_string(int_part), std::to_string(frac_part));
-};
-
-TEST_CASE("Test NextMonadVariants", "[tefri::Monad]")
-{
-    SECTION("One arg")
-    {
-        auto m = monad<int>() >> f1 >> f2;
+        auto m = monad<Seq<int>, Seq<double, char>>()
+            >> [](auto &&next, auto&&... args)
+            {
+                return next(static_cast<double>((args.get_ref() + ...)));
+            };
 
         using M = decltype(m);
-        using Args0 = typename M::template NextMonadVariants<0>;
-        using Args1 = typename M::template NextMonadVariants<1>;
-        using Args2 = typename M::template NextMonadVariants<2>;
+        using Next = typename M::template Next<1>;
+        using ExpectedSeqTuple = std::tuple<Seq<double>>;
 
-        static_assert(is_same_v<Args0, Args<Args<int>>>);
-        static_assert(is_same_v<Args1, Args<Args<std::string>>>);
-        static_assert(is_same_v<Args2, Args<Args<const char *>>>);
+        static_assert(std::is_same_v<typename M::template SeqTuple<0>, typename M::InputSeqTuple>);
+        static_assert(std::is_same_v<typename M::template SeqTuple<1>, ExpectedSeqTuple>);
+
+        static_assert(std::is_same_v<typename Next::template SeqTuple<0>, ExpectedSeqTuple>);
+        static_assert(std::is_same_v<typename Next::template SeqTuple<-1>, typename M::InputSeqTuple>);
     }
 
-    SECTION("Two args")
+    SECTION("One | Unique")
     {
-        auto m = monad<int, char>() >> f1 >> f2;
+        auto m = monad<Seq<int>, Seq<double, char>>()
+            >> [](auto &&next, auto&&... args)
+            {
+                return next((args.get_ref() + ...));
+            };
 
         using M = decltype(m);
-        using Args0 = typename M::template NextMonadVariants<0>;
-        using Args1 = typename M::template NextMonadVariants<1>;
-        using Args2 = typename M::template NextMonadVariants<2>;
+        using Next = typename M::template Next<1>;
+        using ExpectedSeqTuple = std::tuple<Seq<int>, Seq<double>>;
 
-        static_assert(is_same_v<Args0, Args<Args<int>, Args<char>>>);
-        static_assert(is_same_v<Args1, Args<Args<std::string>>>);
-        static_assert(is_same_v<Args2, Args<Args<const char *>>>);
+        static_assert(std::is_same_v<typename M::template SeqTuple<0>, typename M::InputSeqTuple>);
+        static_assert(std::is_same_v<typename M::template SeqTuple<1>, ExpectedSeqTuple>);
+
+        static_assert(std::is_same_v<typename Next::template SeqTuple<0>, ExpectedSeqTuple>);
+        static_assert(std::is_same_v<typename Next::template SeqTuple<-1>, typename M::InputSeqTuple>);
     }
 
-    SECTION("Nested args")
+    SECTION("One | Unique | Seq")
     {
-        auto m = monad<int, Args<double, double>, char>() >> g1 >> g2;
+        auto m = monad<Seq<int>, Seq<double, char>>()
+            >> [](auto &&next, auto&&... args)
+            {
+                return next(Seq { static_cast<int>(args.get_ref())... });
+            };
 
         using M = decltype(m);
-        using Args0 = typename M::template NextMonadVariants<0>;
-        using Args1 = typename M::template NextMonadVariants<1>;
-        using Args2 = typename M::template NextMonadVariants<2>;
+        using Next = typename M::template Next<1>;
 
-        static_assert(is_same_v<Args0, Args<Args<int>, Args<double, double>, Args<char>>>);
-        static_assert(is_same_v<Args1, Args<Args<double>>>);
-        static_assert(is_same_v<Args2, Args<Args<std::string, std::string>>>);
-    }
-}
+        using ExpectedSeqTuple = std::tuple<Seq<int>, Seq<int, int>>;
 
-TEST_CASE("Test NextMonad", "[tefri::Monad]")
-{
-    using F_1 = decltype(f1);
-    using F_2 = decltype(f2);
+        static_assert(std::is_same_v<typename M::template SeqTuple<0>, typename M::InputSeqTuple>);
+        static_assert(std::is_same_v<typename M::template SeqTuple<1>, ExpectedSeqTuple>);
 
-    SECTION("One arg")
-    {
-        auto m = monad<int>() >> f1 >> f2;
-
-        using M = decltype(m);
-
-        using M_0 = typename M::template NextMonad<0>;
-        using M_1 = typename M::template NextMonad<1>;
-        using M_2 = typename M::template NextMonad<2>;
-
-        static_assert(is_same_v<M_0, M>);
-        static_assert(is_same_v<M_0, Monad<Args<Args<int>>, F_1, F_2>>);
-        static_assert(is_same_v<M_1, Monad<Args<Args<std::string>>, F_2>>);
-        static_assert(is_same_v<M_2, Monad<Args<Args<const char *>>>>);
+        static_assert(std::is_same_v<typename Next::template SeqTuple<0>, ExpectedSeqTuple>);
+        static_assert(std::is_same_v<typename Next::template SeqTuple<-1>, typename M::InputSeqTuple>);
     }
 
-    SECTION("Two args")
+    SECTION("Two | Not unique")
     {
-        auto m = monad<int, char>() >> f1 >> f2;
+        auto m = monad<Seq<int>, Seq<double, char>>()
+            >> [](auto &&next, auto&&... args)
+            {
+                static std::size_t id = 0;
+                return next(Seq { id++, args.get_ref()... });
+            }
+            >> [](auto &&next, const ObjectHolder<std::size_t> &id, auto&&... args)
+            {
+                std::string suffix;
+                ((suffix += "(" + std::to_string(args.get_ref())), ...);
+                suffix += ')';
+                return next(std::to_string(id.get_ref()) + suffix);
+            };
 
         using M = decltype(m);
+        using Next_1 = typename M::template Next<1>;
+        using Next_2 = typename M::template Next<2>;
+        using EST_0 = typename M::InputSeqTuple;
+        using EST_1 = std::tuple<Seq<std::size_t, int>, Seq<std::size_t, double, char>>;
+        using EST_2 = std::tuple<Seq<std::string>>;
 
-        using M_0 = typename M::template NextMonad<0>;
-        using M_1 = typename M::template NextMonad<1>;
-        using M_2 = typename M::template NextMonad<2>;
+        static_assert(std::is_same_v<typename M::template SeqTuple<0>, EST_0>);
+        static_assert(std::is_same_v<typename M::template SeqTuple<1>, EST_1>);
+        static_assert(std::is_same_v<typename M::template SeqTuple<2>, EST_2>);
 
-        static_assert(is_same_v<M_0, M>);
-        static_assert(is_same_v<M_0, Monad<Args<Args<int>, Args<char>>, F_1, F_2>>);
-        static_assert(is_same_v<M_1, Monad<Args<Args<std::string>>, F_2>>);
-        static_assert(is_same_v<M_2, Monad<Args<Args<const char *>>>>);
+        static_assert(std::is_same_v<typename Next_1::template SeqTuple<-1>, EST_0>);
+        static_assert(std::is_same_v<typename Next_1::template SeqTuple<0>, EST_1>);
+        static_assert(std::is_same_v<typename Next_1::template SeqTuple<1>, EST_2>);
+
+        static_assert(std::is_same_v<typename Next_2::template SeqTuple<-2>, EST_0>);
+        static_assert(std::is_same_v<typename Next_2::template SeqTuple<-1>, EST_1>);
+        static_assert(std::is_same_v<typename Next_2::template SeqTuple<0>, EST_2>);
     }
 
-    SECTION("Nested args")
+    SECTION("Two | Unique")
     {
-        auto m = monad<int, Args<double, double>, char>() >> g1 >> g2;
-
-        using G_1 = decltype(g1);
-        using G_2 = decltype(g2);
+        auto m = monad<Seq<int>, Seq<double, char>>()
+            >> [](auto &&next, auto&&... args)
+            {
+                static std::size_t id = 0;
+                return next(Seq { id++, args.get_ref()... });
+            }
+            >> [](auto &&next, const ObjectHolder<std::size_t> &id, auto&&... args)
+            {
+                std::string suffix;
+                ((suffix += "(" + std::to_string(args.get_ref())), ...);
+                suffix += ')';
+                return next(std::to_string(id.get_ref()) + suffix, (&args.get_ref())...);
+            };
 
         using M = decltype(m);
+        using Next_1 = typename M::template Next<1>;
+        using Next_2 = typename M::template Next<2>;
+        using EST_0 = typename M::InputSeqTuple;
+        using EST_1 = std::tuple<Seq<std::size_t, int>, Seq<std::size_t, double, char>>;
+        using EST_2 = std::tuple<Seq<std::string, int*>, Seq<std::string, double*, char*>>;
 
-        using M_0 = typename M::template NextMonad<0>;
-        using M_1 = typename M::template NextMonad<1>;
-        using M_2 = typename M::template NextMonad<2>;
+        static_assert(std::is_same_v<typename M::template SeqTuple<0>, EST_0>);
+        static_assert(std::is_same_v<typename M::template SeqTuple<1>, EST_1>);
+        static_assert(std::is_same_v<typename M::template SeqTuple<2>, EST_2>);
 
-        static_assert(is_same_v<M_0, M>);
-        static_assert(is_same_v<M_0, Monad<Args<Args<int>, Args<double, double>, Args<char>>, G_1, G_2>>);
-        static_assert(is_same_v<M_1, Monad<Args<Args<double>>, G_2>>);
-        static_assert(is_same_v<M_2, Monad<Args<Args<std::string, std::string>>>>);
+        static_assert(std::is_same_v<typename Next_1::template SeqTuple<-1>, EST_0>);
+        static_assert(std::is_same_v<typename Next_1::template SeqTuple<0>, EST_1>);
+        static_assert(std::is_same_v<typename Next_1::template SeqTuple<1>, EST_2>);
+
+        static_assert(std::is_same_v<typename Next_2::template SeqTuple<-2>, EST_0>);
+        static_assert(std::is_same_v<typename Next_2::template SeqTuple<-1>, EST_1>);
+        static_assert(std::is_same_v<typename Next_2::template SeqTuple<0>, EST_2>);
     }
 }

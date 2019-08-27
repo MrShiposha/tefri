@@ -2,7 +2,7 @@
 
 TEST_CASE("[tefri::Filter]")
 {
-    auto m = monad() 
+    auto m = tefri::detail::monad<Seq<int, int>>() 
         >> filter([](int a, int b) { return a > 10 && b < 10; })
         >> [](auto &&_, auto a, auto b)
         {
@@ -18,7 +18,7 @@ TEST_CASE("[tefri::Filter]")
 
 TEST_CASE("[tefri::FilterSeq]")
 {
-    auto m = monad() 
+    auto m = tefri::detail::monad<Seq<int, int>>()
         >> filter_seq([](int a) { return a > 10; })
         >> [](auto &&_, auto a, auto b)
         {
