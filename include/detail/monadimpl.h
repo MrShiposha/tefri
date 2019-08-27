@@ -16,15 +16,19 @@ namespace tefri::detail
     template <typename Monad, typename MonadImpl, typename... Seqs>
     struct MonadImplBase : MonadImplBase<Monad, MonadImpl, Seqs>...
     {
+        static_assert
+        (
+            (metaxxa::is_instatiation_of<Seqs, Seq>() && ...),
+            "Invalid use of monad. Did you forget Seq<...>?"
+        );
+
         using MonadImplBase<Monad, MonadImpl, Seqs>::invoke...;
     };
 
     template <typename Monad, typename MonadImpl, typename... Types>
     struct MonadImplBase<Monad, MonadImpl, Seq<Types...>> 
         : virtual public ::tefri::Monad<Seq<Types...>>
-    {
-        virtual void invoke(Types&&... args) override;
-    };
+    { virtual void invoke(Types&&... args) override; };
 
     template <typename _Functions, std::size_t _INDEX, typename... Seqs>
     struct MonadImpl : public MonadImplBase
