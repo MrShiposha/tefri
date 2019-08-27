@@ -110,7 +110,7 @@ TEST_CASE("SeqTuple", "[tefri::detail::MonadImpl]")
             >> [](auto &&next, auto&&... args)
             {
                 static std::size_t id = 0;
-                return next(Seq { id++, args.get_ref()... });
+                return next(Seq { id++, std::forward<decltype(args)>(args)... });
             }
             >> [](auto &&next, const ObjectHolder<std::size_t> &id, auto&&... args)
             {
@@ -146,7 +146,7 @@ TEST_CASE("SeqTuple", "[tefri::detail::MonadImpl]")
             >> [](auto &&next, auto&&... args)
             {
                 static std::size_t id = 0;
-                return next(Seq { id++, args.get_ref()... });
+                return next(Seq { id++, std::forward<decltype(args)>(args)... });
             }
             >> [](auto &&next, const ObjectHolder<std::size_t> &id, auto&&... args)
             {
