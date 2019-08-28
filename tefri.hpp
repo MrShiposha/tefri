@@ -1470,7 +1470,7 @@ namespace metaxxa
         template <typename> typename Predicate,
         typename TupleT
     >
-    constexpr bool every = Every<Predicate, TupleT>::value;
+    constexpr bool every() { return Every<Predicate, TupleT>::value; }
 }
 
 #endif // METAXXA_ALGORITHM_EVERY_H
@@ -2261,7 +2261,7 @@ namespace metaxxa
         static constexpr bool contains_packed() { return ::metaxxa::contains_packed<T, Tuple>(); }
 
         template <template <typename> typename Predicate>
-        static constexpr bool every() { return ::metaxxa::Every<Predicate, T>::value; }
+        static constexpr bool every() { return ::metaxxa::every<Predicate, T>(); }
 
         static constexpr bool is_parameters_unique() { return ::metaxxa::is_unique<T>(); }
     };
@@ -2605,9 +2605,7 @@ namespace tefri
 {
     template <typename... Seqs>
     struct Monad : public Monad<Seqs>...
-    {
-        using Monad<Seqs>::invoke...;
-    };
+    {};
 
     template <typename... Types>
     struct Monad<Seq<Types...>>
@@ -2906,8 +2904,6 @@ namespace tefri::detail
             (metaxxa::is_instatiation_of<Seqs, Seq>() && ...),
             "Invalid use of monad. Did you forget Seq<...>?"
         );
-
-        using MonadImplBase<Monad, MonadImpl, Seqs>::invoke...;
     };
 
     template <typename Monad, typename MonadImpl, typename... Types>
@@ -2950,7 +2946,14 @@ namespace tefri::detail
         template <long long N>
         using SeqTuple = typename
             metaxxa::Type<InputSeqTuple>
-                ::template Map<SeqMapper<MonadImpl<Functions, 0, Seqs...>, INDEX + N>::template Functor>
+                ::template Map
+                <
+                    SeqMapper
+                    <
+                        MonadImpl<Functions, 0, Seqs...>, 
+                        static_cast<std::size_t>(static_cast<long long>(INDEX) + N)
+                    >::template Functor
+                >
                 ::template Filter<NotVoid>
                 ::Unique
                 ::template MoveParameters<std::tuple>
@@ -3060,7 +3063,7 @@ namespace tefri::detail
     template <typename Monad, typename MonadImpl, typename... Types>
     void MonadImplBase<Monad, MonadImpl, Seq<Types...>>::invoke(Types&&... args)
     {
-        static_cast<MonadImpl*>(this)->invoke(std::forward<Types>(args)...);
+        (*static_cast<MonadImpl*>(this))(std::forward<Types>(args)...);
     }
 
     template <typename Fns, std::size_t I, typename... Seqs>
@@ -3545,6 +3548,10 @@ namespace tefri
             static NotPresent is_present(...);
         };
 
+#ifdef _MSC_VER
+#   pragma warning(push)
+#   pragma warning(disable: 4003)
+#endif // _MSC_VER
         TEFRI_DETAIL_GET_MEMBER_CHECKER(23, 24, TEFRI_DETAIL_DESTRUCT_CHECK_GET(const volatile && noexcept));
         TEFRI_DETAIL_GET_MEMBER_CHECKER(22, 23, TEFRI_DETAIL_DESTRUCT_CHECK_GET(volatile && noexcept));
         TEFRI_DETAIL_GET_MEMBER_CHECKER(21, 22, TEFRI_DETAIL_DESTRUCT_CHECK_GET(const && noexcept));
@@ -3569,6 +3576,9 @@ namespace tefri
         TEFRI_DETAIL_GET_MEMBER_CHECKER(2, 3, TEFRI_DETAIL_DESTRUCT_CHECK_GET(volatile));
         TEFRI_DETAIL_GET_MEMBER_CHECKER(1, 2, TEFRI_DETAIL_DESTRUCT_CHECK_GET(const));
         TEFRI_DETAIL_GET_MEMBER_CHECKER(0, 1, TEFRI_DETAIL_DESTRUCT_CHECK_GET());
+#ifdef _MSC_VER    
+#   pragma warning(pop)
+#endif // _MSC_VER
 
 #undef _T_
 

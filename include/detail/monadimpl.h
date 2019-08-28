@@ -21,8 +21,6 @@ namespace tefri::detail
             (metaxxa::is_instatiation_of<Seqs, Seq>() && ...),
             "Invalid use of monad. Did you forget Seq<...>?"
         );
-
-        using MonadImplBase<Monad, MonadImpl, Seqs>::invoke...;
     };
 
     template <typename Monad, typename MonadImpl, typename... Types>
@@ -65,7 +63,14 @@ namespace tefri::detail
         template <long long N>
         using SeqTuple = typename
             metaxxa::Type<InputSeqTuple>
-                ::template Map<SeqMapper<MonadImpl<Functions, 0, Seqs...>, INDEX + N>::template Functor>
+                ::template Map
+                <
+                    SeqMapper
+                    <
+                        MonadImpl<Functions, 0, Seqs...>, 
+                        static_cast<std::size_t>(static_cast<long long>(INDEX) + N)
+                    >::template Functor
+                >
                 ::template Filter<NotVoid>
                 ::Unique
                 ::template MoveParameters<std::tuple>

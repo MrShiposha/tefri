@@ -63,7 +63,7 @@ namespace tefri::detail
     template <typename Monad, typename MonadImpl, typename... Types>
     void MonadImplBase<Monad, MonadImpl, Seq<Types...>>::invoke(Types&&... args)
     {
-        static_cast<MonadImpl*>(this)->invoke(std::forward<Types>(args)...);
+        (*static_cast<MonadImpl*>(this))(std::forward<Types>(args)...);
     }
 
     template <typename Fns, std::size_t I, typename... Seqs>

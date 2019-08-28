@@ -55,6 +55,10 @@ namespace tefri
             static NotPresent is_present(...);
         };
 
+#ifdef _MSC_VER
+#   pragma warning(push)
+#   pragma warning(disable: 4003)
+#endif // _MSC_VER
         TEFRI_DETAIL_GET_MEMBER_CHECKER(23, 24, TEFRI_DETAIL_DESTRUCT_CHECK_GET(const volatile && noexcept));
         TEFRI_DETAIL_GET_MEMBER_CHECKER(22, 23, TEFRI_DETAIL_DESTRUCT_CHECK_GET(volatile && noexcept));
         TEFRI_DETAIL_GET_MEMBER_CHECKER(21, 22, TEFRI_DETAIL_DESTRUCT_CHECK_GET(const && noexcept));
@@ -79,6 +83,9 @@ namespace tefri
         TEFRI_DETAIL_GET_MEMBER_CHECKER(2, 3, TEFRI_DETAIL_DESTRUCT_CHECK_GET(volatile));
         TEFRI_DETAIL_GET_MEMBER_CHECKER(1, 2, TEFRI_DETAIL_DESTRUCT_CHECK_GET(const));
         TEFRI_DETAIL_GET_MEMBER_CHECKER(0, 1, TEFRI_DETAIL_DESTRUCT_CHECK_GET());
+#ifdef _MSC_VER    
+#   pragma warning(pop)
+#endif // _MSC_VER
 
 #undef _T_
 

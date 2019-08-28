@@ -7,9 +7,7 @@ namespace tefri
 {
     template <typename... Seqs>
     struct Monad : public Monad<Seqs>...
-    {
-        using Monad<Seqs>::invoke...;
-    };
+    {};
 
     template <typename... Types>
     struct Monad<Seq<Types...>>
