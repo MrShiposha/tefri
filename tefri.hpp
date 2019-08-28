@@ -35,6 +35,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string_view>
+#include <cstring>
 #include <string>
 #include <typeinfo>
 
@@ -2693,6 +2694,7 @@ namespace tefri::detail
 }
 
 #endif // TEFRI_DEMANGLE_INC
+
 
 
 #ifndef TEFRI_DETAIL_MONADINVOKER_H
